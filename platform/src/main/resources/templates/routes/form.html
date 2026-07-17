@@ -1,124 +1,47 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route Form - Nawala</title>
-    
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-brand"><img th:src="@{/img/logo.svg}" alt="Nawala" width="32" height="32"/><span>Nawala</span></div></div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Dashboard</span></a>
-            <a href="/routes" class="nav-item active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><span>API Routes</span></a>
-            <a href="/api-keys" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>API Keys</span></a>
-            <a href="/threats" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Threats</span></a>
-            <a href="/health" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health Monitor</span></a>
-            <a href="/profile" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
-        </nav>
-        <div class="sidebar-footer"><form th:action="@{/logout}" method="post"><button type="submit" class="btn-icon" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form></div>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar(''routes'')}"></div>
     <main class="main-content">
-        <header class="top-bar">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-            <div class="page-title"><h1 th:text="${routeId != null} ? 'Edit Route' : 'New Route'">New Route</h1><p>Register a new API endpoint to the gateway</p></div>
-        </header>
+        <div th:replace="~{fragments/header :: header(${routeId != null} ? ''Edit Route'' : ''New Route'', ''Register a new API endpoint to the gateway'')}"></div>
         <div class="content-area">
-            <div class="card" style="max-width: 700px">
-                <div class="card-header"><h3 th:text="${routeId != null} ? 'Edit Route Configuration' : 'Route Configuration'">Route Configuration</h3></div>
+            <div class="card" style="max-width:700px">
+                <div class="card-header"><h3 th:text="${routeId != null} ? ''Edit Route Configuration'' : ''Route Configuration''">Route Configuration</h3></div>
                 <div class="card-body">
-                    <form th:action="${routeId != null} ? @{'/routes/' + ${routeId} + '/edit'} : @{/routes/new}" th:object="${form}" method="post" class="profile-form">
-                        <div class="input-group">
-                            <label for="name">Route Name</label>
-                            <div class="input-wrapper" th:classappend="${#fields.hasErrors('name')} ? 'has-error' : ''">
-                                <input type="text" id="name" th:field="*{name}" placeholder="e.g. User Service" required>
-                            </div>
-                            <span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-                        </div>
-                        <div class="input-group">
-                            <label for="description">Description</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="description" th:field="*{description}" placeholder="Optional description">
-                            </div>
-                        </div>
+                    <form th:action="${routeId != null} ? @{''/routes/'' + ${routeId} + ''/edit''} : @{/routes/new}" th:object="${form}" method="post" class="profile-form">
+                        <div class="input-group"><label for="name">Route Name</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''name'')} ? ''has-error'' : ''''"><input type="text" id="name" th:field="*{name}" placeholder="e.g. User Service" required></div><span class="field-error" th:if="${#fields.hasErrors(''name'')}" th:errors="*{name}"></span></div>
                         <div class="input-row">
-                            <div class="input-group">
-                                <label for="method">HTTP Method</label>
-                                <div class="input-wrapper" th:classappend="${#fields.hasErrors('method')} ? 'has-error' : ''">
-                                    <select id="method" th:field="*{method}" class="form-select">
-                                        <option value="GET">GET</option>
-                                        <option value="POST">POST</option>
-                                        <option value="PUT">PUT</option>
-                                        <option value="PATCH">PATCH</option>
-                                        <option value="DELETE">DELETE</option>
-                                        <option value="*">ALL (*)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label for="path">Path</label>
-                                <div class="input-wrapper" th:classappend="${#fields.hasErrors('path')} ? 'has-error' : ''">
-                                    <input type="text" id="path" th:field="*{path}" placeholder="/api/v1/users/**" required>
-                                </div>
-                                <span class="field-error" th:if="${#fields.hasErrors('path')}" th:errors="*{path}"></span>
-                            </div>
+                            <div class="input-group"><label for="method">HTTP Method</label><div class="input-wrapper"><select id="method" th:field="*{method}"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option><option value="PATCH">PATCH</option></select></div></div>
+                            <div class="input-group"><label for="path">Path Pattern</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''path'')} ? ''has-error'' : ''''"><input type="text" id="path" th:field="*{path}" placeholder="/api/v1/users/**" required></div><span class="field-error" th:if="${#fields.hasErrors(''path'')}" th:errors="*{path}"></span></div>
                         </div>
-                        <div class="input-group">
-                            <label for="targetUrl">Target URL</label>
-                            <div class="input-wrapper" th:classappend="${#fields.hasErrors('targetUrl')} ? 'has-error' : ''">
-                                <input type="url" id="targetUrl" th:field="*{targetUrl}" placeholder="http://localhost:8081/api/users" required>
-                            </div>
-                            <span class="field-error" th:if="${#fields.hasErrors('targetUrl')}" th:errors="*{targetUrl}"></span>
-                        </div>
+                        <div class="input-group"><label for="targetUrl">Target URL</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''targetUrl'')} ? ''has-error'' : ''''"><input type="url" id="targetUrl" th:field="*{targetUrl}" placeholder="http://localhost:8081" required></div><span class="field-error" th:if="${#fields.hasErrors(''targetUrl'')}" th:errors="*{targetUrl}"></span></div>
                         <hr class="divider">
-                        <h4 style="margin-bottom: 1rem; color: var(--text-primary)">Security &amp; Limits</h4>
+                        <h4 style="margin-bottom:1rem;color:var(--text-primary)">Security &amp; Limits</h4>
                         <div class="input-row">
-                            <div class="input-group">
-                                <label class="checkbox-label" style="margin-top: 0.5rem"><input type="checkbox" th:field="*{authRequired}"><span>Require Authentication</span></label>
-                            </div>
-                            <div class="input-group">
-                                <label class="checkbox-label" style="margin-top: 0.5rem"><input type="checkbox" th:field="*{rateLimitEnabled}"><span>Enable Rate Limiting</span></label>
-                            </div>
+                            <div class="input-group"><label class="checkbox-label" style="margin-top:0.5rem"><input type="checkbox" th:field="*{authRequired}"><span>Require Authentication</span></label></div>
+                            <div class="input-group"><label class="checkbox-label" style="margin-top:0.5rem"><input type="checkbox" th:field="*{rateLimitEnabled}"><span>Enable Rate Limiting</span></label></div>
                         </div>
-                        <div class="input-group">
-                            <label for="rateLimitPerMinute">Rate Limit (requests/minute)</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="rateLimitPerMinute" th:field="*{rateLimitPerMinute}" min="1" max="10000" placeholder="60">
-                            </div>
-                        </div>
+                        <div class="input-group"><label for="rateLimitPerMinute">Rate Limit (requests/minute)</label><div class="input-wrapper"><input type="number" id="rateLimitPerMinute" th:field="*{rateLimitPerMinute}" min="1" max="10000" placeholder="60"></div></div>
                         <hr class="divider">
-                        <h4 style="margin-bottom: 1rem; color: var(--text-primary)">Advanced Features</h4>
-                        <div class="input-group">
-                            <label for="maskedPath">Masked Path (Public URL)</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="maskedPath" th:field="*{maskedPath}" placeholder="/public/v1/users/** (optional)">
-                            </div>
-                            <span class="field-hint">Clients will call this URL instead of the real internal path. Leave empty to use the original path.</span>
-                        </div>
-                        <div class="input-group">
-                            <label for="healthCheckUrl">Health Check URL</label>
-                            <div class="input-wrapper">
-                                <input type="url" id="healthCheckUrl" th:field="*{healthCheckUrl}" placeholder="http://localhost:8081/actuator/health (optional)">
-                            </div>
-                            <span class="field-hint">Gateway will ping this endpoint every 60s to monitor service availability.</span>
-                        </div>
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label class="checkbox-label" style="margin-top: 0.5rem"><input type="checkbox" th:field="*{payloadEncryption}"><span>End-to-End Payload Encryption</span></label>
-                                <span class="field-hint">Encrypt request/response body with client's key.</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem">
-                            <button type="submit" class="btn btn-primary"><span th:text="${routeId != null} ? 'Update Route' : 'Register Route'">Register Route</span></button>
+                        <h4 style="margin-bottom:1rem;color:var(--text-primary)">Advanced Features</h4>
+                        <div class="input-group"><label for="maskedPath">Masked Path (Public URL)</label><div class="input-wrapper"><input type="text" id="maskedPath" th:field="*{maskedPath}" placeholder="/public/v1/users/** (optional)"></div><span class="field-hint">Clients will call this URL instead of the real internal path.</span></div>
+                        <div class="input-group"><label for="healthCheckUrl">Health Check URL</label><div class="input-wrapper"><input type="url" id="healthCheckUrl" th:field="*{healthCheckUrl}" placeholder="http://localhost:8081/actuator/health (optional)"></div><span class="field-hint">Gateway will ping this endpoint every 60s to monitor availability.</span></div>
+                        <div class="input-group"><label class="checkbox-label" style="margin-top:0.5rem"><input type="checkbox" th:field="*{payloadEncryption}"><span>End-to-End Payload Encryption</span></label><span class="field-hint">Encrypt request/response body with client''s key.</span></div>
+                        <div style="display:flex;gap:1rem;margin-top:1.5rem">
+                            <button type="submit" class="btn btn-primary"><span th:text="${routeId != null} ? ''Update Route'' : ''Register Route''">Register Route</span></button>
                             <a href="/routes" class="btn btn-outline">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
 </body>

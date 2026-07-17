@@ -3,25 +3,13 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Sandbox - Nawala</title>
-    
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-brand"><img th:src="@{/img/logo.svg}" alt="Nawala" width="32" height="32"/><span>Nawala</span></div></div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
-            <a href="/routes" class="nav-item"><span>API Routes</span></a>
-            <a href="/analytics" class="nav-item"><span>Analytics</span></a>
-            <a href="/waf" class="nav-item"><span>WAF</span></a>
-            <a href="/webhooks" class="nav-item"><span>Webhooks</span></a>
-            <a href="/mocks" class="nav-item active"><span>Sandbox</span></a>
-            <a href="/threats" class="nav-item"><span>Threats</span></a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar(''mocks'')}"></div>
     <main class="main-content">
-        <header class="top-bar"><div class="page-title"><h1>API Sandbox</h1><p>Mock endpoints for testing without a real backend</p></div></header>
+        <div th:replace="~{fragments/header :: header(''API Sandbox'', ''Mock endpoints for testing without a real backend'')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Mock Endpoint</h3></div><div class="card-body">
@@ -30,7 +18,7 @@
                     <div class="form-group"><label>Path</label><input type="text" name="path" required class="form-control" placeholder="/mock/api/users"></div>
                     <div class="form-group"><label>Method</label><select name="method" class="form-control"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select></div>
                     <div class="form-group"><label>Status Code</label><input type="number" name="statusCode" value="200" class="form-control"></div>
-                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder='{"users":[{"id":1,"name":"John"}]}'></textarea></div>
+                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder=''{"users":[{"id":1,"name":"John"}]}''></textarea></div>
                     <div class="form-group"><label>Content Type</label><input type="text" name="contentType" value="application/json" class="form-control"></div>
                     <div class="form-group"><label>Simulated Delay (ms)</label><input type="number" name="delayMs" value="0" class="form-control"></div>
                     <div class="form-actions"><button type="submit" class="btn btn-primary">Create Mock</button></div>
@@ -54,6 +42,7 @@
                 <div class="empty-state" th:if="${mocks.isEmpty()}"><p>No mock endpoints. Create one to start testing.</p></div>
             </div></div>
         </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
 </body>

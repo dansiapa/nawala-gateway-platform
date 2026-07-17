@@ -3,27 +3,13 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OAuth Clients - Nawala</title>
-    
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-brand"><img th:src="@{/img/logo.svg}" alt="Nawala" width="32" height="32"/><span>Nawala</span></div></div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
-            <a href="/routes" class="nav-item"><span>API Routes</span></a>
-            <a href="/api-keys" class="nav-item"><span>API Keys</span></a>
-            <a href="/analytics" class="nav-item"><span>Analytics</span></a>
-            <a href="/oauth-clients" class="nav-item active"><span>OAuth</span></a>
-            <a href="/docs" class="nav-item"><span>API Docs</span></a>
-            <a href="/waf" class="nav-item"><span>WAF</span></a>
-            <a href="/webhooks" class="nav-item"><span>Webhooks</span></a>
-            <a href="/mocks" class="nav-item"><span>Sandbox</span></a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar(''oauth'')}"></div>
     <main class="main-content">
-        <header class="top-bar"><div class="page-title"><h1>OAuth2 Clients</h1><p>Client credentials for machine-to-machine auth</p></div></header>
+        <div th:replace="~{fragments/header :: header(''OAuth2 Clients'', ''Client credentials for machine-to-machine auth'')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Register OAuth Client</h3></div><div class="card-body">
@@ -51,10 +37,11 @@
             <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Token Endpoint</h3></div><div class="card-body">
                 <p>Use <code>POST /oauth/token</code> with params:</p>
                 <pre>grant_type=client_credentials&amp;client_id=YOUR_ID&amp;client_secret=YOUR_SECRET&amp;scope=read</pre>
-                <p>Response:</p>
+                <p style="margin-top:0.75rem">Response:</p>
                 <pre>{"access_token":"...","token_type":"Bearer","expires_in":3600,"scope":"read"}</pre>
             </div></div>
         </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
 </body>

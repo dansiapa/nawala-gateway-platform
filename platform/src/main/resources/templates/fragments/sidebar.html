@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(activePage)" class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="rgba(255,255,255,0.9)"/><path d="M2 17l10 5 10-5" stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none"/><path d="M2 12l10 5 10-5" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/></svg>
+            <span class="brand-text">Nawala</span>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section"><span class="nav-section-title">Main</span>
+            <a href="/dashboard" class="nav-item" th:classappend="${activePage == ''dashboard''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span>Dashboard</span></a>
+            <a href="/routes" class="nav-item" th:classappend="${activePage == ''routes''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><span>API Routes</span></a>
+            <a href="/api-keys" class="nav-item" th:classappend="${activePage == ''apikeys''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>API Keys</span></a>
+            <a href="/analytics" class="nav-item" th:classappend="${activePage == ''analytics''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg><span>Analytics</span></a>
+        </div>
+        <div class="nav-section"><span class="nav-section-title">Services</span>
+            <a href="/oauth-clients" class="nav-item" th:classappend="${activePage == ''oauth''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span>OAuth</span></a>
+            <a href="/docs" class="nav-item" th:classappend="${activePage == ''docs''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span>API Docs</span></a>
+            <a href="/waf" class="nav-item" th:classappend="${activePage == ''waf''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>WAF</span></a>
+            <a href="/webhooks" class="nav-item" th:classappend="${activePage == ''webhooks''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span>Webhooks</span></a>
+            <a href="/mocks" class="nav-item" th:classappend="${activePage == ''mocks''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Sandbox</span></a>
+            <a href="/plugins" class="nav-item" th:classappend="${activePage == ''plugins''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg><span>Plugins</span></a>
+        </div>
+        <div class="nav-section"><span class="nav-section-title">Security</span>
+            <a href="/threats" class="nav-item" th:classappend="${activePage == ''threats''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Threats</span></a>
+            <a href="/health" class="nav-item" th:classappend="${activePage == ''health''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health</span></a>
+        </div>
+        <div class="nav-section"><span class="nav-section-title">Account</span>
+            <a href="/profile" class="nav-item" th:classappend="${activePage == ''profile''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
+            <a href="/admin" class="nav-item" th:classappend="${activePage == ''admin''} ? '' active'' : ''''"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68 1.65 1.65 0 0010 3.17V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Admin</span></a>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post"><button type="submit" class="sidebar-logout-btn" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Logout</span></button></form>
+    </div>
+</aside>
+</body>
+</html>

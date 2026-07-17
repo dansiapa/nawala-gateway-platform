@@ -1,51 +1,35 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Routes - Nawala</title>
-    
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-brand"><img th:src="@{/img/logo.svg}" alt="Nawala" width="32" height="32"/><span>Nawala</span></div></div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Dashboard</span></a>
-            <a href="/routes" class="nav-item active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><span>API Routes</span></a>
-            <a href="/api-keys" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>API Keys</span></a>
-            <a href="/threats" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Threats</span></a>
-            <a href="/health" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Health Monitor</span></a>
-            <a href="/profile" class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
-        </nav>
-        <div class="sidebar-footer"><form th:action="@{/logout}" method="post"><button type="submit" class="btn-icon" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form></div>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar(''routes'')}"></div>
     <main class="main-content">
-        <header class="top-bar">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-            <div class="page-title"><h1>API Routes</h1><p>Register and manage your API endpoints</p></div>
-            <div class="top-bar-actions"><a href="/routes/new" class="btn btn-primary">+ New Route</a></div>
-        </header>
+        <div th:replace="~{fragments/header :: header(''API Routes'', ''Register and manage your API endpoints'')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><a href="/routes/new" class="btn btn-primary">+ New Route</a></div>
             <div class="card">
-                <div class="card-body" style="padding: 0">
+                <div class="card-body" style="padding:0">
                     <table class="data-table">
                         <thead><tr><th>Name</th><th>Method</th><th>Path</th><th>Target</th><th>Auth</th><th>Rate Limit</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody>
                             <tr th:each="route : ${routes}">
                                 <td th:text="${route.name}">Route</td>
-                                <td><span class="method-badge" th:text="${route.method}" th:classappend="' method-' + ${route.method.toLowerCase()}">GET</span></td>
+                                <td><span class="method-badge" th:text="${route.method}" th:classappend="'' method-'' + ${route.method.toLowerCase()}">GET</span></td>
                                 <td class="mono" th:text="${route.path}">/api/v1</td>
                                 <td class="mono small" th:text="${route.targetUrl}">http://...</td>
                                 <td><span th:if="${route.authRequired}" class="badge badge-purple">Yes</span><span th:unless="${route.authRequired}" class="badge badge-muted">No</span></td>
-                                <td th:text="${route.rateLimitEnabled} ? ${route.rateLimitPerMinute} + '/min' : 'Off'">60/min</td>
-                                <td><span class="status-dot" th:classappend="${route.active} ? ' active' : ' inactive'"></span><span th:text="${route.active} ? 'Active' : 'Inactive'">Active</span></td>
+                                <td th:text="${route.rateLimitEnabled} ? ${route.rateLimitPerMinute} + ''/min'' : ''Off''">60/min</td>
+                                <td><span class="status-dot" th:classappend="${route.active} ? '' active'' : '' inactive''"></span><span th:text="${route.active} ? ''Active'' : ''Inactive''">Active</span></td>
                                 <td class="actions-cell">
-                                    <a th:href="@{'/routes/' + ${route.id} + '/edit'}" class="btn-sm">Edit</a>
-                                    <form th:action="@{'/routes/' + ${route.id} + '/toggle'}" method="post" style="display:inline"><button type="submit" class="btn-sm" th:text="${route.active} ? 'Disable' : 'Enable'">Toggle</button></form>
-                                    <form th:action="@{'/routes/' + ${route.id} + '/delete'}" method="post" style="display:inline" onsubmit="return confirm('Delete this route?')"><button type="submit" class="btn-sm btn-danger-sm">Delete</button></form>
+                                    <a th:href="@{''/routes/'' + ${route.id} + ''/edit''}" class="btn-sm btn-secondary">Edit</a>
+                                    <form th:action="@{''/routes/'' + ${route.id} + ''/toggle''}" method="post" style="display:inline"><button type="submit" class="btn-sm btn-secondary" th:text="${route.active} ? ''Disable'' : ''Enable''">Toggle</button></form>
+                                    <form th:action="@{''/routes/'' + ${route.id} + ''/delete''}" method="post" style="display:inline" onsubmit="return confirm(''Delete this route?'')"><button type="submit" class="btn-sm btn-danger-sm">Delete</button></form>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(routes)}"><td colspan="8" class="empty-state" style="padding:3rem;text-align:center"><p>No routes registered yet. Click "+ New Route" to get started.</p></td></tr>
@@ -54,6 +38,7 @@
                 </div>
             </div>
         </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
 </body>

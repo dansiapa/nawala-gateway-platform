@@ -1,47 +1,26 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Monitor - Nawala</title>
-    
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="app-page">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-brand"><img th:src="@{/img/logo.svg}" alt="Nawala" width="32" height="32"/><span>Nawala</span></div></div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
-            <a href="/routes" class="nav-item"><span>API Routes</span></a>
-            <a href="/api-keys" class="nav-item"><span>API Keys</span></a>
-            <a href="/threats" class="nav-item"><span>Threats</span></a>
-            <a href="/health" class="nav-item active"><span>Health Monitor</span></a>
-            <a href="/profile" class="nav-item"><span>Profile</span></a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar(''health'')}"></div>
     <main class="main-content">
-        <header class="top-bar">
-            <div class="page-title"><h1>Health Monitor</h1><p>Live API service availability tracking</p></div>
-        </header>
+        <div th:replace="~{fragments/header :: header(''Health Monitor'', ''Live API service availability tracking'')}"></div>
         <div class="content-area">
             <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"></div>
-                    <div class="stat-content"><span class="stat-value" th:text="${summary.totalMonitored()}">0</span><span class="stat-label">Monitored</span></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-green"></div>
-                    <div class="stat-content"><span class="stat-value" th:text="${summary.upCount()}">0</span><span class="stat-label">UP</span></div>
-                </div>
-                <div class="stat-card" th:classappend="${summary.downCount() > 0} ? ' stat-card-danger' : ''">
-                    <div class="stat-icon stat-icon-red"></div>
-                    <div class="stat-content"><span class="stat-value" th:text="${summary.downCount()}">0</span><span class="stat-label">DOWN</span></div>
-                </div>
-                <div class="stat-card" th:classappend="${summary.degradedCount() > 0} ? ' stat-card-warning' : ''">
-                    <div class="stat-icon stat-icon-orange"></div>
-                    <div class="stat-content"><span class="stat-value" th:text="${summary.degradedCount()}">0</span><span class="stat-label">DEGRADED</span></div>
-                </div>
+                <div class="stat-card"><div class="stat-icon stat-icon-blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.totalMonitored()}">0</span><span class="stat-label">Monitored</span></div></div>
+                <div class="stat-card"><div class="stat-icon stat-icon-green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.upCount()}">0</span><span class="stat-label">UP</span></div></div>
+                <div class="stat-card" th:classappend="${summary.downCount() > 0} ? '' stat-card-danger'' : ''''"><div class="stat-icon stat-icon-red"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.downCount()}">0</span><span class="stat-label">DOWN</span></div></div>
+                <div class="stat-card" th:classappend="${summary.degradedCount() > 0} ? '' stat-card-warning'' : ''''"><div class="stat-icon stat-icon-orange"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.degradedCount()}">0</span><span class="stat-label">DEGRADED</span></div></div>
+            </div>
+            <div class="chart-grid">
+                <div class="card"><div class="card-header"><h3>Service Status Overview</h3></div><div class="card-body"><div class="chart-container"><canvas id="healthPieChart"></canvas></div></div></div>
+                <div class="card"><div class="card-header"><h3>Response Times (ms)</h3></div><div class="card-body"><div class="chart-container"><canvas id="responseTimeChart"></canvas></div></div></div>
             </div>
             <div class="card" style="margin-top:1.5rem">
                 <div class="card-header"><h3>Service Status</h3></div>
@@ -52,22 +31,47 @@
                             <tr th:each="r : ${routes}">
                                 <td th:text="${r.name()}">Service</td>
                                 <td><code th:text="${r.path()}">/api</code></td>
-                                <td>
-                                    <span class="badge badge-green" th:if="${r.status() == 'UP'}">UP</span>
-                                    <span class="badge badge-red" th:if="${r.status() == 'DOWN'}">DOWN</span>
-                                    <span class="badge badge-orange" th:if="${r.status() == 'DEGRADED'}">DEGRADED</span>
-                                    <span class="badge" th:if="${r.status() == 'UNKNOWN'}">UNKNOWN</span>
-                                </td>
-                                <td><span th:text="${r.responseTimeMs() != null} ? ${r.responseTimeMs()} + ' ms' : '-'">-</span></td>
+                                <td><span class="badge badge-green" th:if="${r.status() == ''UP''}">UP</span><span class="badge badge-red" th:if="${r.status() == ''DOWN''}">DOWN</span><span class="badge badge-orange" th:if="${r.status() == ''DEGRADED''}">DEGRADED</span><span class="badge" th:if="${r.status() == ''UNKNOWN''}">UNKNOWN</span></td>
+                                <td><span th:text="${r.responseTimeMs() != null} ? ${r.responseTimeMs()} + '' ms'' : ''-''">-</span></td>
                                 <td th:text="${r.lastChecked()}">Never</td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="empty-state" th:if="${routes.isEmpty()}"><p>No services configured for health monitoring. Add a Health Check URL to your routes.</p></div>
+                    <div class="empty-state" th:if="${routes.isEmpty()}"><p>No services configured for health monitoring.</p></div>
                 </div>
             </div>
         </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
+    <script th:inline="javascript">
+    document.addEventListener(''DOMContentLoaded'', function() {
+        var routes = /*[[${routes}]]*/ [];
+        var up = /*[[${summary.upCount()}]]*/ 0;
+        var down = /*[[${summary.downCount()}]]*/ 0;
+        var degraded = /*[[${summary.degradedCount()}]]*/ 0;
+        // Pie chart
+        var pieCtx = document.getElementById(''healthPieChart'');
+        if (pieCtx) {
+            new Chart(pieCtx, {
+                type: ''doughnut'',
+                data: { labels: [''UP'',''DOWN'',''DEGRADED''], datasets: [{ data: [up, down, degraded], backgroundColor: [''#10b981'',''#ef4444'',''#f59e0b''], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: ''bottom'' } } }
+            });
+        }
+        // Response time bar
+        var rtCtx = document.getElementById(''responseTimeChart'');
+        if (rtCtx && routes.length > 0) {
+            new Chart(rtCtx, {
+                type: ''bar'',
+                data: {
+                    labels: routes.map(function(r){ return r.name; }),
+                    datasets: [{ label: ''ms'', data: routes.map(function(r){ return r.responseTimeMs || 0; }), backgroundColor: routes.map(function(r){ return r.status === ''UP'' ? ''#10b981'' : r.status === ''DOWN'' ? ''#ef4444'' : ''#f59e0b''; }), borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: ''y'', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
