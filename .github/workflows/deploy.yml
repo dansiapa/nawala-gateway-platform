@@ -32,15 +32,17 @@ jobs:
       - name: Upload platform artifact
         uses: actions/upload-artifact@v4
         with:
-          name: platform-war
-          path: platform/target/*.war
+          name: platform-jar
+          path: platform/target/nawala-platform-*.jar
+          if-no-files-found: error
           retention-days: 1
 
       - name: Upload gateway artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gateway-war
-          path: gateway/target/*.war
+          name: gateway-jar
+          path: gateway/target/nawala-gateway-*.jar
+          if-no-files-found: error
           retention-days: 1
 
   deploy:
@@ -54,13 +56,13 @@ jobs:
       - name: Download platform artifact
         uses: actions/download-artifact@v4
         with:
-          name: platform-war
+          name: platform-jar
           path: ./artifacts/platform
 
       - name: Download gateway artifact
         uses: actions/download-artifact@v4
         with:
-          name: gateway-war
+          name: gateway-jar
           path: ./artifacts/gateway
 
       - name: Setup SSH key
@@ -73,12 +75,12 @@ jobs:
       - name: Copy artifacts to server
         run: |
           scp -i ~/.ssh/deploy_key \
-            ./artifacts/platform/*.war \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/platform.war
+            ./artifacts/platform/nawala-platform-*.jar \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/platform.jar
 
           scp -i ~/.ssh/deploy_key \
-            ./artifacts/gateway/*.war \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/gateway.war
+            ./artifacts/gateway/nawala-gateway-*.jar \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/gateway.jar
 
       - name: Copy deployment scripts
         run: |
