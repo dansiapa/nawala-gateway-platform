@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-brand"><svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg><span>Nawala</span></div></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
+            <a href="/admin" class="nav-item active"><span>Admin Panel</span></a>
+            <a href="/admin/users" class="nav-item"><span>Users</span></a>
+            <a href="/admin/tiers" class="nav-item"><span>Rate Tiers</span></a>
+            <a href="/admin/audit" class="nav-item"><span>Audit Log</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="top-bar"><div class="page-title"><h1>Admin Dashboard</h1><p>System overview and management</p></div></header>
+        <div class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-content"><span class="stat-value" th:text="${totalUsers}">0</span><span class="stat-label">Total Users</span></div></div>
+                <div class="stat-card"><div class="stat-content"><span class="stat-value" th:text="${activeUsers}">0</span><span class="stat-label">Active Users</span></div></div>
+                <div class="stat-card"><div class="stat-content"><span class="stat-value" th:text="${tiers.size()}">0</span><span class="stat-label">Rate Limit Tiers</span></div></div>
+            </div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Recent Audit Trail</h3></div><div class="card-body" style="padding:0">
+                <table class="data-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead><tbody>
+                    <tr th:each="a : ${recentAudit}">
+                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, ''MM-dd HH:mm'') : ''''}">time</td>
+                        <td th:text="${a.username}">user</td>
+                        <td><span class="badge badge-blue" th:text="${a.action}">action</span></td>
+                        <td th:text="${a.resourceType != null ? a.resourceType + '' #'' + a.resourceId : ''-''}">resource</td>
+                        <td th:text="${a.ipAddress}">ip</td>
+                    </tr>
+                </tbody></table>
+            </div></div>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

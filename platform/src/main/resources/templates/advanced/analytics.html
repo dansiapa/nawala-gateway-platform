@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-brand"><svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg><span>Nawala</span></div></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
+            <a href="/routes" class="nav-item"><span>API Routes</span></a>
+            <a href="/api-keys" class="nav-item"><span>API Keys</span></a>
+            <a href="/analytics" class="nav-item active"><span>Analytics</span></a>
+            <a href="/waf" class="nav-item"><span>WAF</span></a>
+            <a href="/webhooks" class="nav-item"><span>Webhooks</span></a>
+            <a href="/mocks" class="nav-item"><span>Sandbox</span></a>
+            <a href="/threats" class="nav-item"><span>Threats</span></a>
+            <a href="/health" class="nav-item"><span>Health</span></a>
+            <a href="/profile" class="nav-item"><span>Profile</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="top-bar"><div class="page-title"><h1>API Analytics</h1><p>Traffic Intelligence - Last 24 Hours</p></div></header>
+        <div class="content-area">
+            <div class="stats-row">
+                <div class="stat-card"><div class="stat-icon stat-icon-blue"></div><div class="stat-content"><span class="stat-value" th:text="${summary.totalRequests()}">0</span><span class="stat-label">Total Requests</span></div></div>
+                <div class="stat-card"><div class="stat-icon stat-icon-green"></div><div class="stat-content"><span class="stat-value" th:text="${#numbers.formatDecimal(summary.avgResponseTimeMs(), 0, 1)}">0</span><span class="stat-label">Avg Response (ms)</span></div></div>
+                <div class="stat-card" th:classappend="${summary.errorRate() > 5} ? '' stat-card-danger'' : ''''"><div class="stat-icon stat-icon-red"></div><div class="stat-content"><span class="stat-value" th:text="${#numbers.formatDecimal(summary.errorRate(), 0, 1)} + ''%''">0%</span><span class="stat-label">Error Rate</span></div></div>
+                <div class="stat-card"><div class="stat-icon stat-icon-purple"></div><div class="stat-content"><span class="stat-value" th:text="${summary.errorCount()}">0</span><span class="stat-label">5xx Errors</span></div></div>
+            </div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Top Routes</h3></div><div class="card-body">
+                <table class="data-table" th:if="${!topRoutes.isEmpty()}"><thead><tr><th>Path</th><th>Requests</th><th>Avg Time</th></tr></thead><tbody>
+                    <tr th:each="r : ${topRoutes}"><td th:text="${r.path()}">path</td><td th:text="${r.requestCount()}">0</td><td th:text="${#numbers.formatDecimal(r.avgResponseTime(), 0, 1)} + '' ms''">0ms</td></tr>
+                </tbody></table>
+                <div class="empty-state" th:if="${topRoutes.isEmpty()}"><p>No traffic recorded yet.</p></div>
+            </div></div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Status Code Distribution</h3></div><div class="card-body">
+                <div class="status-bars" th:if="${!statusDist.isEmpty()}">
+                    <div th:each="entry : ${statusDist}" class="status-bar-item"><span class="badge" th:classappend="${entry.key < 300} ? '' badge-green'' : (${entry.key < 400} ? '' badge-blue'' : (${entry.key < 500} ? '' badge-orange'' : '' badge-red''))" th:text="${entry.key}">200</span><span th:text="${entry.value}">0</span></div>
+                </div>
+            </div></div>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

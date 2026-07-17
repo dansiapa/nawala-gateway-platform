@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limit Tiers - Nawala Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-brand"><svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg><span>Nawala</span></div></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
+            <a href="/admin" class="nav-item"><span>Admin Panel</span></a>
+            <a href="/admin/users" class="nav-item"><span>Users</span></a>
+            <a href="/admin/tiers" class="nav-item active"><span>Rate Tiers</span></a>
+            <a href="/admin/audit" class="nav-item"><span>Audit Log</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="top-bar"><div class="page-title"><h1>Rate Limit Tiers</h1><p>Configure API usage tiers</p></div></header>
+        <div class="content-area">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div class="card"><div class="card-header"><h3>Create Tier</h3></div><div class="card-body">
+                <form method="post" action="/admin/tiers" class="form-grid">
+                    <div class="form-group"><label>Name</label><input type="text" name="name" required class="form-control" placeholder="e.g. STARTER"></div>
+                    <div class="form-group"><label>Requests/Minute</label><input type="number" name="requestsPerMinute" value="60" class="form-control" required></div>
+                    <div class="form-group"><label>Requests/Hour</label><input type="number" name="requestsPerHour" value="1000" class="form-control" required></div>
+                    <div class="form-group"><label>Requests/Day</label><input type="number" name="requestsPerDay" value="10000" class="form-control" required></div>
+                    <div class="form-group"><label>Burst Size</label><input type="number" name="burstSize" value="10" class="form-control"></div>
+                    <div class="form-group"><label>Description</label><input type="text" name="description" class="form-control" placeholder="Tier description"></div>
+                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Tier</button></div>
+                </form>
+            </div></div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Existing Tiers</h3></div><div class="card-body" style="padding:0">
+                <table class="data-table"><thead><tr><th>Name</th><th>Req/Min</th><th>Req/Hour</th><th>Req/Day</th><th>Burst</th><th>Description</th><th>Actions</th></tr></thead><tbody>
+                    <tr th:each="t : ${tiers}">
+                        <td><span class="badge badge-purple" th:text="${t.name}">FREE</span></td>
+                        <td th:text="${t.requestsPerMinute}">60</td>
+                        <td th:text="${t.requestsPerHour}">1000</td>
+                        <td th:text="${t.requestsPerDay}">10000</td>
+                        <td th:text="${t.burstSize}">10</td>
+                        <td th:text="${t.description}">desc</td>
+                        <td><form method="post" th:action="@{/admin/tiers/{id}/delete(id=${t.id})}" style="display:inline"><button class="btn btn-sm btn-danger" onclick="return confirm(''Delete tier?'')">Delete</button></form></td>
+                    </tr>
+                </tbody></table>
+            </div></div>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

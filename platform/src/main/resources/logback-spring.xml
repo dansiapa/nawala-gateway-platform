@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <property name="LOG_HOME" value="D:/nawala/logs/platform"/>
+    <property name="APP_NAME" value="nawala-platform"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [${APP_NAME}] [%thread] [%X{traceId:-}] [%X{userId:-}] [%X{clientIp:-}] %-5level %logger{36} - %msg%n"/>
+    <property name="JSON_PATTERN" value="{&quot;@timestamp&quot;:&quot;%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}&quot;,&quot;service&quot;:&quot;${APP_NAME}&quot;,&quot;level&quot;:&quot;%level&quot;,&quot;logger&quot;:&quot;%logger{36}&quot;,&quot;thread&quot;:&quot;%thread&quot;,&quot;traceId&quot;:&quot;%X{traceId:-}&quot;,&quot;userId&quot;:&quot;%X{userId:-}&quot;,&quot;clientIp&quot;:&quot;%X{clientIp:-}&quot;,&quot;message&quot;:&quot;%msg&quot;}%n"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder><pattern>${LOG_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+    </appender>
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/application.log</file>
+        <encoder><pattern>${JSON_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/archive/application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize><maxHistory>30</maxHistory><totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter"><level>ERROR</level></filter>
+        <encoder><pattern>${JSON_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/archive/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize><maxHistory>60</maxHistory><totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/security.log</file>
+        <encoder><pattern>${JSON_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/archive/security.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize><maxHistory>90</maxHistory><totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/access.log</file>
+        <encoder><pattern>${JSON_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/archive/access.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize><maxHistory>14</maxHistory><totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="HEALTH_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/health.log</file>
+        <encoder><pattern>${JSON_PATTERN}</pattern><charset>UTF-8</charset></encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/archive/health.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize><maxHistory>14</maxHistory><totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <logger name="id.nawala.platform.logging.SecurityLogger" level="INFO" additivity="false">
+        <appender-ref ref="SECURITY_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="id.nawala.platform.logging.AccessLogger" level="INFO" additivity="false">
+        <appender-ref ref="ACCESS_FILE"/>
+    </logger>
+    <logger name="id.nawala.platform.service.impl.HealthMonitorServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="HEALTH_FILE"/><appender-ref ref="APP_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="id.nawala.platform.service.impl.AnomalyDetectionServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="SECURITY_FILE"/><appender-ref ref="APP_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="org.springframework.security" level="INFO" additivity="false">
+        <appender-ref ref="SECURITY_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="id.nawala" level="DEBUG" additivity="false">
+        <appender-ref ref="APP_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="APP_FILE"/><appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="org.hibernate.SQL" level="WARN" additivity="false">
+        <appender-ref ref="APP_FILE"/>
+    </logger>
+    <root level="INFO">
+        <appender-ref ref="APP_FILE"/><appender-ref ref="ERROR_FILE"/><appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-page">
+    <div class="auth-wrapper">
+        <div class="auth-left">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg>
+                </div>
+                <h1 class="brand-title">Nawala</h1>
+                <p class="brand-subtitle">API Management Platform. Komunikasi antar sistem yang aman, cepat, dan terpercaya.</p>
+                <div class="brand-features">
+                    <div class="feature-item"><span class="feature-icon">&#9889;</span><span>API Gateway with Rate Limiting</span></div>
+                    <div class="feature-item"><span class="feature-icon">&#128274;</span><span>End-to-end Encryption</span></div>
+                    <div class="feature-item"><span class="feature-icon">&#128202;</span><span>Real-time Monitoring</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="auth-right">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>Welcome back</h2>
+                    <p>Enter your credentials to access Nawala Console</p>
+                </div>
+                <div th:if="${param.error}" class="alert alert-danger" role="alert"><span>Invalid username or password</span></div>
+                <div th:if="${param.logout}" class="alert alert-success" role="alert"><span>You have been signed out successfully</span></div>
+                <div th:if="${param.expired}" class="alert alert-warning" role="alert"><span>Your session has expired. Please sign in again.</span></div>
+                <div th:if="${success}" class="alert alert-success" role="alert"><span th:text="${success}"></span></div>
+                <form th:action="@{/login}" method="post" class="auth-form">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" class="toggle-password" onclick="togglePassword(this)" aria-label="Toggle password visibility">&#128065;</button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label"><input type="checkbox" name="remember-me"><span>Remember me</span></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full"><span>Sign In</span></button>
+                </form>
+                <div class="auth-footer"><p>Don''t have an account? <a th:href="@{/register}">Create one</a></p></div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public API Docs - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <main class="main-content" style="margin-left:0">
+        <header class="top-bar"><div class="page-title"><h1>Public API Documentation</h1><p>Browse available APIs</p></div></header>
+        <div class="content-area">
+            <div class="card"><div class="card-body">
+                <div th:if="${!docs.isEmpty()}" class="doc-list">
+                    <div th:each="d : ${docs}" class="doc-item" style="padding:1rem;border-bottom:1px solid #e0e0e0">
+                        <h4><a th:href="@{/docs/{id}/view(id=${d.id})}" th:text="${d.title}">Title</a></h4>
+                        <span class="badge badge-blue" th:text="''v'' + ${d.version}">v1.0.0</span>
+                        <span th:text="${d.description}" style="margin-left:0.5rem;color:#666">desc</span>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${docs.isEmpty()}"><p>No public API documentation available.</p></div>
+            </div></div>
+        </div>
+    </main>
+</body>
+</html>

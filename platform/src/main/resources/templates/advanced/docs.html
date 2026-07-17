@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Docs - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-brand"><svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg><span>Nawala</span></div></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
+            <a href="/routes" class="nav-item"><span>API Routes</span></a>
+            <a href="/api-keys" class="nav-item"><span>API Keys</span></a>
+            <a href="/analytics" class="nav-item"><span>Analytics</span></a>
+            <a href="/oauth-clients" class="nav-item"><span>OAuth</span></a>
+            <a href="/docs" class="nav-item active"><span>API Docs</span></a>
+            <a href="/waf" class="nav-item"><span>WAF</span></a>
+            <a href="/webhooks" class="nav-item"><span>Webhooks</span></a>
+            <a href="/mocks" class="nav-item"><span>Sandbox</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="top-bar"><div class="page-title"><h1>API Documentation</h1><p>Manage and publish OpenAPI specs</p></div></header>
+        <div class="content-area">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div class="card"><div class="card-header"><h3>Create Documentation</h3></div><div class="card-body">
+                <form method="post" action="/docs" class="form-grid">
+                    <div class="form-group"><label>Title</label><input type="text" name="title" required class="form-control" placeholder="User API"></div>
+                    <div class="form-group"><label>Version</label><input type="text" name="version" value="1.0.0" class="form-control"></div>
+                    <div class="form-group"><label>Route ID (optional)</label><input type="number" name="routeId" class="form-control" placeholder="Link to route"></div>
+                    <div class="form-group"><label>Description</label><input type="text" name="description" class="form-control" placeholder="API Description"></div>
+                    <div class="form-group" style="grid-column:1/-1"><label>OpenAPI Spec (JSON/YAML)</label><textarea name="openApiSpec" class="form-control" rows="8" placeholder='''{"openapi":"3.0.0","info":{"title":"My API"},"paths":{}}'''></textarea></div>
+                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Doc</button></div>
+                </form>
+            </div></div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Your Docs</h3></div><div class="card-body">
+                <table class="data-table" th:if="${!docs.isEmpty()}"><thead><tr><th>Title</th><th>Version</th><th>Published</th><th>Created</th><th>Actions</th></tr></thead><tbody>
+                    <tr th:each="d : ${docs}">
+                        <td><a th:href="@{/docs/{id}/view(id=${d.id})}" th:text="${d.title}">title</a></td>
+                        <td th:text="${d.version}">1.0.0</td>
+                        <td><span class="badge" th:classappend="${d.published} ? '' badge-green'' : '' badge-grey''" th:text="${d.published} ? ''Published'' : ''Draft''">status</span></td>
+                        <td th:text="${#temporals.format(d.createdAt, ''yyyy-MM-dd'')}">date</td>
+                        <td>
+                            <form method="post" th:action="@{/docs/{id}/publish(id=${d.id})}" style="display:inline"><input type="hidden" name="published" th:value="${!d.published}"><button class="btn btn-sm btn-secondary" th:text="${d.published} ? ''Unpublish'' : ''Publish''">Toggle</button></form>
+                            <form method="post" th:action="@{/docs/{id}/delete(id=${d.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <div class="empty-state" th:if="${docs.isEmpty()}"><p>No documentation yet. Create your first API doc.</p></div>
+            </div></div>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

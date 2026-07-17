@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Sandbox - Nawala</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="sidebar-brand"><svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#grad1)"/><path d="M12 16h24M12 24h18M12 32h22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs></svg><span>Nawala</span></div></div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item"><span>Dashboard</span></a>
+            <a href="/routes" class="nav-item"><span>API Routes</span></a>
+            <a href="/analytics" class="nav-item"><span>Analytics</span></a>
+            <a href="/waf" class="nav-item"><span>WAF</span></a>
+            <a href="/webhooks" class="nav-item"><span>Webhooks</span></a>
+            <a href="/mocks" class="nav-item active"><span>Sandbox</span></a>
+            <a href="/threats" class="nav-item"><span>Threats</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="top-bar"><div class="page-title"><h1>API Sandbox</h1><p>Mock endpoints for testing without a real backend</p></div></header>
+        <div class="content-area">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div class="card"><div class="card-header"><h3>Create Mock Endpoint</h3></div><div class="card-body">
+                <form method="post" action="/mocks" class="form-grid">
+                    <div class="form-group"><label>Name</label><input type="text" name="name" required class="form-control" placeholder="Test Users API"></div>
+                    <div class="form-group"><label>Path</label><input type="text" name="path" required class="form-control" placeholder="/mock/api/users"></div>
+                    <div class="form-group"><label>Method</label><select name="method" class="form-control"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select></div>
+                    <div class="form-group"><label>Status Code</label><input type="number" name="statusCode" value="200" class="form-control"></div>
+                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder='{"users":[{"id":1,"name":"John"}]}'></textarea></div>
+                    <div class="form-group"><label>Content Type</label><input type="text" name="contentType" value="application/json" class="form-control"></div>
+                    <div class="form-group"><label>Simulated Delay (ms)</label><input type="number" name="delayMs" value="0" class="form-control"></div>
+                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Mock</button></div>
+                </form>
+            </div></div>
+            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Your Mock Endpoints</h3></div><div class="card-body">
+                <table class="data-table" th:if="${!mocks.isEmpty()}"><thead><tr><th>Name</th><th>Method</th><th>Path</th><th>Status</th><th>Delay</th><th>Active</th><th>Actions</th></tr></thead><tbody>
+                    <tr th:each="m : ${mocks}">
+                        <td th:text="${m.name}">name</td>
+                        <td><span class="badge badge-blue" th:text="${m.method}">GET</span></td>
+                        <td><code th:text="${m.path}">/path</code></td>
+                        <td th:text="${m.statusCode}">200</td>
+                        <td th:text="${m.delayMs} + '' ms''">0 ms</td>
+                        <td><span class="badge" th:classappend="${m.active} ? '' badge-green'' : '' badge-grey''" th:text="${m.active} ? ''Active'' : ''Off''">active</span></td>
+                        <td>
+                            <form method="post" th:action="@{/mocks/{id}/toggle(id=${m.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!m.active}"><button class="btn btn-sm btn-secondary" th:text="${m.active} ? ''Disable'' : ''Enable''">Toggle</button></form>
+                            <form method="post" th:action="@{/mocks/{id}/delete(id=${m.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <div class="empty-state" th:if="${mocks.isEmpty()}"><p>No mock endpoints. Create one to start testing.</p></div>
+            </div></div>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
