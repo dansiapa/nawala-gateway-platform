@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Nawala-API%20Gateway-blueviolet?style=for-the-badge&logo=spring&logoColor=white" alt="Nawala"/>
+﻿<p align="center">
+  <img src="docs/images/banner.svg" alt="Nawala Gateway Platform" width="100%"/>
 </p>
 
 <h1 align="center">🌐 Nawala — Enterprise API Gateway & Management Platform</h1>

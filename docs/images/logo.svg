@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6C63FF"/>
+      <stop offset="50%" style="stop-color:#5A52E0"/>
+      <stop offset="100%" style="stop-color:#4ECDC4"/>
+    </linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.75"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer hexagon shield -->
+  <polygon points="256,30 462,135 462,345 256,450 50,345 50,135" fill="url(#lg1)" stroke="none"/>
+  <!-- Inner hexagon -->
+  <polygon points="256,60 430,152 430,328 256,420 82,328 82,152" fill="#1a1a2e" opacity="0.85"/>
+  <!-- Central node (gateway hub) -->
+  <circle cx="256" cy="240" r="45" fill="url(#lg2)" filter="url(#glow)"/>
+  <circle cx="256" cy="240" r="30" fill="url(#lg1)"/>
+  <circle cx="256" cy="240" r="15" fill="white"/>
+  <!-- Routing lines from center -->
+  <line x1="256" y1="195" x2="256" y2="120" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="295" y1="217" x2="360" y2="165" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="295" y1="263" x2="360" y2="315" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="285" x2="256" y2="360" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="217" y1="263" x2="152" y2="315" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="217" y1="217" x2="152" y2="165" stroke="#4ECDC4" stroke-width="4" stroke-linecap="round"/>
+  <!-- Endpoint nodes -->
+  <circle cx="256" cy="110" r="14" fill="#6C63FF"/>
+  <circle cx="370" cy="155" r="14" fill="#6C63FF"/>
+  <circle cx="370" cy="325" r="14" fill="#6C63FF"/>
+  <circle cx="256" cy="370" r="14" fill="#6C63FF"/>
+  <circle cx="142" cy="325" r="14" fill="#6C63FF"/>
+  <circle cx="142" cy="155" r="14" fill="#6C63FF"/>
+  <!-- Small lock icon on center -->
+  <rect x="249" y="235" width="14" height="11" rx="2" fill="#1a1a2e"/>
+  <path d="M252,235 v-4 a4,4 0 0,1 8,0 v4" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#1a1a3e"/>
+      <stop offset="100%" style="stop-color:#0f0c29"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6C63FF"/>
+      <stop offset="100%" style="stop-color:#4ECDC4"/>
+    </linearGradient>
+    <linearGradient id="txt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e0e0e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Decorative grid lines -->
+  <line x1="0" y1="75" x2="1200" y2="75" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="0" y1="150" x2="1200" y2="150" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="0" y1="225" x2="1200" y2="225" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="300" y1="0" x2="300" y2="300" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="300" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="900" y1="0" x2="900" y2="300" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <!-- Logo hexagon (small) -->
+  <polygon points="150,80 195,57 240,80 240,126 195,149 150,126" fill="url(#accent)" opacity="0.9"/>
+  <polygon points="157,86 195,66 233,86 233,120 195,140 157,120" fill="#1a1a2e" opacity="0.9"/>
+  <!-- Mini gateway icon inside -->
+  <circle cx="195" cy="103" r="12" fill="white" opacity="0.9"/>
+  <circle cx="195" cy="103" r="7" fill="url(#accent)"/>
+  <circle cx="195" cy="103" r="3" fill="white"/>
+  <line x1="195" y1="91" x2="195" y2="78" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="207" y1="97" x2="218" y2="88" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="207" y1="109" x2="218" y2="118" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="195" y1="115" x2="195" y2="128" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="183" y1="109" x2="172" y2="118" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="183" y1="97" x2="172" y2="88" stroke="#4ECDC4" stroke-width="2" stroke-linecap="round"/>
+  <!-- Title text -->
+  <text x="300" y="115" font-size="52" font-weight="bold" fill="url(#txt)">NAWALA</text>
+  <text x="300" y="155" font-size="18" fill="#4ECDC4" letter-spacing="6">GATEWAY PLATFORM</text>
+  <!-- Subtitle -->
+  <text x="300" y="200" font-size="14" fill="#aaa">Enterprise API Gateway &amp; Management Platform</text>
+  <text x="300" y="225" font-size="12" fill="#666">WAF • OAuth2 • Rate Limiting • Anomaly Detection • E2E Encryption</text>
+  <!-- Version badge -->
+  <rect x="300" y="245" width="55" height="22" rx="11" fill="url(#accent)"/>
+  <text x="327" y="260" text-anchor="middle" font-size="10" fill="white" font-weight="bold">v1.0.0</text>
+  <!-- Tech badges -->
+  <rect x="365" y="245" width="65" height="22" rx="11" fill="#2d3436"/>
+  <text x="397" y="260" text-anchor="middle" font-size="9" fill="#4ECDC4">Java 17</text>
+  <rect x="440" y="245" width="90" height="22" rx="11" fill="#2d3436"/>
+  <text x="485" y="260" text-anchor="middle" font-size="9" fill="#4ECDC4">Spring Boot 3</text>
+  <rect x="540" y="245" width="50" height="22" rx="11" fill="#2d3436"/>
+  <text x="565" y="260" text-anchor="middle" font-size="9" fill="#4ECDC4">MIT</text>
+  <!-- Decorative floating nodes (right side) -->
+  <circle cx="900" cy="80" r="6" fill="#6C63FF" opacity="0.6"/>
+  <circle cx="1000" cy="120" r="4" fill="#4ECDC4" opacity="0.5"/>
+  <circle cx="950" cy="200" r="5" fill="#6C63FF" opacity="0.4"/>
+  <circle cx="1050" cy="170" r="7" fill="#4ECDC4" opacity="0.3"/>
+  <circle cx="1100" cy="90" r="3" fill="#6C63FF" opacity="0.5"/>
+  <circle cx="850" cy="220" r="4" fill="#4ECDC4" opacity="0.4"/>
+  <line x1="900" y1="80" x2="1000" y2="120" stroke="#4ECDC4" stroke-width="0.5" opacity="0.3"/>
+  <line x1="1000" y1="120" x2="1050" y2="170" stroke="#6C63FF" stroke-width="0.5" opacity="0.3"/>
+  <line x1="1050" y1="170" x2="950" y2="200" stroke="#4ECDC4" stroke-width="0.5" opacity="0.3"/>
+  <line x1="950" y1="200" x2="850" y2="220" stroke="#6C63FF" stroke-width="0.5" opacity="0.3"/>
+  <line x1="900" y1="80" x2="1100" y2="90" stroke="#4ECDC4" stroke-width="0.5" opacity="0.2"/>
+  <!-- Copyright -->
+  <text x="1190" y="290" text-anchor="end" font-size="9" fill="#555">© 2026 NAWALA TEAM</text>
+</svg>
