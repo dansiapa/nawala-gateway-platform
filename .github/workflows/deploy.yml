@@ -65,26 +65,31 @@ jobs:
           name: gateway-jar
           path: ./artifacts/gateway
 
-      - name: Setup SSH key
+      - name: Install sshpass
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+
+      - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Copy artifacts to server
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          scp -i ~/.ssh/deploy_key \
+          sshpass -e scp -o StrictHostKeyChecking=no \
             ./artifacts/platform/nawala-platform-*.jar \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/platform.jar
 
-          scp -i ~/.ssh/deploy_key \
+          sshpass -e scp -o StrictHostKeyChecking=no \
             ./artifacts/gateway/nawala-gateway-*.jar \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/gateway.jar
 
       - name: Copy deployment scripts
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          scp -i ~/.ssh/deploy_key \
+          sshpass -e scp -o StrictHostKeyChecking=no \
             ./scripts/server-setup.sh \
             ./scripts/start.sh \
             ./scripts/stop.sh \
@@ -92,8 +97,10 @@ jobs:
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Execute deployment
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          ssh -i ~/.ssh/deploy_key \
+          sshpass -e ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
           
           cd /opt/nawala
@@ -114,9 +121,11 @@ jobs:
           EOF
 
       - name: Health check
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
           sleep 30
-          ssh -i ~/.ssh/deploy_key \
+          sshpass -e ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
           
           echo "--- Platform Health ---"
@@ -125,7 +134,3 @@ jobs:
           echo "--- Gateway Health ---"
           curl -sf http://localhost:9090/actuator/health && echo " [OK]" || echo " [FAIL]"
           EOF
-
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f ~/.ssh/deploy_key

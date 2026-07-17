@@ -8,9 +8,9 @@
 # ┌─────────────────────────┬──────────────────────────────────────────────┐
 # │ Secret Name             │ Description                                  │
 # ├─────────────────────────┼──────────────────────────────────────────────┤
-# │ SERVER_HOST             │ Your server IP (e.g. 3.229.68.221)           │
-# │ SERVER_USER             │ SSH username (e.g. ubuntu)                   │
-# │ SSH_PRIVATE_KEY         │ Full SSH private key (id_rsa content)        │
+# │ SERVER_HOST             │ Your server IP (e.g. 103.xx.xx.xx)           │
+# │ SERVER_USER             │ SSH username (e.g. root / ubuntu)            │
+# │ SERVER_PASSWORD         │ SSH password for the user                    │
 # │ DB_PASSWORD             │ MySQL password for nawala user                │
 # │ NAWALA_ENCRYPTION_KEY   │ AES-256 key (openssl rand -base64 32)        │
 # │ NAWALA_JWT_SECRET       │ JWT signing secret (openssl rand -base64 64) │
@@ -19,17 +19,11 @@
 # └─────────────────────────┴──────────────────────────────────────────────┘
 #
 # ============================================================
-# How to Generate SSH Key (if you don't have one):
+# IMPORTANT: No SSH Key needed!
 # ============================================================
 #
-#   ssh-keygen -t ed25519 -C "nawala-deploy" -f ~/.ssh/nawala_deploy
-#
-# Then:
-#   1. Copy private key content → paste as SSH_PRIVATE_KEY secret
-#      cat ~/.ssh/nawala_deploy
-#
-#   2. Add public key to server authorized_keys:
-#      ssh-copy-id -i ~/.ssh/nawala_deploy.pub ubuntu@YOUR_SERVER
+# This workflow uses sshpass (username + password) instead of SSH keys.
+# Just set SERVER_HOST, SERVER_USER, and SERVER_PASSWORD.
 #
 # ============================================================
 # How to Deploy:
