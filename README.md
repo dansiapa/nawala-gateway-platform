@@ -207,148 +207,404 @@ openssl rand -hex 32      # Internal secret
 ```
 
 
-## 📖 Usage Guide
 
-### 1. Login & Dashboard
+## 📖 Complete Usage Guide
+
+This guide walks you through the entire workflow from first login to full production-ready API management.
+
+### Step 1: First Login
+
+After installation, access the Platform Console:
 
 ```
-URL   : http://<HOST>:8080/login
-User  : admin
-Pass  : admin123  (segera ganti setelah login pertama!)
+URL      : http://<HOST>:8080/login
+Username : admin
+Password : admin123
 ```
 
-Dashboard menampilkan: total routes, active API keys, request count, system health, top routes.
+> **Important:** Change the default password immediately via Profile → Change Password.
 
-### 2. Register API Route
+### Step 2: Register Your First API Route
 
-API Routes → Add Route:
+This is the core action — registering a backend service so the gateway can route traffic to it.
 
-| Field | Contoh | Keterangan |
-|-------|--------|------------|
-| Name | `user-service` | Nama unik route |
-| Path | `/api/v1/users/**` | Path pattern gateway |
-| Target URL | `http://10.0.1.5:3000` | Backend URL |
-| Method | `GET,POST,PUT,DELETE` | Allowed methods |
-| Auth Required | `true` | Wajib autentikasi |
-| Rate Limit Tier | `PROFESSIONAL` | Tier rate limit |
+**Navigate:** Dashboard → **API Routes** → **Add Route**
+
+| Field | Example | Description |
+|-------|---------|-------------|
+| Route Name | `user-service` | Unique identifier for this route |
+| Gateway Path | `/api/v1/users/**` | Public path exposed through the gateway |
+| Target URL | `http://10.0.1.50:3000` | Your actual backend service address |
+| HTTP Methods | `GET,POST,PUT,DELETE` | Allowed methods |
+| Strip Prefix | `0` | Path segments to remove before forwarding |
+| Auth Required | `true` | Require authentication |
+| Rate Limit Tier | `PROFESSIONAL` | Rate limit tier |
+| Enable Caching | `false` | Cache responses at gateway |
+| Circuit Breaker | `true` | Enable circuit breaking |
+
+Click **Save** — the route is immediately active on the gateway (port `:9090`).
+
+**How it works:**
+```
+Client Request:   GET http://<GATEWAY>:9090/api/v1/users/42
+Gateway Routes:   GET http://10.0.1.50:3000/api/v1/users/42
+Response:         Flows back through gateway filters to client
+```
+
+### Step 3: Generate an API Key
+
+Your route requires authentication. Generate an API key for consumers:
+
+**Navigate:** Dashboard → **API Keys** → **Generate New Key**
+
+| Field | Example | Description |
+|-------|---------|-------------|
+| Key Name | `mobile-app-prod` | Human-readable label |
+| Tier | `PROFESSIONAL` | Rate limit tier |
+| Expires At | `2027-01-01` (optional) | Auto-expiry date |
+| IP Whitelist | `192.168.1.0/24` (optional) | Restrict to IPs |
+| Allowed Methods | `GET,POST` (optional) | Restrict methods |
+| Allowed Routes | `/api/v1/users/**` (optional) | Restrict routes |
+
+Key displayed **once**: `nwl_a1b2c3d4e5f6...` — store securely, cannot be retrieved again.
+
+### Step 4: Test Your Route
 
 ```bash
-curl -H "X-API-Key: nwl_xxxxx" http://<GATEWAY>:9090/api/v1/users
+curl -H "X-API-Key: nwl_a1b2c3d4e5f6..." http://<GATEWAY>:9090/api/v1/users
+# Response: {"users": [{"id": 1, "name": "John"}]}
 ```
 
-### 3. API Key Management
+**Error responses:**
 
-- **Create:** API Keys → Generate → `nwl_abc123xyz...` (tampil sekali!)
-- **Scope:** Restrict by IP, Method, Route
-- **Rotate:** Grace period 24h (key lama tetap aktif)
-- **Revoke:** Immediate effect
+| Status | Meaning | Solution |
+|--------|---------|----------|
+| `401` | Missing/invalid API key | Check X-API-Key header |
+| `403` | Key not allowed for route/method | Check key scoping |
+| `429` | Rate limit exceeded | Wait or upgrade tier |
+| `502` | Backend not reachable | Check target URL |
+| `503` | Circuit breaker OPEN | Backend is down |
 
-### 4. OAuth2 Client Credentials
+### Step 5: URL Masking
 
+Hide your real backend paths from clients:
+
+**In Route config, set Mask Path:**
+
+| Gateway Path (public) | Target URL (hidden) |
+|----------------------|---------------------|
+| `/api/v1/products/**` | `http://10.0.1.50:8081/internal/catalog/v2/**` |
+| `/api/v1/orders/**` | `http://10.0.2.30:4000/legacy/order-system/**` |
+
+The client only sees `/api/v1/products/123` — never knows the actual internal URL.
+
+### Step 6: Configure OAuth2 (Alternative Auth)
+
+For service-to-service communication, use OAuth2 Client Credentials:
+
+**Navigate:** Dashboard → **OAuth** → **Register Client**
+
+| Field | Example |
+|-------|--------|
+| Client Name | `payment-service` |
+| Scopes | `read,write,admin` |
+| Token TTL | `3600` (seconds) |
+
+You receive `client_id` + `client_secret`.
+
+**Complete Token Flow:**
 ```bash
-# Request Token
+# 1. Request access token
 curl -X POST http://<GATEWAY>:9090/oauth/token \
-  -d "grant_type=client_credentials&client_id=ID&client_secret=SECRET"
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "scope=read write"
 
-# Use Token
-curl -H "Authorization: Bearer eyJhbG..." http://<GATEWAY>:9090/api/v1/users
+# Response:
+# {"access_token":"eyJhbG...","token_type":"Bearer","expires_in":3600}
 
-# Introspect / Revoke
-curl -X POST http://<GATEWAY>:9090/oauth/introspect -d "token=TOKEN"
-curl -X POST http://<GATEWAY>:9090/oauth/revoke -d "token=TOKEN"
+# 2. Use token to call API
+curl -H "Authorization: Bearer eyJhbG..." \
+     http://<GATEWAY>:9090/api/v1/users
+
+# 3. Check if token is still valid
+curl -X POST http://<GATEWAY>:9090/oauth/introspect \
+  -d "token=eyJhbG..."
+
+# 4. Revoke token when done
+curl -X POST http://<GATEWAY>:9090/oauth/revoke \
+  -d "token=eyJhbG..."
 ```
 
-### 5. Rate Limiting Tiers
+### Step 7: Configure WAF Rules
 
-| Tier | /min | /hour | /day |
-|------|------|-------|------|
+Protect your APIs from common attacks:
+
+**Navigate:** Dashboard → **WAF** → **Add Rule**
+
+| Rule Name | Pattern | Type | Action |
+|-----------|---------|------|--------|
+| `block-sqli` | `UNION SELECT`, `DROP TABLE` | `BODY` | `BLOCK` |
+| `block-xss` | `<script>`, `javascript:` | `BODY` | `BLOCK` |
+| `block-traversal` | `../`, `..\\` | `PATH` | `BLOCK` |
+| `block-admin` | `/admin.*` | `PATH` | `BLOCK` |
+
+When matched: `403 Forbidden` with WAF rule info.
+
+View blocked attempts: **Security → Threats**
+
+### Step 8: Set Up Webhooks
+
+Get notified when events happen:
+
+**Navigate:** Dashboard → **Webhooks** → **Add Webhook**
+
+| Field | Example |
+|-------|--------|
+| URL | `https://your-app.com/hooks/nawala` |
+| Secret | `whsec_mysecret123` |
+| Events | `threat.detected, health.status_changed` |
+
+**Available Events:**
+
+| Event | Trigger |
+|-------|---------|
+| `route.created` | New route registered |
+| `route.updated` | Route config changed |
+| `route.deleted` | Route removed |
+| `apikey.created` | New API key generated |
+| `apikey.revoked` | API key revoked |
+| `threat.detected` | WAF blocked a request |
+| `health.status_changed` | Backend UP/DOWN change |
+| `anomaly.detected` | Anomaly triggered |
+
+**Payload example:**
+```json
+{
+  "event": "threat.detected",
+  "timestamp": "2026-07-17T10:30:45Z",
+  "data": {
+    "ip": "103.xx.xx.xx",
+    "rule": "SQL_INJECTION",
+    "path": "/api/v1/users?id=1 OR 1=1"
+  },
+  "signature": "sha256=a1b2c3..."
+}
+```
+
+Retry: exponential backoff (1s, 2s, 4s, 8s, 16s) — max 5 attempts.
+
+### Step 9: Anomaly Detection
+
+Nawala automatically detects unusual patterns:
+
+| Anomaly Type | Detection Logic | Auto-Action |
+|-------------|----------------|-------------|
+| **Traffic Spike** | Requests > 5x baseline in 1 min | Alert + auto-block |
+| **Brute Force** | 10+ failed auth/min from same IP | Auto-block IP 1 hour |
+| **Unusual Hour** | Traffic outside business hours | Flag + alert |
+| **Error Spike** | Error rate > 50% in 5 min | Trigger circuit breaker |
+
+View detected anomalies: **Analytics → Anomaly tab**
+
+### Step 10: Rate Limiting
+
+Each API key is assigned a tier that controls request limits:
+
+| Tier | Per Minute | Per Hour | Per Day |
+|------|-----------|----------|--------|
 | FREE | 10 | 100 | 1,000 |
 | STARTER | 60 | 1,000 | 10,000 |
 | PROFESSIONAL | 300 | 10,000 | 100,000 |
 | ENTERPRISE | 1,000 | 50,000 | 500,000 |
-| UNLIMITED | - | - | - |
+| UNLIMITED | No limit | No limit | No limit |
 
-Exceeded → `429 Too Many Requests` + `X-RateLimit-Remaining` header
+**Response headers on every request:**
+```
+X-RateLimit-Limit: 300
+X-RateLimit-Remaining: 245
+X-RateLimit-Reset: 1720000000
+```
 
-### 6. WAF
+**When exceeded:**
+```json
+{"status": 429, "error": "Too Many Requests", "message": "Rate limit exceeded. Retry after 45 seconds."}
+```
 
-WAF → Add Rule → Pattern (`UNION SELECT`, `/admin.*`) → Action (`BLOCK`/`LOG`)
+### Step 11: Circuit Breaker
 
-Blocked → `403 Forbidden`. View: **Security → Threats**
+Protects backend from cascading failures. Configured per route:
 
-### 7. URL Masking
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| Failure Threshold | 5 | Consecutive failures to open circuit |
+| Success Threshold | 3 | Successes in half-open to close |
+| Timeout | 60s | Time in OPEN before HALF_OPEN |
 
-| Client sees | Actual backend |
-|-------------|---------------|
-| `:9090/api/v1/products/123` | `http://10.0.1.5:8081/internal/catalog/v2/123` |
+**State transitions:**
+```
+CLOSED (normal) → 5 failures → OPEN (instant 503)
+OPEN → 60s timeout → HALF_OPEN (test requests)
+HALF_OPEN → 3 successes → CLOSED (recovered)
+HALF_OPEN → 1 failure → OPEN (still down)
+```
 
-### 8. Anomaly Detection
+### Step 12: End-to-End Payload Encryption
 
-| Type | Trigger | Action |
-|------|---------|--------|
-| Spike | Traffic > 5x normal | Alert + block |
-| Brute Force | 10+ failed auth/min/IP | Auto-block |
-| Unusual Hour | Off-hours traffic | Flag |
+Encrypt request/response body between client and gateway:
 
-### 9. Circuit Breaker
+```bash
+# Client encrypts payload before sending
+PAYLOAD='\''{"username":"admin","password":"secret"}'\'' 
+ENCRYPTED=$(echo "$PAYLOAD" | openssl enc -aes-256-gcm -base64 -K $KEY -iv $IV)
 
-`CLOSED` → `OPEN` (5 failures) → `HALF_OPEN` (test 3 success) → `CLOSED`
+# Send encrypted request
+curl -X POST http://<GATEWAY>:9090/api/v1/login \
+  -H "X-Encrypted: true" \
+  -H "X-Encryption-IV: $(echo -n $IV | base64)" \
+  -d "$ENCRYPTED"
+```
 
-### 10. Webhooks
+**Gateway process:**
+1. Receives encrypted body
+2. Decrypts with shared AES-256 key
+3. Forwards plaintext to backend
+4. Receives backend response
+5. Encrypts response body
+6. Returns encrypted response to client
 
-Events: `route.*`, `apikey.*`, `threat.detected`, `health.status_changed`, `anomaly.detected`
+### Step 13: Create Mock Endpoints
 
-Retry: exponential backoff, HMAC-SHA256 signed payload.
+Build API mocks for development and testing without a real backend:
 
-### 11. Plugin System (JS)
+**Navigate:** Dashboard → **Mocks** → **Create Mock**
 
+| Field | Example |
+|-------|--------|
+| Path | `/api/v1/mock/users` |
+| Method | `GET` |
+| Status Code | `200` |
+| Response Body | `{"users":[{"id":1,"name":"Test"}]}` |
+| Delay (ms) | `200` |
+| Content-Type | `application/json` |
+
+```bash
+# Access mock (no auth required)
+curl http://<GATEWAY>:9090/api/v1/mock/users
+# Returns: {"users":[{"id":1,"name":"Test"}]}
+```
+
+### Step 14: Plugin System
+
+Extend gateway behavior with JavaScript hooks:
+
+**Navigate:** Dashboard → **Plugins** → **Create Plugin**
+
+| Hook Type | Executes When |
+|-----------|---------------|
+| `PRE_REQUEST` | Before forwarding to backend |
+| `POST_RESPONSE` | After receiving backend response |
+| `ERROR_HANDLER` | When an error occurs |
+| `SCHEDULER` | On a cron schedule |
+
+**Example — Add custom header based on path:**
 ```javascript
-// PRE_REQUEST hook
 function execute(request, context) {
-    request.headers['X-Custom'] = 'value';
+    if (request.path.startsWith('/api/v1/premium')) {
+        request.headers['X-Premium-Access'] = 'true';
+        request.headers['X-Request-ID'] = context.generateId();
+    }
     return request;
 }
 ```
 
-Hooks: `PRE_REQUEST`, `POST_RESPONSE`, `ERROR_HANDLER`, `SCHEDULER`
+### Step 15: Health Monitoring
 
-### 12. Mock Endpoints
+Nawala checks all registered backends every 60 seconds:
 
-Mocks → Create → Set path, method, status, response body, delay.
+| Status | Condition |
+|--------|-----------|
+| `UP` | Responds within 5s with HTTP 2xx |
+| `DOWN` | No response or HTTP 5xx |
+| `DEGRADED` | Responds > 3s or intermittent errors |
+
+**View:** Security → **Health Monitor**
+
+When status changes → triggers `health.status_changed` webhook.
+
+### Step 16: API Documentation Hosting
+
+Host OpenAPI/Swagger specs directly in Nawala:
+
+1. Navigate: Dashboard → **API Docs** → **Upload Spec**
+2. Upload `.json` or `.yaml` file (OpenAPI 3.0)
+3. Click **Publish**
+4. Public URL: `http://<HOST>:8080/public/docs/{doc-id}`
+
+Share this URL with API consumers for interactive documentation.
+
+### Step 17: Analytics Dashboard
+
+Real-time metrics for all your APIs:
+
+| Metric | Description |
+|--------|-------------|
+| Total Requests | Hourly / Daily / Monthly counts |
+| Response Time | p50, p95, p99 percentiles |
+| Status Distribution | 2xx / 4xx / 5xx breakdown |
+| Top Routes | Most-accessed endpoints |
+| Top Consumers | Most-active API keys |
+| Geographic | Request origins by country |
+| Hourly Patterns | Traffic patterns by hour |
+| Error Trends | Error rate over time |
+
+### Step 18: Admin Panel (ADMIN Role)
+
+| Section | Purpose |
+|---------|---------|
+| **Users** | Create/edit/delete users, assign roles (USER/ADMIN) |
+| **Audit Log** | Complete history of all system actions |
+| **Tier Management** | Create custom rate limit tiers |
+| **System Dashboard** | Server CPU/memory, DB connections, Redis stats |
+
+### Step 19: Key Rotation (Production Best Practice)
+
+Rotate API keys without downtime:
+
+1. **API Keys** → Select key → **Rotate**
+2. New key generated immediately
+3. Old key remains valid for 24-hour grace period
+4. Update your application with new key
+5. After 24h, old key auto-expires
+
+### Step 20: Monitoring Logs
+
+Check separated log files for troubleshooting:
 
 ```bash
-curl http://<GATEWAY>:9090/api/v1/mock/users
+# Application logs (general)
+tail -f logs/platform/application.log
+
+# Error logs only
+tail -f logs/platform/error.log
+
+# Security events (auth failures, threats)
+tail -f logs/platform/security.log
+
+# HTTP access log
+tail -f logs/platform/access.log
+
+# Gateway-specific logs
+tail -f logs/gateway/application.log
+tail -f logs/gateway/security.log
 ```
 
-### 13. Health Monitor
-
-Status: `UP` | `DOWN` | `DEGRADED` — Check interval 60s.
-
-### 14. Analytics
-
-Metrics: requests, response time (p50/p95/p99), status codes, top routes, consumers, geo, hourly patterns.
-
-### 15. API Docs Hosting
-
-Upload OpenAPI 3.0 → Publish → `http://<HOST>:8080/public/docs/{id}`
-
-### 16. Payload Encryption (E2E)
-
-```bash
-curl -X POST http://<GATEWAY>:9090/api/v1/data \
-  -H "X-Encrypted: true" -H "X-Encryption-IV: $IV" -d "$ENCRYPTED"
-```
-
-Gateway: decrypt → forward → encrypt response → return.
-
-### 17. Admin Panel
-
-Users | Audit Log | Tier Config | System Dashboard (ADMIN role only)
+All logs are JSON-formatted with ISO 8601 timestamps for easy parsing with ELK, Grafana Loki, or any log aggregator.
 
 ---
 
-
----
 ## 🔒 Security
 
 ### Encryption Layers
@@ -365,11 +621,11 @@ Users | Audit Log | Tier Config | System Dashboard (ADMIN role only)
 
 | Rule | Pattern | Action |
 |------|---------|--------|
-| SQL Injection | `UNION SELECT`, `DROP TABLE`, `' OR '` | BLOCK (403) |
+| SQL Injection | `UNION SELECT`, `DROP TABLE`, `\' OR \'` | BLOCK (403) |
 | XSS | `<script>`, `javascript:`, `onerror=` | BLOCK (403) |
 | Path Traversal | `../`, `..\\`, `%2e%2e` | BLOCK (403) |
 
-### API Authentication
+### API Authentication Methods
 
 ```bash
 # API Key
@@ -455,7 +711,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 <p align="center">
   <a href="https://saweria.co/rdpf">
-    <img src="https://img.shields.io/badge/☕%20Buy%20Me%20a%20Coffee-Support%20via%20Saweria-ff6f00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white" alt="Support via Saweria"/>
+    <img src="https://img.shields.io/badge/%E2%98%95%20Buy%20Me%20a%20Coffee-Support%20via%20Saweria-ff6f00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white" alt="Support via Saweria"/>
   </a>
 </p>
 
@@ -482,5 +738,3 @@ Licensed under the [MIT License](LICENSE). You are free to use, modify, and dist
 <p align="center">Made with ❤️ by <strong>NAWALA TEAM</strong> in Indonesia 🇮🇩</p>
 <p align="center"><sub>Nawala — Secure Your APIs, Empower Your Platform.</sub></p>
 <p align="center"><sub>Copyright © 2026 NAWALA TEAM. Licensed under MIT.</sub></p>
-
-
