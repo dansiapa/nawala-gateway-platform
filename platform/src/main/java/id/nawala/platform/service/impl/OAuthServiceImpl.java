@@ -1,4 +1,4 @@
-﻿package id.nawala.platform.service.impl;
+package id.nawala.platform.service.impl;
 
 import id.nawala.platform.logging.SecurityLogger;
 import id.nawala.platform.model.OAuthClient;

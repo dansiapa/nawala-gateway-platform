@@ -1,4 +1,4 @@
-﻿package id.nawala.platform.service.impl;
+package id.nawala.platform.service.impl;
 
 import id.nawala.platform.model.Plugin;
 import id.nawala.platform.model.User;
