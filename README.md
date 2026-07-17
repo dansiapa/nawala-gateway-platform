@@ -15,7 +15,8 @@
   <a href="#quick-start">Quick Start</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#security">Security</a> •
-  <a href="#contributing">Contributing</a>
+  <a href="#contributing">Contributing</a> •
+  <a href="#license">License</a>
 </p>
 
 <p align="center">
@@ -51,6 +52,8 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 | No easy API lifecycle management | Full web console with MVVM architecture |
 
 ---
+
+
 ## ✨ Features
 
 ### 🔐 Security & Authentication
@@ -99,46 +102,15 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         CLIENTS                              │
-│              (Mobile / Web / IoT / Services)                  │
-└─────────────────────────────┬───────────────────────────────┘
-                              │
-                              ▼ :9090
-┌─────────────────────────────────────────────────────────────┐
-│                    NAWALA GATEWAY                             │
-│  ┌────────┐ ┌────────┐ ┌──────────┐ ┌────────────────────┐ │
-│  │  WAF   │ │  Auth  │ │  Rate    │ │ Circuit Breaker    │ │
-│  │ Filter │ │Filters │ │ Limiter  │ │ + Load Balancer    │ │
-│  └────────┘ └────────┘ └──────────┘ └────────────────────┘ │
-│  ┌────────┐ ┌────────┐ ┌──────────┐ ┌────────────────────┐ │
-│  │URL Mask│ │Payload │ │  Cache   │ │ Analytics+Anomaly  │ │
-│  │ Filter │ │Encrypt │ │  Filter  │ │ Recorder           │ │
-│  └────────┘ └────────┘ └──────────┘ └────────────────────┘ │
-└─────────────────────────────┬───────────────────────────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-       ┌────────────┐ ┌────────────┐ ┌────────────┐
-       │ Backend  1 │ │ Backend  2 │ │ Backend  N │
-       └────────────┘ └────────────┘ └────────────┘
+<p align="center">
+  <img src="docs/images/architecture.svg" alt="Nawala Architecture" width="100%"/>
+</p>
 
-              ┌───────────────┘
-              ▼ :8080
-┌─────────────────────────────────────────────────────────────┐
-│                    NAWALA PLATFORM                            │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │          Web Console (Thymeleaf + Modern UI)           │ │
-│  ├────────────────────────────────────────────────────────┤ │
-│  │ Dashboard│Routes│API Keys│OAuth│Analytics│WAF│Plugins  │ │
-│  └────────────────────────────────────────────────────────┘ │
-│  ┌────────────┐  ┌────────────┐  ┌─────────────────────┐   │
-│  │ MySQL 8.0  │  │ Redis 7.x  │  │ Structured Logging  │   │
-│  │(Encrypted) │  │(Rate Limit)│  │ (JSON, separated)   │   │
-│  └────────────┘  └────────────┘  └─────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+### Request Processing Flow
+
+<p align="center">
+  <img src="docs/images/request-flow.svg" alt="Request Flow" width="100%"/>
+</p>
 
 ### Tech Stack
 
@@ -148,7 +120,7 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 | Framework | Spring Boot 3.2.5 |
 | Gateway | Spring Cloud Gateway (Reactive/WebFlux) |
 | Frontend | Thymeleaf + Custom CSS + Vanilla JS |
-| Database | MySQL 8.0 (XAMPP compatible) |
+| Database | MySQL 8.0 |
 | Cache | Redis 7.x |
 | Security | Spring Security 6 + BCrypt(12) + AES-256-GCM |
 | Build | Maven (Multi-module) |
@@ -156,6 +128,7 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 | Pattern | MVVM (Model-View-ViewModel) |
 
 ---
+
 
 ## 🚀 Quick Start
 
@@ -165,15 +138,16 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 |----------|---------|----------|
 | Java JDK | 17+ | ✅ |
 | Maven | 3.8+ | ✅ |
-| MySQL | 8.0+ (or XAMPP) | ✅ |
+| MySQL | 8.0+ | ✅ |
 | Redis | 7.x | ✅ |
+| Git | 2.x | ✅ |
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/nawala-api-gateway.git
-cd nawala-api-gateway
+git clone https://github.com/dansiapa/nawala-gateway-platform.git
+cd nawala-gateway-platform
 
 # 2. Create MySQL database
 mysql -u root -e "CREATE DATABASE nawala_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
@@ -184,73 +158,55 @@ redis-server
 # 4. Build the project
 ./mvnw clean package -DskipTests
 
-# 5. Start Platform (port 8080)
+# 5. Start Platform (Management Console)
 java -jar platform/target/nawala-platform-1.0.0.jar
 
-# 6. Start Gateway (port 9090) - separate terminal
+# 6. Start Gateway (separate terminal)
 java -jar gateway/target/nawala-gateway-1.0.0.jar
 ```
 
-### Windows (XAMPP)
+### Service Endpoints
 
-```powershell
-# Start MySQL from XAMPP Control Panel, then:
-& "C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE nawala_db;"
+| Service | Port | Description |
+|---------|------|-------------|
+| Platform Console | `:8080` | Web management UI |
+| API Gateway | `:9090` | Gateway routing endpoint |
+| Default Admin | `admin` / `admin123` | Change immediately after first login! |
 
-# Build & Run
-.\mvnw.cmd clean package -DskipTests
-Start-Process java -ArgumentList "-jar","platform\target\nawala-platform-1.0.0.jar"
-Start-Process java -ArgumentList "-jar","gateway\target\nawala-gateway-1.0.0.jar"
-```
+---
 
-### Access Points
-
-| Service | URL | Description |
-|---------|-----|-------------|
-| Platform Console | http://localhost:8080 | Web management UI |
 ## ⚙️ Configuration
 
-### Platform (`platform/src/main/resources/application.properties`)
+### Platform
 
 ```properties
-# Database
-spring.datasource.url=jdbc:mysql://localhost:3306/nawala_db?useSSL=false&serverTimezone=Asia/Jakarta
-spring.datasource.username=root
-spring.datasource.password=
-
-# Encryption (generate your own 32-byte base64 key!)
-nawala.encryption.key=YOUR_BASE64_AES_256_KEY_HERE
-
-# Internal API security
-nawala.internal.secret=YOUR_STRONG_SECRET_HERE
+spring.datasource.url=jdbc:mysql://<DB_HOST>:3306/nawala_db?useSSL=false&serverTimezone=Asia/Jakarta
+spring.datasource.username=<DB_USER>
+spring.datasource.password=<DB_PASS>
+nawala.encryption.key=<YOUR_BASE64_AES_256_KEY>
+nawala.internal.secret=<YOUR_INTERNAL_SECRET>
 ```
 
-### Gateway (`gateway/src/main/resources/application.properties`)
+### Gateway
 
 ```properties
-nawala.gateway.platform-url=http://localhost:8080
-nawala.gateway.internal-secret=YOUR_STRONG_SECRET_HERE
-nawala.gateway.jwt.secret=YOUR_BASE64_JWT_SECRET
-nawala.gateway.payload-key=YOUR_BASE64_AES_256_KEY_HERE
-spring.data.redis.host=localhost
+nawala.gateway.platform-url=http://<PLATFORM_HOST>:8080
+nawala.gateway.internal-secret=<YOUR_INTERNAL_SECRET>
+nawala.gateway.jwt.secret=<YOUR_BASE64_JWT_SECRET>
+nawala.gateway.payload-key=<YOUR_BASE64_AES_256_KEY>
+spring.data.redis.host=<REDIS_HOST>
 spring.data.redis.port=6379
 ```
 
 ### Generate Secure Keys
 
 ```bash
-# AES-256 key (32 bytes, base64)
-openssl rand -base64 32
-
-# JWT secret (64 bytes, base64)
-openssl rand -base64 64
-
-# Internal shared secret
-openssl rand -hex 32
+openssl rand -base64 32   # AES-256 key
+openssl rand -base64 64   # JWT secret
+openssl rand -hex 32      # Internal secret
 ```
 
 ---
-
 ## 🔒 Security
 
 ### Encryption Layers
@@ -271,31 +227,35 @@ openssl rand -hex 32
 | XSS | `<script>`, `javascript:`, `onerror=` | BLOCK (403) |
 | Path Traversal | `../`, `..\\`, `%2e%2e` | BLOCK (403) |
 
-### API Authentication Examples
+### API Authentication
 
 ```bash
 # API Key
-curl -H "X-API-Key: nwl_YOUR_KEY_HERE" http://localhost:9090/api/v1/users
+curl -H "X-API-Key: nwl_YOUR_KEY_HERE" http://<GATEWAY>:9090/api/v1/users
 
 # JWT Bearer
-curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:9090/api/v1/users
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://<GATEWAY>:9090/api/v1/users
 
 # OAuth2 Client Credentials
-curl -X POST http://localhost:9090/oauth/token \
+curl -X POST http://<GATEWAY>:9090/oauth/token \
   -d "grant_type=client_credentials&client_id=ID&client_secret=SECRET"
+```
+
+---
+
 ## 📊 Logging
 
-Nawala implements **ISO 8601 structured logging** with separated log files:
+Structured ISO 8601 JSON logging with separated files:
 
 ```
-D:/nawala/logs/
+logs/
 ├── platform/
-│   ├── application.log      # General app logs (JSON)
-│   ├── error.log            # ERROR level only
-│   ├── security.log         # Auth, access control, threats
-│   ├── access.log           # HTTP access logs
-│   ├── health.log           # Health check results
-│   └── archive/             # Rotated & compressed (.gz)
+│   ├── application.log    # General (JSON)
+│   ├── error.log          # ERROR only
+│   ├── security.log       # Auth & threats
+│   ├── access.log         # HTTP access
+│   ├── health.log         # Health checks
+│   └── archive/           # Rotated (.gz)
 └── gateway/
     ├── application.log
     ├── error.log
@@ -304,47 +264,29 @@ D:/nawala/logs/
     └── archive/
 ```
 
-### Log Entry Example (JSON)
-
-```json
-{
-  "@timestamp": "2024-01-15T10:30:45.123+07:00",
-  "service": "nawala-platform",
-  "level": "INFO",
-  "logger": "SecurityLogger",
-  "thread": "http-nio-8080-exec-1",
-  "traceId": "abc123",
-  "userId": "admin",
-  "clientIp": "192.168.1.100",
-  "message": "API key created name=prod-key owner=admin prefix=nwl_abc1"
-}
-```
-
 ---
 
 ## 📁 Project Structure
 
 ```
-nawala-api-gateway/
-├── pom.xml                          # Parent POM (multi-module)
-├── platform/                        # Management Console
+nawala-gateway-platform/
+├── pom.xml                    # Parent POM (multi-module)
+├── platform/                  # Management Console
 │   └── src/main/java/id/nawala/platform/
-│       ├── config/                  # Security, Encryption, Scheduling
-│       ├── controller/              # 14 MVC controllers
-│       ├── exception/               # Global exception handling
-│       ├── logging/                 # Security & Access loggers
-│       ├── model/                   # 19 JPA entities
-│       ├── repository/              # 18 Spring Data repositories
-│       ├── service/impl/            # 15 service implementations
-│       ├── util/                    # Encryption utilities
-│       └── viewmodel/              # MVVM view models
-├── gateway/                         # API Gateway (Reactive)
+│       ├── config/            # Security, Encryption, Scheduling
+│       ├── controller/        # 14 MVC controllers
+│       ├── model/             # 19 JPA entities
+│       ├── repository/        # 18 Spring Data repositories
+│       ├── service/impl/      # 15 service implementations
+│       ├── util/              # Encryption utilities
+│       └── viewmodel/         # MVVM view models
+├── gateway/                   # API Gateway (Reactive)
 │   └── src/main/java/id/nawala/gateway/
-│       ├── circuitbreaker/          # Circuit breaker registry
-│       ├── config/                  # Gateway routing & security
-│       ├── filter/                  # 17 gateway filters
-│       └── logging/                 # Gateway logging
-└── logs/                            # Separated log output
+│       ├── circuitbreaker/    # Circuit breaker registry
+│       ├── config/            # Routing & security
+│       ├── filter/            # 17 gateway filters
+│       └── logging/           # Gateway logging
+└── logs/                      # Separated log output
 ```
 
 ---
@@ -357,33 +299,17 @@ nawala-api-gateway/
 - [ ] Admin REST API + CLI tool
 - [ ] Prometheus + Grafana metrics export
 - [ ] Multi-tenancy support
-- [ ] Redis Cluster rate limiting
-- [ ] API versioning management
-- [ ] SDK generation (Java, Python, TypeScript)
 - [ ] Docker Compose one-click deployment
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Standards
-
-- Java 17+ features encouraged
-- Sensitive fields must use `@Convert(converter = FieldEncryptor.class)`
-- State-changing operations must log to `AuditService`
-- Security events must use `SecurityLogger`
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
 ## ☕ Support This Project
-
-If Nawala helps you or your organization, consider supporting development:
 
 <p align="center">
   <a href="https://saweria.co/rdpf">
@@ -395,26 +321,24 @@ If Nawala helps you or your organization, consider supporting development:
   <a href="https://saweria.co/rdpf"><strong>👉 https://saweria.co/rdpf 👈</strong></a>
 </p>
 
-Your support helps fund:
-- 🐛 Bug fixes and security patches
-- ✨ New feature development
-- 📖 Documentation improvements
-- 🌍 Community support
-
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Copyright © 2026 **NAWALA TEAM**. All rights reserved.
+
+Licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software provided the original copyright notice is included.
 
 ---
 
 ## 🏷️ Keywords
 
-`api-gateway` `api-management` `spring-boot` `spring-cloud-gateway` `java` `microservices` `oauth2` `jwt` `rate-limiting` `waf` `web-application-firewall` `anomaly-detection` `api-security` `encryption` `circuit-breaker` `load-balancer` `api-key-management` `webhooks` `api-analytics` `self-hosted` `open-source` `enterprise` `api-platform` `reverse-proxy` `developer-tools` `devops` `backend` `middleware` `api-monitoring`
+`api-gateway` `api-management` `spring-boot` `spring-cloud-gateway` `java` `microservices` `oauth2` `jwt` `rate-limiting` `waf` `web-application-firewall` `anomaly-detection` `api-security` `encryption` `circuit-breaker` `load-balancer` `api-key-management` `webhooks` `api-analytics` `self-hosted` `open-source` `enterprise` `reverse-proxy` `developer-tools` `devops` `api-monitoring`
 
 ---
 
 <p align="center">Made with ❤️ by <strong>NAWALA TEAM</strong> in Indonesia 🇮🇩</p>
 <p align="center"><sub>Nawala — Secure Your APIs, Empower Your Platform.</sub></p>
+<p align="center"><sub>Copyright © 2026 NAWALA TEAM. Licensed under MIT.</sub></p>
+
 

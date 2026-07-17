@@ -9,7 +9,7 @@ repository-code: "https://github.com/dansiapa/nawala-gateway-platform"
 url: "https://github.com/dansiapa/nawala-gateway-platform"
 license: MIT
 version: "1.0.0"
-date-released: "2024-07-17"
+date-released: "2026-07-17"
 keywords:
   - api-gateway
   - api-management

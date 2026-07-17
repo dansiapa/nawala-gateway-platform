@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="gw" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient>
+    <linearGradient id="pf" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#f093fb"/><stop offset="100%" style="stop-color:#f5576c"/></linearGradient>
+    <linearGradient id="be" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#4facfe"/><stop offset="100%" style="stop-color:#00f2fe"/></linearGradient>
+    <linearGradient id="hd" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#6C63FF"/><stop offset="100%" style="stop-color:#4ECDC4"/></linearGradient>
+    <linearGradient id="db" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#43e97b"/><stop offset="100%" style="stop-color:#38f9d7"/></linearGradient>
+    <filter id="sh" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="ar" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#555"/></marker>
+  </defs>
+  <rect width="900" height="650" fill="#f8f9fa" rx="12"/>
+  <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#2d3436">Nawala - System Architecture</text>
+  <rect x="300" y="50" width="300" height="50" rx="8" fill="url(#hd)" filter="url(#sh)"/>
+  <text x="450" y="80" text-anchor="middle" font-size="13" fill="white" font-weight="bold">CLIENTS (Mobile / Web / IoT / Services)</text>
+  <line x1="450" y1="100" x2="450" y2="130" stroke="#555" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="475" y="120" font-size="10" fill="#555">:9090</text>
+  <rect x="80" y="135" width="740" height="175" rx="10" fill="url(#gw)" filter="url(#sh)" opacity="0.95"/>
+  <text x="450" y="158" text-anchor="middle" font-size="14" fill="white" font-weight="bold">NAWALA GATEWAY (Spring Cloud Gateway - Reactive)</text>
+  <rect x="100" y="170" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="165" y="192" text-anchor="middle" font-size="10" fill="#333">WAF Filter</text>
+  <rect x="245" y="170" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="310" y="192" text-anchor="middle" font-size="10" fill="#333">Auth Filters</text>
+  <rect x="390" y="170" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="455" y="192" text-anchor="middle" font-size="10" fill="#333">Rate Limiter</text>
+  <rect x="535" y="170" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="600" y="192" text-anchor="middle" font-size="10" fill="#333">Circuit Breaker</text>
+  <rect x="680" y="170" width="125" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="742" y="192" text-anchor="middle" font-size="10" fill="#333">Load Balancer</text>
+  <rect x="100" y="215" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="165" y="237" text-anchor="middle" font-size="10" fill="#333">URL Masking</text>
+  <rect x="245" y="215" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="310" y="237" text-anchor="middle" font-size="10" fill="#333">Payload Encrypt</text>
+  <rect x="390" y="215" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="455" y="237" text-anchor="middle" font-size="10" fill="#333">Response Cache</text>
+  <rect x="535" y="215" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="600" y="237" text-anchor="middle" font-size="10" fill="#333">Anomaly Detect</text>
+  <rect x="680" y="215" width="125" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="742" y="237" text-anchor="middle" font-size="10" fill="#333">Analytics</text>
+  <rect x="100" y="260" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="165" y="282" text-anchor="middle" font-size="10" fill="#333">Threat Block</text>
+  <rect x="245" y="260" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="310" y="282" text-anchor="middle" font-size="10" fill="#333">Transformation</text>
+  <rect x="390" y="260" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="455" y="282" text-anchor="middle" font-size="10" fill="#333">Mock Endpoint</text>
+  <rect x="535" y="260" width="130" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="600" y="282" text-anchor="middle" font-size="10" fill="#333">Canary Router</text>
+  <rect x="680" y="260" width="125" height="35" rx="5" fill="white" opacity="0.9"/>
+  <text x="742" y="282" text-anchor="middle" font-size="10" fill="#333">Access Logger</text>
+  <line x1="250" y1="310" x2="200" y2="355" stroke="#555" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="450" y1="310" x2="450" y2="355" stroke="#555" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="650" y1="310" x2="700" y2="355" stroke="#555" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="130" y="358" width="140" height="40" rx="6" fill="url(#be)" filter="url(#sh)"/>
+  <text x="200" y="383" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Backend API 1</text>
+  <rect x="380" y="358" width="140" height="40" rx="6" fill="url(#be)" filter="url(#sh)"/>
+  <text x="450" y="383" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Backend API 2</text>
+  <rect x="630" y="358" width="140" height="40" rx="6" fill="url(#be)" filter="url(#sh)"/>
+  <text x="700" y="383" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Backend API N</text>
+  <line x1="450" y1="310" x2="450" y2="430" stroke="#f5576c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ar)"/>
+  <text x="475" y="425" font-size="9" fill="#f5576c">Internal API</text>
+  <rect x="130" y="440" width="640" height="190" rx="10" fill="url(#pf)" filter="url(#sh)" opacity="0.92"/>
+  <text x="450" y="463" text-anchor="middle" font-size="14" fill="white" font-weight="bold">NAWALA PLATFORM (Management Console) :8080</text>
+  <rect x="150" y="475" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="197" y="495" text-anchor="middle" font-size="9" fill="#333">Dashboard</text>
+  <rect x="255" y="475" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="302" y="495" text-anchor="middle" font-size="9" fill="#333">Routes</text>
+  <rect x="360" y="475" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="407" y="495" text-anchor="middle" font-size="9" fill="#333">API Keys</text>
+  <rect x="465" y="475" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="512" y="495" text-anchor="middle" font-size="9" fill="#333">OAuth2</text>
+  <rect x="570" y="475" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="617" y="495" text-anchor="middle" font-size="9" fill="#333">Analytics</text>
+  <rect x="675" y="475" width="80" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="715" y="495" text-anchor="middle" font-size="9" fill="#333">Audit</text>
+  <rect x="150" y="515" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="197" y="535" text-anchor="middle" font-size="9" fill="#333">WAF</text>
+  <rect x="255" y="515" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="302" y="535" text-anchor="middle" font-size="9" fill="#333">Webhooks</text>
+  <rect x="360" y="515" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="407" y="535" text-anchor="middle" font-size="9" fill="#333">Plugins</text>
+  <rect x="465" y="515" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="512" y="535" text-anchor="middle" font-size="9" fill="#333">Health</text>
+  <rect x="570" y="515" width="95" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="617" y="535" text-anchor="middle" font-size="9" fill="#333">Mocks</text>
+  <rect x="675" y="515" width="80" height="30" rx="4" fill="white" opacity="0.9"/>
+  <text x="715" y="535" text-anchor="middle" font-size="9" fill="#333">Docs</text>
+  <rect x="150" y="560" width="180" height="55" rx="6" fill="url(#db)" filter="url(#sh)"/>
+  <text x="240" y="582" text-anchor="middle" font-size="11" fill="white" font-weight="bold">MySQL 8.0</text>
+  <text x="240" y="600" text-anchor="middle" font-size="9" fill="white">(AES-256 Encrypted)</text>
+  <rect x="360" y="560" width="180" height="55" rx="6" fill="#ff6b6b" filter="url(#sh)"/>
+  <text x="450" y="582" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Redis 7.x</text>
+  <text x="450" y="600" text-anchor="middle" font-size="9" fill="white">(Cache + Rate Limit)</text>
+  <rect x="570" y="560" width="180" height="55" rx="6" fill="#2d3436" filter="url(#sh)"/>
+  <text x="660" y="582" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Structured Logs</text>
+  <text x="660" y="600" text-anchor="middle" font-size="9" fill="white">(JSON, Separated Files)</text>
+  <text x="450" y="645" text-anchor="middle" font-size="10" fill="#888">Copyright (c) 2026 NAWALA TEAM - MIT License</text>
+</svg>
