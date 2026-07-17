@@ -206,6 +206,148 @@ openssl rand -base64 64   # JWT secret
 openssl rand -hex 32      # Internal secret
 ```
 
+
+## 📖 Usage Guide
+
+### 1. Login & Dashboard
+
+```
+URL   : http://<HOST>:8080/login
+User  : admin
+Pass  : admin123  (segera ganti setelah login pertama!)
+```
+
+Dashboard menampilkan: total routes, active API keys, request count, system health, top routes.
+
+### 2. Register API Route
+
+API Routes → Add Route:
+
+| Field | Contoh | Keterangan |
+|-------|--------|------------|
+| Name | `user-service` | Nama unik route |
+| Path | `/api/v1/users/**` | Path pattern gateway |
+| Target URL | `http://10.0.1.5:3000` | Backend URL |
+| Method | `GET,POST,PUT,DELETE` | Allowed methods |
+| Auth Required | `true` | Wajib autentikasi |
+| Rate Limit Tier | `PROFESSIONAL` | Tier rate limit |
+
+```bash
+curl -H "X-API-Key: nwl_xxxxx" http://<GATEWAY>:9090/api/v1/users
+```
+
+### 3. API Key Management
+
+- **Create:** API Keys → Generate → `nwl_abc123xyz...` (tampil sekali!)
+- **Scope:** Restrict by IP, Method, Route
+- **Rotate:** Grace period 24h (key lama tetap aktif)
+- **Revoke:** Immediate effect
+
+### 4. OAuth2 Client Credentials
+
+```bash
+# Request Token
+curl -X POST http://<GATEWAY>:9090/oauth/token \
+  -d "grant_type=client_credentials&client_id=ID&client_secret=SECRET"
+
+# Use Token
+curl -H "Authorization: Bearer eyJhbG..." http://<GATEWAY>:9090/api/v1/users
+
+# Introspect / Revoke
+curl -X POST http://<GATEWAY>:9090/oauth/introspect -d "token=TOKEN"
+curl -X POST http://<GATEWAY>:9090/oauth/revoke -d "token=TOKEN"
+```
+
+### 5. Rate Limiting Tiers
+
+| Tier | /min | /hour | /day |
+|------|------|-------|------|
+| FREE | 10 | 100 | 1,000 |
+| STARTER | 60 | 1,000 | 10,000 |
+| PROFESSIONAL | 300 | 10,000 | 100,000 |
+| ENTERPRISE | 1,000 | 50,000 | 500,000 |
+| UNLIMITED | - | - | - |
+
+Exceeded → `429 Too Many Requests` + `X-RateLimit-Remaining` header
+
+### 6. WAF
+
+WAF → Add Rule → Pattern (`UNION SELECT`, `/admin.*`) → Action (`BLOCK`/`LOG`)
+
+Blocked → `403 Forbidden`. View: **Security → Threats**
+
+### 7. URL Masking
+
+| Client sees | Actual backend |
+|-------------|---------------|
+| `:9090/api/v1/products/123` | `http://10.0.1.5:8081/internal/catalog/v2/123` |
+
+### 8. Anomaly Detection
+
+| Type | Trigger | Action |
+|------|---------|--------|
+| Spike | Traffic > 5x normal | Alert + block |
+| Brute Force | 10+ failed auth/min/IP | Auto-block |
+| Unusual Hour | Off-hours traffic | Flag |
+
+### 9. Circuit Breaker
+
+`CLOSED` → `OPEN` (5 failures) → `HALF_OPEN` (test 3 success) → `CLOSED`
+
+### 10. Webhooks
+
+Events: `route.*`, `apikey.*`, `threat.detected`, `health.status_changed`, `anomaly.detected`
+
+Retry: exponential backoff, HMAC-SHA256 signed payload.
+
+### 11. Plugin System (JS)
+
+```javascript
+// PRE_REQUEST hook
+function execute(request, context) {
+    request.headers['X-Custom'] = 'value';
+    return request;
+}
+```
+
+Hooks: `PRE_REQUEST`, `POST_RESPONSE`, `ERROR_HANDLER`, `SCHEDULER`
+
+### 12. Mock Endpoints
+
+Mocks → Create → Set path, method, status, response body, delay.
+
+```bash
+curl http://<GATEWAY>:9090/api/v1/mock/users
+```
+
+### 13. Health Monitor
+
+Status: `UP` | `DOWN` | `DEGRADED` — Check interval 60s.
+
+### 14. Analytics
+
+Metrics: requests, response time (p50/p95/p99), status codes, top routes, consumers, geo, hourly patterns.
+
+### 15. API Docs Hosting
+
+Upload OpenAPI 3.0 → Publish → `http://<HOST>:8080/public/docs/{id}`
+
+### 16. Payload Encryption (E2E)
+
+```bash
+curl -X POST http://<GATEWAY>:9090/api/v1/data \
+  -H "X-Encrypted: true" -H "X-Encryption-IV: $IV" -d "$ENCRYPTED"
+```
+
+Gateway: decrypt → forward → encrypt response → return.
+
+### 17. Admin Panel
+
+Users | Audit Log | Tier Config | System Dashboard (ADMIN role only)
+
+---
+
+
 ---
 ## 🔒 Security
 
