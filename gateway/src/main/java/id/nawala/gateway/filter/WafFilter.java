@@ -51,7 +51,7 @@ public class WafFilter implements GlobalFilter, Ordered {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             exchange.getResponse().getHeaders().set("X-WAF-Block", blocked);
             DataBuffer buffer = exchange.getResponse().bufferFactory()
-                    .wrap("{\"error\":\"Blocked by WAF\",\"reason\":\"" + blocked + "\"}".getBytes(StandardCharsets.UTF_8));
+                    .wrap(("{\"error\":\"Blocked by WAF\",\"reason\":\"" + blocked + "\"}").getBytes(StandardCharsets.UTF_8));
             return exchange.getResponse().writeWith(Mono.just(buffer));
         }
 

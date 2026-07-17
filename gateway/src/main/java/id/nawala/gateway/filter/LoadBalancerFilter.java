@@ -41,7 +41,7 @@ public class LoadBalancerFilter implements GlobalFilter, Ordered {
 
         // Filter only healthy targets
         List<WeightedTarget> healthy = targets.stream()
-                .filter(WeightedTarget::isHealthy)
+                .filter(WeightedTarget::healthy)
                 .toList();
 
         if (healthy.isEmpty()) {
