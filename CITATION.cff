@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "Nawala - Enterprise API Gateway & Management Platform"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - name: "NAWALA TEAM"
+    country: "ID"
+repository-code: "https://github.com/dansiapa/nawala-gateway-platform"
+url: "https://github.com/dansiapa/nawala-gateway-platform"
+license: MIT
+version: "1.0.0"
+date-released: "2024-07-17"
+keywords:
+  - api-gateway
+  - api-management
+  - spring-boot
+  - spring-cloud-gateway
+  - java
+  - oauth2
+  - rate-limiting
+  - waf
+  - anomaly-detection
+  - encryption
+  - self-hosted
+  - open-source
+abstract: >-
+  Nawala is a full-featured, production-ready, open-source API Gateway and
+  API Management Platform built with Java 17 and Spring Boot 3. It provides
+  built-in WAF, OAuth2 authentication, tiered rate limiting, anomaly detection,
+  AES-256-GCM end-to-end payload encryption, URL masking, circuit breaker,
+  load balancer, plugin system, webhooks, and comprehensive analytics.
+  Self-hosted alternative to AWS API Gateway, Kong Enterprise, and Apigee.
