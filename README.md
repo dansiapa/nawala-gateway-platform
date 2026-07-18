@@ -1,8 +1,8 @@
-﻿<p align="center">
+<p align="center">
   <img src="docs/images/banner.svg" alt="Nawala Gateway Platform" width="100%"/>
 </p>
 
-<h1 align="center">🌐 Nawala — Enterprise API Gateway & Management Platform</h1>
+<h1 align="center">?? Nawala � Enterprise API Gateway & Management Platform</h1>
 
 <p align="center">
   <strong>Open-source API Gateway with built-in WAF, OAuth2, Rate Limiting, Anomaly Detection, and End-to-End Encryption.</strong><br/>
@@ -10,12 +10,12 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#configuration">Configuration</a> •
-  <a href="#security">Security</a> •
-  <a href="#contributing">Contributing</a> •
+  <a href="#features">Features</a> �
+  <a href="#architecture">Architecture</a> �
+  <a href="#quick-start">Quick Start</a> �
+  <a href="#configuration">Configuration</a> �
+  <a href="#security">Security</a> �
+  <a href="#contributing">Contributing</a> �
   <a href="#license">License</a>
 </p>
 
@@ -30,17 +30,17 @@
 
 <p align="center">
   <a href="https://saweria.co/rdpf">
-    <img src="https://img.shields.io/badge/☕%20Support%20This%20Project-Donate%20via%20Saweria-orange?style=for-the-badge" alt="Donate"/>
+    <img src="https://img.shields.io/badge/?%20Support%20This%20Project-Donate%20via%20Saweria-orange?style=for-the-badge" alt="Donate"/>
   </a>
 </p>
 
 ---
 
-## 💡 What is Nawala?
+## ?? What is Nawala?
 
 **Nawala** (from Sanskrit: "komunikasi / pesan") is a full-featured, production-ready **API Gateway** and **API Management Platform** designed for startups, enterprises, and developers who need secure, scalable, and intelligent API routing without vendor lock-in.
 
-Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala runs **entirely self-hosted** — giving you full control over your data, traffic, and security policies.
+Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala runs **entirely self-hosted** � giving you full control over your data, traffic, and security policies.
 
 | Problem | Nawala Solution |
 |---------|----------------|
@@ -54,53 +54,53 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 ---
 
 
-## ✨ Features
+## ? Features
 
-### 🔐 Security & Authentication
-- **Multi-Auth Support** — API Key, JWT Bearer Token, OAuth2 Client Credentials
-- **API Key Management** — Generate, rotate (24h grace period), revoke, scoped (IP/method/route)
-- **OAuth2 Server** — Client registration, token issue/refresh/revoke/introspect (RFC 6749)
-- **Web Application Firewall (WAF)** — SQL injection, XSS, path traversal + custom rules
-- **AES-256-GCM Encryption** — Database field encryption + end-to-end payload encryption
-- **Internal API Security** — Shared-secret header validation for service-to-service calls
+### ?? Security & Authentication
+- **Multi-Auth Support** � API Key, JWT Bearer Token, OAuth2 Client Credentials
+- **API Key Management** � Generate, rotate (24h grace period), revoke, scoped (IP/method/route)
+- **OAuth2 Server** � Client registration, token issue/refresh/revoke/introspect (RFC 6749)
+- **Web Application Firewall (WAF)** � SQL injection, XSS, path traversal + custom rules
+- **AES-256-GCM Encryption** � Database field encryption + end-to-end payload encryption
+- **Internal API Security** � Shared-secret header validation for service-to-service calls
 
-### 🚦 Traffic Management
-- **Tiered Rate Limiting** — FREE / STARTER / PROFESSIONAL / ENTERPRISE / UNLIMITED
-- **Multi-Window Rate Limit** — Per-minute, per-hour, per-day sliding windows
-- **Circuit Breaker** — CLOSED → OPEN → HALF_OPEN with configurable thresholds
-- **Load Balancer** — Round-robin + canary routing with weighted distribution
-- **Response Caching** — Configurable TTL per route
-- **Request/Response Transformation** — Header injection, body transformation pipeline
+### ?? Traffic Management
+- **Tiered Rate Limiting** � FREE / STARTER / PROFESSIONAL / ENTERPRISE / UNLIMITED
+- **Multi-Window Rate Limit** � Per-minute, per-hour, per-day sliding windows
+- **Circuit Breaker** � CLOSED ? OPEN ? HALF_OPEN with configurable thresholds
+- **Load Balancer** � Round-robin + canary routing with weighted distribution
+- **Response Caching** � Configurable TTL per route
+- **Request/Response Transformation** � Header injection, body transformation pipeline
 
-### 🧠 Intelligence & Monitoring
-- **Anomaly Detection** — Spike detection, brute force detection, unusual hour analysis
-- **Auto-Block** — Threats automatically blocked at gateway level
-- **Health Monitor** — Scheduled health checks with UP/DOWN/DEGRADED tracking
-- **Real-time Analytics** — Traffic, response times, status distribution, geo, hourly patterns
-- **Structured Logging** — JSON format, separated files (app/error/security/access/health)
+### ?? Intelligence & Monitoring
+- **Anomaly Detection** � Spike detection, brute force detection, unusual hour analysis
+- **Auto-Block** � Threats automatically blocked at gateway level
+- **Health Monitor** � Scheduled health checks with UP/DOWN/DEGRADED tracking
+- **Real-time Analytics** � Traffic, response times, status distribution, geo, hourly patterns
+- **Structured Logging** � JSON format, separated files (app/error/security/access/health)
 
-### 🔌 Extensibility
-- **Plugin System** — JavaScript hooks (PRE_REQUEST, POST_RESPONSE, ERROR_HANDLER, SCHEDULER)
-- **Webhooks** — Event notifications with HMAC signing and exponential backoff retry
-- **Mock/Sandbox** — Create mock endpoints for development and testing
-- **API Documentation** — Built-in OpenAPI spec hosting with publish/unpublish workflow
+### ?? Extensibility
+- **Plugin System** � JavaScript hooks (PRE_REQUEST, POST_RESPONSE, ERROR_HANDLER, SCHEDULER)
+- **Webhooks** � Event notifications with HMAC signing and exponential backoff retry
+- **Mock/Sandbox** � Create mock endpoints for development and testing
+- **API Documentation** � Built-in OpenAPI spec hosting with publish/unpublish workflow
 
-### 🎯 Competitive Comparison
+### ?? Competitive Comparison
 
 | Feature | Kong | AWS API GW | Apigee | **Nawala** |
 |---------|:----:|:----------:|:------:|:----------:|
-| Self-hosted + Free | ✅ | ❌ | ❌ | ✅ |
-| Built-in WAF | ❌ | Separate | ❌ | ✅ |
-| Anomaly Detection | ❌ | ❌ | ❌ | ✅ |
-| Payload Encryption (E2E) | ❌ | ❌ | ❌ | ✅ |
-| URL Masking | ❌ | ❌ | ❌ | ✅ |
-| Plugin System (JS) | Lua | ❌ | ❌ | ✅ |
-| Full Web Console | Paid | AWS Console | Paid | ✅ |
-| Canary Routing | Paid | ❌ | Paid | ✅ |
+| Self-hosted + Free | ? | ? | ? | ? |
+| Built-in WAF | ? | Separate | ? | ? |
+| Anomaly Detection | ? | ? | ? | ? |
+| Payload Encryption (E2E) | ? | ? | ? | ? |
+| URL Masking | ? | ? | ? | ? |
+| Plugin System (JS) | Lua | ? | ? | ? |
+| Full Web Console | Paid | AWS Console | Paid | ? |
+| Canary Routing | Paid | ? | Paid | ? |
 
 ---
 
-## 🏗️ Architecture
+## ??? Architecture
 
 <p align="center">
   <img src="docs/images/architecture.svg" alt="Nawala Architecture" width="100%"/>
@@ -130,17 +130,17 @@ Unlike cloud-only solutions (AWS API Gateway, Apigee, Kong Enterprise), Nawala r
 ---
 
 
-## 🚀 Quick Start
+## ?? Quick Start
 
 ### Prerequisites
 
 | Software | Version | Required |
 |----------|---------|----------|
-| Java JDK | 17+ | ✅ |
-| Maven | 3.8+ | ✅ |
-| MySQL | 8.0+ | ✅ |
-| Redis | 7.x | ✅ |
-| Git | 2.x | ✅ |
+| Java JDK | 17+ | ? |
+| Maven | 3.8+ | ? |
+| MySQL | 8.0+ | ? |
+| Redis | 7.x | ? |
+| Git | 2.x | ? |
 
 ### Installation
 
@@ -175,7 +175,7 @@ java -jar gateway/target/nawala-gateway-1.0.0.jar
 
 ---
 
-## ⚙️ Configuration
+## ?? Configuration
 
 ### Platform
 
@@ -208,7 +208,7 @@ openssl rand -hex 32      # Internal secret
 
 
 
-## 📖 Complete Usage Guide
+## ?? Complete Usage Guide
 
 This guide walks you through the entire workflow from first login to full production-ready API management.
 
@@ -222,13 +222,13 @@ Username : admin
 Password : admin123
 ```
 
-> **Important:** Change the default password immediately via Profile → Change Password.
+> **Important:** Change the default password immediately via Profile ? Change Password.
 
 ### Step 2: Register Your First API Route
 
-This is the core action — registering a backend service so the gateway can route traffic to it.
+This is the core action � registering a backend service so the gateway can route traffic to it.
 
-**Navigate:** Dashboard → **API Routes** → **Add Route**
+**Navigate:** Dashboard ? **API Routes** ? **Add Route**
 
 | Field | Example | Description |
 |-------|---------|-------------|
@@ -242,7 +242,7 @@ This is the core action — registering a backend service so the gateway can rou
 | Enable Caching | `false` | Cache responses at gateway |
 | Circuit Breaker | `true` | Enable circuit breaking |
 
-Click **Save** — the route is immediately active on the gateway (port `:9090`).
+Click **Save** � the route is immediately active on the gateway (port `:9090`).
 
 **How it works:**
 ```
@@ -255,7 +255,7 @@ Response:         Flows back through gateway filters to client
 
 Your route requires authentication. Generate an API key for consumers:
 
-**Navigate:** Dashboard → **API Keys** → **Generate New Key**
+**Navigate:** Dashboard ? **API Keys** ? **Generate New Key**
 
 | Field | Example | Description |
 |-------|---------|-------------|
@@ -266,7 +266,7 @@ Your route requires authentication. Generate an API key for consumers:
 | Allowed Methods | `GET,POST` (optional) | Restrict methods |
 | Allowed Routes | `/api/v1/users/**` (optional) | Restrict routes |
 
-Key displayed **once**: `nwl_a1b2c3d4e5f6...` — store securely, cannot be retrieved again.
+Key displayed **once**: `nwl_a1b2c3d4e5f6...` � store securely, cannot be retrieved again.
 
 ### Step 4: Test Your Route
 
@@ -296,13 +296,13 @@ Hide your real backend paths from clients:
 | `/api/v1/products/**` | `http://10.0.1.50:8081/internal/catalog/v2/**` |
 | `/api/v1/orders/**` | `http://10.0.2.30:4000/legacy/order-system/**` |
 
-The client only sees `/api/v1/products/123` — never knows the actual internal URL.
+The client only sees `/api/v1/products/123` � never knows the actual internal URL.
 
 ### Step 6: Configure OAuth2 (Alternative Auth)
 
 For service-to-service communication, use OAuth2 Client Credentials:
 
-**Navigate:** Dashboard → **OAuth** → **Register Client**
+**Navigate:** Dashboard ? **OAuth** ? **Register Client**
 
 | Field | Example |
 |-------|--------|
@@ -342,7 +342,7 @@ curl -X POST http://<GATEWAY>:9090/oauth/revoke \
 
 Protect your APIs from common attacks:
 
-**Navigate:** Dashboard → **WAF** → **Add Rule**
+**Navigate:** Dashboard ? **WAF** ? **Add Rule**
 
 | Rule Name | Pattern | Type | Action |
 |-----------|---------|------|--------|
@@ -353,13 +353,13 @@ Protect your APIs from common attacks:
 
 When matched: `403 Forbidden` with WAF rule info.
 
-View blocked attempts: **Security → Threats**
+View blocked attempts: **Security ? Threats**
 
 ### Step 8: Set Up Webhooks
 
 Get notified when events happen:
 
-**Navigate:** Dashboard → **Webhooks** → **Add Webhook**
+**Navigate:** Dashboard ? **Webhooks** ? **Add Webhook**
 
 | Field | Example |
 |-------|--------|
@@ -394,7 +394,7 @@ Get notified when events happen:
 }
 ```
 
-Retry: exponential backoff (1s, 2s, 4s, 8s, 16s) — max 5 attempts.
+Retry: exponential backoff (1s, 2s, 4s, 8s, 16s) � max 5 attempts.
 
 ### Step 9: Anomaly Detection
 
@@ -407,7 +407,7 @@ Nawala automatically detects unusual patterns:
 | **Unusual Hour** | Traffic outside business hours | Flag + alert |
 | **Error Spike** | Error rate > 50% in 5 min | Trigger circuit breaker |
 
-View detected anomalies: **Analytics → Anomaly tab**
+View detected anomalies: **Analytics ? Anomaly tab**
 
 ### Step 10: Rate Limiting
 
@@ -445,10 +445,10 @@ Protects backend from cascading failures. Configured per route:
 
 **State transitions:**
 ```
-CLOSED (normal) → 5 failures → OPEN (instant 503)
-OPEN → 60s timeout → HALF_OPEN (test requests)
-HALF_OPEN → 3 successes → CLOSED (recovered)
-HALF_OPEN → 1 failure → OPEN (still down)
+CLOSED (normal) ? 5 failures ? OPEN (instant 503)
+OPEN ? 60s timeout ? HALF_OPEN (test requests)
+HALF_OPEN ? 3 successes ? CLOSED (recovered)
+HALF_OPEN ? 1 failure ? OPEN (still down)
 ```
 
 ### Step 12: End-to-End Payload Encryption
@@ -479,7 +479,7 @@ curl -X POST http://<GATEWAY>:9090/api/v1/login \
 
 Build API mocks for development and testing without a real backend:
 
-**Navigate:** Dashboard → **Mocks** → **Create Mock**
+**Navigate:** Dashboard ? **Mocks** ? **Create Mock**
 
 | Field | Example |
 |-------|--------|
@@ -500,7 +500,7 @@ curl http://<GATEWAY>:9090/api/v1/mock/users
 
 Extend gateway behavior with JavaScript hooks:
 
-**Navigate:** Dashboard → **Plugins** → **Create Plugin**
+**Navigate:** Dashboard ? **Plugins** ? **Create Plugin**
 
 | Hook Type | Executes When |
 |-----------|---------------|
@@ -509,7 +509,7 @@ Extend gateway behavior with JavaScript hooks:
 | `ERROR_HANDLER` | When an error occurs |
 | `SCHEDULER` | On a cron schedule |
 
-**Example — Add custom header based on path:**
+**Example � Add custom header based on path:**
 ```javascript
 function execute(request, context) {
     if (request.path.startsWith('/api/v1/premium')) {
@@ -530,15 +530,15 @@ Nawala checks all registered backends every 60 seconds:
 | `DOWN` | No response or HTTP 5xx |
 | `DEGRADED` | Responds > 3s or intermittent errors |
 
-**View:** Security → **Health Monitor**
+**View:** Security ? **Health Monitor**
 
-When status changes → triggers `health.status_changed` webhook.
+When status changes ? triggers `health.status_changed` webhook.
 
 ### Step 16: API Documentation Hosting
 
 Host OpenAPI/Swagger specs directly in Nawala:
 
-1. Navigate: Dashboard → **API Docs** → **Upload Spec**
+1. Navigate: Dashboard ? **API Docs** ? **Upload Spec**
 2. Upload `.json` or `.yaml` file (OpenAPI 3.0)
 3. Click **Publish**
 4. Public URL: `http://<HOST>:8080/public/docs/{doc-id}`
@@ -573,7 +573,7 @@ Real-time metrics for all your APIs:
 
 Rotate API keys without downtime:
 
-1. **API Keys** → Select key → **Rotate**
+1. **API Keys** ? Select key ? **Rotate**
 2. New key generated immediately
 3. Old key remains valid for 24-hour grace period
 4. Update your application with new key
@@ -605,7 +605,7 @@ All logs are JSON-formatted with ISO 8601 timestamps for easy parsing with ELK, 
 
 ---
 
-## 🔒 Security
+## ?? Security
 
 ### Encryption Layers
 
@@ -641,55 +641,55 @@ curl -X POST http://<GATEWAY>:9090/oauth/token \
 
 ---
 
-## 📊 Logging
+## ?? Logging
 
 Structured ISO 8601 JSON logging with separated files:
 
 ```
 logs/
-├── platform/
-│   ├── application.log    # General (JSON)
-│   ├── error.log          # ERROR only
-│   ├── security.log       # Auth & threats
-│   ├── access.log         # HTTP access
-│   ├── health.log         # Health checks
-│   └── archive/           # Rotated (.gz)
-└── gateway/
-    ├── application.log
-    ├── error.log
-    ├── security.log
-    ├── access.log
-    └── archive/
++-- platform/
+�   +-- application.log    # General (JSON)
+�   +-- error.log          # ERROR only
+�   +-- security.log       # Auth & threats
+�   +-- access.log         # HTTP access
+�   +-- health.log         # Health checks
+�   +-- archive/           # Rotated (.gz)
++-- gateway/
+    +-- application.log
+    +-- error.log
+    +-- security.log
+    +-- access.log
+    +-- archive/
 ```
 
 ---
 
-## 📁 Project Structure
+## ?? Project Structure
 
 ```
 nawala-gateway-platform/
-├── pom.xml                    # Parent POM (multi-module)
-├── platform/                  # Management Console
-│   └── src/main/java/id/nawala/platform/
-│       ├── config/            # Security, Encryption, Scheduling
-│       ├── controller/        # 14 MVC controllers
-│       ├── model/             # 19 JPA entities
-│       ├── repository/        # 18 Spring Data repositories
-│       ├── service/impl/      # 15 service implementations
-│       ├── util/              # Encryption utilities
-│       └── viewmodel/         # MVVM view models
-├── gateway/                   # API Gateway (Reactive)
-│   └── src/main/java/id/nawala/gateway/
-│       ├── circuitbreaker/    # Circuit breaker registry
-│       ├── config/            # Routing & security
-│       ├── filter/            # 17 gateway filters
-│       └── logging/           # Gateway logging
-└── logs/                      # Separated log output
++-- pom.xml                    # Parent POM (multi-module)
++-- platform/                  # Management Console
+�   +-- src/main/java/id/nawala/platform/
+�       +-- config/            # Security, Encryption, Scheduling
+�       +-- controller/        # 14 MVC controllers
+�       +-- model/             # 19 JPA entities
+�       +-- repository/        # 18 Spring Data repositories
+�       +-- service/impl/      # 15 service implementations
+�       +-- util/              # Encryption utilities
+�       +-- viewmodel/         # MVVM view models
++-- gateway/                   # API Gateway (Reactive)
+�   +-- src/main/java/id/nawala/gateway/
+�       +-- circuitbreaker/    # Circuit breaker registry
+�       +-- config/            # Routing & security
+�       +-- filter/            # 17 gateway filters
+�       +-- logging/           # Gateway logging
++-- logs/                      # Separated log output
 ```
 
 ---
 
-## 🛣️ Roadmap
+## ??? Roadmap
 
 - [ ] GraphQL Gateway support
 - [ ] gRPC proxy
@@ -701,13 +701,13 @@ nawala-gateway-platform/
 
 ---
 
-## 🤝 Contributing
+## ?? Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
-## ☕ Support This Project
+## ? Support This Project
 
 <p align="center">
   <a href="https://saweria.co/rdpf">
@@ -716,25 +716,25 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 </p>
 
 <p align="center">
-  <a href="https://saweria.co/rdpf"><strong>👉 https://saweria.co/rdpf 👈</strong></a>
+  <a href="https://saweria.co/rdpf"><strong>?? https://saweria.co/rdpf ??</strong></a>
 </p>
 
 ---
 
-## 📜 License
+## ?? License
 
-Copyright © 2026 **NAWALA TEAM**. All rights reserved.
+Copyright � 2026 **NAWALA TEAM**. All rights reserved.
 
 Licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software provided the original copyright notice is included.
 
 ---
 
-## 🏷️ Keywords
+## ??? Keywords
 
 `api-gateway` `api-management` `spring-boot` `spring-cloud-gateway` `java` `microservices` `oauth2` `jwt` `rate-limiting` `waf` `web-application-firewall` `anomaly-detection` `api-security` `encryption` `circuit-breaker` `load-balancer` `api-key-management` `webhooks` `api-analytics` `self-hosted` `open-source` `enterprise` `reverse-proxy` `developer-tools` `devops` `api-monitoring`
 
 ---
 
-<p align="center">Made with ❤️ by <strong>NAWALA TEAM</strong> in Indonesia 🇮🇩</p>
-<p align="center"><sub>Nawala — Secure Your APIs, Empower Your Platform.</sub></p>
-<p align="center"><sub>Copyright © 2026 NAWALA TEAM. Licensed under MIT.</sub></p>
+<p align="center">Made with ?? by <strong>NAWALA TEAM</strong> in Indonesia ????</p>
+<p align="center"><sub>Nawala � Secure Your APIs, Empower Your Platform.</sub></p>
+<p align="center"><sub>Copyright � 2026 NAWALA TEAM. Licensed under MIT.</sub></p>
