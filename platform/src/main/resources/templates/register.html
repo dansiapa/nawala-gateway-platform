@@ -30,45 +30,45 @@
                     <h2>Create your account</h2>
                     <p>Fill in the details below to get started</p>
                 </div>
-                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
-                    <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"></span>
-                </div>
                 <form th:action="@{/register}" th:object="${form}" method="post" class="auth-form">
+                    <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                        <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"></span>
+                    </div>
                     <div class="input-group">
                         <label for="fullName">Full Name</label>
-                        <div class="input-wrapper" th:classappend="${#fields.hasErrors(''fullName'')} ? ''has-error'' : ''''">
+                        <div class="input-wrapper" th:classappend="${#fields.hasErrors('fullName')} ? 'has-error' : ''">
                             <input type="text" id="fullName" th:field="*{fullName}" placeholder="John Doe" required>
                         </div>
-                        <span class="field-error" th:if="${#fields.hasErrors(''fullName'')}" th:errors="*{fullName}"></span>
+                        <span class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
                     </div>
                     <div class="input-group">
                         <label for="username">Username</label>
-                        <div class="input-wrapper" th:classappend="${#fields.hasErrors(''username'')} ? ''has-error'' : ''''">
+                        <div class="input-wrapper" th:classappend="${#fields.hasErrors('username')} ? 'has-error' : ''">
                             <input type="text" id="username" th:field="*{username}" placeholder="johndoe" required>
                         </div>
-                        <span class="field-error" th:if="${#fields.hasErrors(''username'')}" th:errors="*{username}"></span>
+                        <span class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
                     </div>
                     <div class="input-group">
                         <label for="email">Email</label>
-                        <div class="input-wrapper" th:classappend="${#fields.hasErrors(''email'')} ? ''has-error'' : ''''">
+                        <div class="input-wrapper" th:classappend="${#fields.hasErrors('email')} ? 'has-error' : ''">
                             <input type="email" id="email" th:field="*{email}" placeholder="john@example.com" required>
                         </div>
-                        <span class="field-error" th:if="${#fields.hasErrors(''email'')}" th:errors="*{email}"></span>
+                        <span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
                             <label for="password">Password</label>
-                            <div class="input-wrapper" th:classappend="${#fields.hasErrors(''password'')} ? ''has-error'' : ''''">
+                            <div class="input-wrapper" th:classappend="${#fields.hasErrors('password')} ? 'has-error' : ''">
                                 <input type="password" id="password" th:field="*{password}" placeholder="Min 8 chars" required>
                             </div>
-                            <span class="field-error" th:if="${#fields.hasErrors(''password'')}" th:errors="*{password}"></span>
+                            <span class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
                         </div>
                         <div class="input-group">
                             <label for="confirmPassword">Confirm</label>
-                            <div class="input-wrapper" th:classappend="${#fields.hasErrors(''confirmPassword'')} ? ''has-error'' : ''''">
+                            <div class="input-wrapper" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'has-error' : ''">
                                 <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Repeat" required>
                             </div>
-                            <span class="field-error" th:if="${#fields.hasErrors(''confirmPassword'')}" th:errors="*{confirmPassword}"></span>
+                            <span class="field-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></span>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-full"><span>Create Account</span></button>

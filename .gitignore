@@ -38,6 +38,8 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+.mvn/apache-maven-3.9.6-bin.zip
+.mvn/maven-3.9.6/
 
 # Environment
 .env
@@ -48,3 +50,9 @@ application-local.properties
 *.class
 *.jar
 !.mvn/wrapper/*.jar
+
+# Temp/test output
+test-*.txt
+ssh_*.txt
+*-out.log
+*-err.log

@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''routes'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('routes')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''API Routes'', ''Register and manage your API endpoints'')}"></div>
+        <div th:replace="~{fragments/header :: header('API Routes', 'Register and manage your API endpoints')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
             <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><a href="/routes/new" class="btn btn-primary">+ New Route</a></div>
@@ -20,16 +20,16 @@
                         <tbody>
                             <tr th:each="route : ${routes}">
                                 <td th:text="${route.name}">Route</td>
-                                <td><span class="method-badge" th:text="${route.method}" th:classappend="'' method-'' + ${route.method.toLowerCase()}">GET</span></td>
+                                <td><span class="method-badge" th:text="${route.method}" th:classappend="' method-' + ${route.method.toLowerCase()}">GET</span></td>
                                 <td class="mono" th:text="${route.path}">/api/v1</td>
                                 <td class="mono small" th:text="${route.targetUrl}">http://...</td>
                                 <td><span th:if="${route.authRequired}" class="badge badge-purple">Yes</span><span th:unless="${route.authRequired}" class="badge badge-muted">No</span></td>
-                                <td th:text="${route.rateLimitEnabled} ? ${route.rateLimitPerMinute} + ''/min'' : ''Off''">60/min</td>
-                                <td><span class="status-dot" th:classappend="${route.active} ? '' active'' : '' inactive''"></span><span th:text="${route.active} ? ''Active'' : ''Inactive''">Active</span></td>
+                                <td th:text="${route.rateLimitEnabled} ? ${route.rateLimitPerMinute} + '/min' : 'Off'">60/min</td>
+                                <td><span class="status-dot" th:classappend="${route.active} ? ' active' : ' inactive'"></span><span th:text="${route.active} ? 'Active' : 'Inactive'">Active</span></td>
                                 <td class="actions-cell">
-                                    <a th:href="@{''/routes/'' + ${route.id} + ''/edit''}" class="btn-sm btn-secondary">Edit</a>
-                                    <form th:action="@{''/routes/'' + ${route.id} + ''/toggle''}" method="post" style="display:inline"><button type="submit" class="btn-sm btn-secondary" th:text="${route.active} ? ''Disable'' : ''Enable''">Toggle</button></form>
-                                    <form th:action="@{''/routes/'' + ${route.id} + ''/delete''}" method="post" style="display:inline" onsubmit="return confirm(''Delete this route?'')"><button type="submit" class="btn-sm btn-danger-sm">Delete</button></form>
+                                    <a th:href="@{'/routes/' + ${route.id} + '/edit'}" class="btn-sm btn-secondary">Edit</a>
+                                    <form th:action="@{'/routes/' + ${route.id} + '/toggle'}" method="post" style="display:inline"><button type="submit" class="btn-sm btn-secondary" th:text="${route.active} ? 'Disable' : 'Enable'">Toggle</button></form>
+                                    <form th:action="@{'/routes/' + ${route.id} + '/delete'}" method="post" style="display:inline" onsubmit="return confirm('Delete this route?')"><button type="submit" class="btn-sm btn-danger-sm">Delete</button></form>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(routes)}"><td colspan="8" class="empty-state" style="padding:3rem;text-align:center"><p>No routes registered yet. Click "+ New Route" to get started.</p></td></tr>

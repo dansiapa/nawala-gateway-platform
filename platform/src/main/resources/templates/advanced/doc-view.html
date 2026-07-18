@@ -2,16 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${doc.title} + '' - Nawala API Docs''">Doc View</title>
+    <title th:text="${doc.title} + ' - Nawala API Docs'">Doc View</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''docs'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('docs')}"></div>
     <main class="main-content">
         <div th:replace="~{fragments/header :: header(${doc.title}, ${doc.description})}"></div>
         <div class="content-area">
-            <div style="margin-bottom:1rem"><a href="/docs" class="btn btn-outline">Back to Docs</a> <span class="badge badge-blue" th:text="''v'' + ${doc.version}">v1.0.0</span></div>
+            <div style="margin-bottom:1rem"><a href="/docs" class="btn btn-outline">Back to Docs</a> <span class="badge badge-blue" th:text="'v' + ${doc.version}">v1.0.0</span></div>
             <div class="card"><div class="card-header"><h3>OpenAPI Specification</h3></div><div class="card-body">
                 <pre th:text="${doc.openApiSpec}">spec</pre>
             </div></div>

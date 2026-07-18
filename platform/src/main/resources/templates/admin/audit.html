@@ -7,17 +7,17 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''admin'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Audit Log'', ''Complete activity trail for compliance and security'')}"></div>
+        <div th:replace="~{fragments/header :: header('Audit Log', 'Complete activity trail for compliance and security')}"></div>
         <div class="content-area">
             <div class="card"><div class="card-body" style="padding:0">
                 <table class="data-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>Details</th><th>IP</th></tr></thead><tbody>
                     <tr th:each="a : ${logs}">
-                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, ''yyyy-MM-dd HH:mm:ss'') : ''''}">time</td>
+                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}">time</td>
                         <td th:text="${a.username}">user</td>
                         <td><span class="badge badge-blue" th:text="${a.action}">action</span></td>
-                        <td th:text="${a.resourceType != null ? a.resourceType + '' #'' + a.resourceId : ''-''}">resource</td>
+                        <td th:text="${a.resourceType != null ? a.resourceType + ' #' + a.resourceId : '-'}">resource</td>
                         <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis" th:text="${a.details}">details</td>
                         <td th:text="${a.ipAddress}">ip</td>
                     </tr>

@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''docs'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('docs')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''API Documentation'', ''Manage and publish OpenAPI specs'')}"></div>
+        <div th:replace="~{fragments/header :: header('API Documentation', 'Manage and publish OpenAPI specs')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Documentation</h3></div><div class="card-body">
@@ -18,7 +18,7 @@
                     <div class="form-group"><label>Version</label><input type="text" name="version" value="1.0.0" class="form-control"></div>
                     <div class="form-group"><label>Route ID (optional)</label><input type="number" name="routeId" class="form-control" placeholder="Link to route"></div>
                     <div class="form-group"><label>Description</label><input type="text" name="description" class="form-control" placeholder="API Description"></div>
-                    <div class="form-group" style="grid-column:1/-1"><label>OpenAPI Spec (JSON/YAML)</label><textarea name="openApiSpec" class="form-control" rows="8" placeholder=''OpenAPI spec here''></textarea></div>
+                    <div class="form-group" style="grid-column:1/-1"><label>OpenAPI Spec (JSON/YAML)</label><textarea name="openApiSpec" class="form-control" rows="8" placeholder='OpenAPI spec here'></textarea></div>
                     <div class="form-actions"><button type="submit" class="btn btn-primary">Create Doc</button></div>
                 </form>
             </div></div>
@@ -27,10 +27,10 @@
                     <tr th:each="d : ${docs}">
                         <td><a th:href="@{/docs/{id}/view(id=${d.id})}" th:text="${d.title}">title</a></td>
                         <td th:text="${d.version}">1.0.0</td>
-                        <td><span class="badge" th:classappend="${d.published} ? '' badge-green'' : '' badge-grey''" th:text="${d.published} ? ''Published'' : ''Draft''">status</span></td>
-                        <td th:text="${#temporals.format(d.createdAt, ''yyyy-MM-dd'')}">date</td>
+                        <td><span class="badge" th:classappend="${d.published} ? ' badge-green' : ' badge-grey'" th:text="${d.published} ? 'Published' : 'Draft'">status</span></td>
+                        <td th:text="${#temporals.format(d.createdAt, 'yyyy-MM-dd')}">date</td>
                         <td>
-                            <form method="post" th:action="@{/docs/{id}/publish(id=${d.id})}" style="display:inline"><input type="hidden" name="published" th:value="${!d.published}"><button class="btn btn-sm btn-secondary" th:text="${d.published} ? ''Unpublish'' : ''Publish''">Toggle</button></form>
+                            <form method="post" th:action="@{/docs/{id}/publish(id=${d.id})}" style="display:inline"><input type="hidden" name="published" th:value="${!d.published}"><button class="btn btn-sm btn-secondary" th:text="${d.published} ? 'Unpublish' : 'Publish'">Toggle</button></form>
                             <form method="post" th:action="@{/docs/{id}/delete(id=${d.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
                         </td>
                     </tr>

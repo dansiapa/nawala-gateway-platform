@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''admin'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Rate Limit Tiers'', ''Configure API usage tiers'')}"></div>
+        <div th:replace="~{fragments/header :: header('Rate Limit Tiers', 'Configure API usage tiers')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Tier</h3></div><div class="card-body">
@@ -32,7 +32,7 @@
                         <td th:text="${t.requestsPerDay}">10000</td>
                         <td th:text="${t.burstSize}">10</td>
                         <td th:text="${t.description}">desc</td>
-                        <td><form method="post" th:action="@{/admin/tiers/{id}/delete(id=${t.id})}" style="display:inline"><button class="btn btn-sm btn-danger" onclick="return confirm(''Delete tier?'')">Delete</button></form></td>
+                        <td><form method="post" th:action="@{/admin/tiers/{id}/delete(id=${t.id})}" style="display:inline"><button class="btn btn-sm btn-danger" onclick="return confirm('Delete tier?')">Delete</button></form></td>
                     </tr>
                 </tbody></table>
             </div></div>

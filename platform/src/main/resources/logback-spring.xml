@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
-    <property name="LOG_HOME" value="D:/nawala/logs/platform"/>
+    <property name="LOG_HOME" value="${LOG_HOME:-/opt/nawala/logs/platform}"/>
     <property name="APP_NAME" value="nawala-platform"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [${APP_NAME}] [%thread] [%X{traceId:-}] [%X{userId:-}] [%X{clientIp:-}] %-5level %logger{36} - %msg%n"/>
     <property name="JSON_PATTERN" value="{&quot;@timestamp&quot;:&quot;%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}&quot;,&quot;service&quot;:&quot;${APP_NAME}&quot;,&quot;level&quot;:&quot;%level&quot;,&quot;logger&quot;:&quot;%logger{36}&quot;,&quot;thread&quot;:&quot;%thread&quot;,&quot;traceId&quot;:&quot;%X{traceId:-}&quot;,&quot;userId&quot;:&quot;%X{userId:-}&quot;,&quot;clientIp&quot;:&quot;%X{clientIp:-}&quot;,&quot;message&quot;:&quot;%msg&quot;}%n"/>

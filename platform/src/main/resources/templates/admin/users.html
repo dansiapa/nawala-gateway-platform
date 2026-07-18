@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''admin'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''User Management'', ''Manage all platform users'')}"></div>
+        <div th:replace="~{fragments/header :: header('User Management', 'Manage all platform users')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-body" style="padding:0">
@@ -18,11 +18,11 @@
                         <td th:text="${u.id}">1</td>
                         <td th:text="${u.username}">user</td>
                         <td th:text="${u.email}">email</td>
-                        <td><span class="badge" th:classappend="${u.role.name() == ''ADMIN''} ? '' badge-purple'' : '' badge-blue''" th:text="${u.role}">USER</span></td>
-                        <td><span class="badge" th:classappend="${u.enabled} ? '' badge-green'' : '' badge-red''" th:text="${u.enabled} ? ''Active'' : ''Disabled''">Active</span></td>
-                        <td th:text="${#temporals.format(u.createdAt, ''yyyy-MM-dd'')}">date</td>
-                        <td th:text="${u.lastLoginAt != null ? #temporals.format(u.lastLoginAt, ''MM-dd HH:mm'') : ''Never''}">Never</td>
-                        <td><form method="post" th:action="@{/admin/users/{id}/toggle(id=${u.id})}" style="display:inline"><button class="btn btn-sm btn-secondary" th:text="${u.enabled} ? ''Disable'' : ''Enable''">Toggle</button></form></td>
+                        <td><span class="badge" th:classappend="${u.role.name() == 'ADMIN'} ? ' badge-purple' : ' badge-blue'" th:text="${u.role}">USER</span></td>
+                        <td><span class="badge" th:classappend="${u.enabled} ? ' badge-green' : ' badge-red'" th:text="${u.enabled} ? 'Active' : 'Disabled'">Active</span></td>
+                        <td th:text="${#temporals.format(u.createdAt, 'yyyy-MM-dd')}">date</td>
+                        <td th:text="${u.lastLoginAt != null ? #temporals.format(u.lastLoginAt, 'MM-dd HH:mm') : 'Never'}">Never</td>
+                        <td><form method="post" th:action="@{/admin/users/{id}/toggle(id=${u.id})}" style="display:inline"><button class="btn btn-sm btn-secondary" th:text="${u.enabled} ? 'Disable' : 'Enable'">Toggle</button></form></td>
                     </tr>
                 </tbody></table>
             </div></div>

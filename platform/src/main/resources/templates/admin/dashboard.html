@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''admin'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Admin Dashboard'', ''System overview and management'')}"></div>
+        <div th:replace="~{fragments/header :: header('Admin Dashboard', 'System overview and management')}"></div>
         <div class="content-area">
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-icon stat-icon-blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${totalUsers}">0</span><span class="stat-label">Total Users</span></div></div>
@@ -19,10 +19,10 @@
             <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Recent Audit Trail</h3></div><div class="card-body" style="padding:0">
                 <table class="data-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead><tbody>
                     <tr th:each="a : ${recentAudit}">
-                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, ''MM-dd HH:mm'') : ''''}">time</td>
+                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'MM-dd HH:mm') : ''}">time</td>
                         <td th:text="${a.username}">user</td>
                         <td><span class="badge badge-blue" th:text="${a.action}">action</span></td>
-                        <td th:text="${a.resourceType != null ? a.resourceType + '' #'' + a.resourceId : ''-''}">resource</td>
+                        <td th:text="${a.resourceType != null ? a.resourceType + ' #' + a.resourceId : '-'}">resource</td>
                         <td th:text="${a.ipAddress}">ip</td>
                     </tr>
                 </tbody></table>

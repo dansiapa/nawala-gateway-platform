@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''mocks'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('mocks')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''API Sandbox'', ''Mock endpoints for testing without a real backend'')}"></div>
+        <div th:replace="~{fragments/header :: header('API Sandbox', 'Mock endpoints for testing without a real backend')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Mock Endpoint</h3></div><div class="card-body">
@@ -18,7 +18,7 @@
                     <div class="form-group"><label>Path</label><input type="text" name="path" required class="form-control" placeholder="/mock/api/users"></div>
                     <div class="form-group"><label>Method</label><select name="method" class="form-control"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select></div>
                     <div class="form-group"><label>Status Code</label><input type="number" name="statusCode" value="200" class="form-control"></div>
-                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder=''{"users":[{"id":1,"name":"John"}]}''></textarea></div>
+                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder='{"users":[{"id":1,"name":"John"}]}'></textarea></div>
                     <div class="form-group"><label>Content Type</label><input type="text" name="contentType" value="application/json" class="form-control"></div>
                     <div class="form-group"><label>Simulated Delay (ms)</label><input type="number" name="delayMs" value="0" class="form-control"></div>
                     <div class="form-actions"><button type="submit" class="btn btn-primary">Create Mock</button></div>
@@ -31,10 +31,10 @@
                         <td><span class="badge badge-blue" th:text="${m.method}">GET</span></td>
                         <td><code th:text="${m.path}">/path</code></td>
                         <td th:text="${m.statusCode}">200</td>
-                        <td th:text="${m.delayMs} + '' ms''">0 ms</td>
-                        <td><span class="badge" th:classappend="${m.active} ? '' badge-green'' : '' badge-grey''" th:text="${m.active} ? ''Active'' : ''Off''">active</span></td>
+                        <td th:text="${m.delayMs} + ' ms'">0 ms</td>
+                        <td><span class="badge" th:classappend="${m.active} ? ' badge-green' : ' badge-grey'" th:text="${m.active} ? 'Active' : 'Off'">active</span></td>
                         <td>
-                            <form method="post" th:action="@{/mocks/{id}/toggle(id=${m.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!m.active}"><button class="btn btn-sm btn-secondary" th:text="${m.active} ? ''Disable'' : ''Enable''">Toggle</button></form>
+                            <form method="post" th:action="@{/mocks/{id}/toggle(id=${m.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!m.active}"><button class="btn btn-sm btn-secondary" th:text="${m.active} ? 'Disable' : 'Enable'">Toggle</button></form>
                             <form method="post" th:action="@{/mocks/{id}/delete(id=${m.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
                         </td>
                     </tr>

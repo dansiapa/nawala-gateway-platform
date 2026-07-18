@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''profile'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('profile')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Profile Settings'', ''Manage your account information'')}"></div>
+        <div th:replace="~{fragments/header :: header('Profile Settings', 'Manage your account information')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" role="alert"><span th:text="${success}"></span></div>
             <div class="profile-grid">
@@ -18,14 +18,14 @@
                     <div class="card-body">
                         <form th:action="@{/profile}" th:object="${form}" method="post" class="profile-form">
                             <div class="input-row">
-                                <div class="input-group"><label for="fullName">Full Name</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''fullName'')} ? ''has-error'' : ''''"><input type="text" id="fullName" th:field="*{fullName}"></div><span class="field-error" th:if="${#fields.hasErrors(''fullName'')}" th:errors="*{fullName}"></span></div>
-                                <div class="input-group"><label for="email">Email</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''email'')} ? ''has-error'' : ''''"><input type="email" id="email" th:field="*{email}"></div><span class="field-error" th:if="${#fields.hasErrors(''email'')}" th:errors="*{email}"></span></div>
+                                <div class="input-group"><label for="fullName">Full Name</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('fullName')} ? 'has-error' : ''"><input type="text" id="fullName" th:field="*{fullName}"></div><span class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span></div>
+                                <div class="input-group"><label for="email">Email</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('email')} ? 'has-error' : ''"><input type="email" id="email" th:field="*{email}"></div><span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span></div>
                             </div>
                             <hr class="divider">
-                            <div class="input-group"><label for="currentPassword">Current Password</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''currentPassword'')} ? ''has-error'' : ''''"><input type="password" id="currentPassword" th:field="*{currentPassword}"></div><span class="field-error" th:if="${#fields.hasErrors(''currentPassword'')}" th:errors="*{currentPassword}"></span></div>
+                            <div class="input-group"><label for="currentPassword">Current Password</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('currentPassword')} ? 'has-error' : ''"><input type="password" id="currentPassword" th:field="*{currentPassword}"></div><span class="field-error" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></span></div>
                             <div class="input-row">
-                                <div class="input-group"><label for="newPassword">New Password</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''newPassword'')} ? ''has-error'' : ''''"><input type="password" id="newPassword" th:field="*{newPassword}"></div><span class="field-error" th:if="${#fields.hasErrors(''newPassword'')}" th:errors="*{newPassword}"></span></div>
-                                <div class="input-group"><label for="confirmNewPassword">Confirm</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''confirmNewPassword'')} ? ''has-error'' : ''''"><input type="password" id="confirmNewPassword" th:field="*{confirmNewPassword}"></div><span class="field-error" th:if="${#fields.hasErrors(''confirmNewPassword'')}" th:errors="*{confirmNewPassword}"></span></div>
+                                <div class="input-group"><label for="newPassword">New Password</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('newPassword')} ? 'has-error' : ''"><input type="password" id="newPassword" th:field="*{newPassword}"></div><span class="field-error" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></span></div>
+                                <div class="input-group"><label for="confirmNewPassword">Confirm</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('confirmNewPassword')} ? 'has-error' : ''"><input type="password" id="confirmNewPassword" th:field="*{confirmNewPassword}"></div><span class="field-error" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></span></div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="margin-top:1rem"><span>Save Changes</span></button>
                         </form>
@@ -35,14 +35,14 @@
                     <div class="card-header"><h3>Account Details</h3></div>
                     <div class="card-body">
                         <div class="profile-avatar-section">
-                            <div class="avatar avatar-large" th:text="${user.fullName != null ? user.fullName.substring(0,1).toUpperCase() : ''?''}">J</div>
+                            <div class="avatar avatar-large" th:text="${user.fullName != null ? user.fullName.substring(0,1).toUpperCase() : '?'}">J</div>
                             <h3 th:text="${user.fullName}">User</h3>
-                            <span class="badge" th:text="${user.role}" th:classappend="${user.role.name() == ''ADMIN''} ? '' badge-purple'' : '' badge-blue''">USER</span>
+                            <span class="badge" th:text="${user.role}" th:classappend="${user.role.name() == 'ADMIN'} ? ' badge-purple' : ' badge-blue'">USER</span>
                         </div>
                         <div class="info-list" style="margin-top:1.5rem">
                             <div class="info-item"><span class="info-label">Username</span><span class="info-value" th:text="${user.username}">user</span></div>
-                            <div class="info-item"><span class="info-label">Member Since</span><span class="info-value" th:text="${user.createdAt != null ? #temporals.format(user.createdAt, ''dd MMMM yyyy'') : ''N/A''}">01 Jan 2024</span></div>
-                            <div class="info-item"><span class="info-label">Last Login</span><span class="info-value" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, ''dd MMM yyyy HH:mm'') : ''First session''}">Never</span></div>
+                            <div class="info-item"><span class="info-label">Member Since</span><span class="info-value" th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd MMMM yyyy') : 'N/A'}">01 Jan 2024</span></div>
+                            <div class="info-item"><span class="info-label">Last Login</span><span class="info-value" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd MMM yyyy HH:mm') : 'First session'}">Never</span></div>
                         </div>
                     </div>
                 </div>

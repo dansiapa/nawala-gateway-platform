@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''plugins'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('plugins')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Plugins'', ''Custom request/response processing hooks'')}"></div>
+        <div th:replace="~{fragments/header :: header('Plugins', 'Custom request/response processing hooks')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Plugin</h3></div><div class="card-body">
@@ -28,12 +28,12 @@
                     <tr th:each="p : ${plugins}">
                         <td th:text="${p.name}">name</td>
                         <td><span class="badge badge-blue" th:text="${p.hookType}">PRE_REQUEST</span></td>
-                        <td th:text="${p.routeId != null} ? ${p.routeId} : ''Global''">Global</td>
+                        <td th:text="${p.routeId != null} ? ${p.routeId} : 'Global'">Global</td>
                         <td th:text="${p.executionCount}">0</td>
                         <td th:text="${p.errorCount}">0</td>
-                        <td><span class="badge" th:classappend="${p.active} ? '' badge-green'' : '' badge-grey''" th:text="${p.active} ? ''Active'' : ''Off''">active</span></td>
+                        <td><span class="badge" th:classappend="${p.active} ? ' badge-green' : ' badge-grey'" th:text="${p.active} ? 'Active' : 'Off'">active</span></td>
                         <td>
-                            <form method="post" th:action="@{/plugins/{id}/toggle(id=${p.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!p.active}"><button class="btn btn-sm btn-secondary" th:text="${p.active} ? ''Disable'' : ''Enable''">Toggle</button></form>
+                            <form method="post" th:action="@{/plugins/{id}/toggle(id=${p.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!p.active}"><button class="btn btn-sm btn-secondary" th:text="${p.active} ? 'Disable' : 'Enable'">Toggle</button></form>
                             <form method="post" th:action="@{/plugins/{id}/delete(id=${p.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
                         </td>
                     </tr>

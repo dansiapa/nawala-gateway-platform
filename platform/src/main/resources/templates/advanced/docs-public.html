@@ -16,7 +16,7 @@
                 <div th:if="${!docs.isEmpty()}">
                     <div th:each="d : ${docs}" style="padding:1rem;border-bottom:1px solid var(--border-light)">
                         <h4><a th:href="@{/docs/{id}/view(id=${d.id})}" th:text="${d.title}">Title</a></h4>
-                        <span class="badge badge-blue" th:text="''v'' + ${d.version}">v1.0.0</span>
+                        <span class="badge badge-blue" th:text="'v' + ${d.version}">v1.0.0</span>
                         <span th:text="${d.description}" style="margin-left:0.5rem;color:var(--text-secondary)">desc</span>
                     </div>
                 </div>

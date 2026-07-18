@@ -7,20 +7,20 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''routes'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('routes')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(${routeId != null} ? ''Edit Route'' : ''New Route'', ''Register a new API endpoint to the gateway'')}"></div>
+        <div th:replace="~{fragments/header :: header(${routeId != null} ? 'Edit Route' : 'New Route', 'Register a new API endpoint to the gateway')}"></div>
         <div class="content-area">
             <div class="card" style="max-width:700px">
-                <div class="card-header"><h3 th:text="${routeId != null} ? ''Edit Route Configuration'' : ''Route Configuration''">Route Configuration</h3></div>
+                <div class="card-header"><h3 th:text="${routeId != null} ? 'Edit Route Configuration' : 'Route Configuration'">Route Configuration</h3></div>
                 <div class="card-body">
-                    <form th:action="${routeId != null} ? @{''/routes/'' + ${routeId} + ''/edit''} : @{/routes/new}" th:object="${form}" method="post" class="profile-form">
-                        <div class="input-group"><label for="name">Route Name</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''name'')} ? ''has-error'' : ''''"><input type="text" id="name" th:field="*{name}" placeholder="e.g. User Service" required></div><span class="field-error" th:if="${#fields.hasErrors(''name'')}" th:errors="*{name}"></span></div>
+                    <form th:action="${routeId != null} ? @{'/routes/' + ${routeId} + '/edit'} : @{/routes/new}" th:object="${form}" method="post" class="profile-form">
+                        <div class="input-group"><label for="name">Route Name</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('name')} ? 'has-error' : ''"><input type="text" id="name" th:field="*{name}" placeholder="e.g. User Service" required></div><span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span></div>
                         <div class="input-row">
                             <div class="input-group"><label for="method">HTTP Method</label><div class="input-wrapper"><select id="method" th:field="*{method}"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option><option value="PATCH">PATCH</option></select></div></div>
-                            <div class="input-group"><label for="path">Path Pattern</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''path'')} ? ''has-error'' : ''''"><input type="text" id="path" th:field="*{path}" placeholder="/api/v1/users/**" required></div><span class="field-error" th:if="${#fields.hasErrors(''path'')}" th:errors="*{path}"></span></div>
+                            <div class="input-group"><label for="path">Path Pattern</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('path')} ? 'has-error' : ''"><input type="text" id="path" th:field="*{path}" placeholder="/api/v1/users/**" required></div><span class="field-error" th:if="${#fields.hasErrors('path')}" th:errors="*{path}"></span></div>
                         </div>
-                        <div class="input-group"><label for="targetUrl">Target URL</label><div class="input-wrapper" th:classappend="${#fields.hasErrors(''targetUrl'')} ? ''has-error'' : ''''"><input type="url" id="targetUrl" th:field="*{targetUrl}" placeholder="http://localhost:8081" required></div><span class="field-error" th:if="${#fields.hasErrors(''targetUrl'')}" th:errors="*{targetUrl}"></span></div>
+                        <div class="input-group"><label for="targetUrl">Target URL</label><div class="input-wrapper" th:classappend="${#fields.hasErrors('targetUrl')} ? 'has-error' : ''"><input type="url" id="targetUrl" th:field="*{targetUrl}" placeholder="http://localhost:8081" required></div><span class="field-error" th:if="${#fields.hasErrors('targetUrl')}" th:errors="*{targetUrl}"></span></div>
                         <hr class="divider">
                         <h4 style="margin-bottom:1rem;color:var(--text-primary)">Security &amp; Limits</h4>
                         <div class="input-row">
@@ -32,9 +32,9 @@
                         <h4 style="margin-bottom:1rem;color:var(--text-primary)">Advanced Features</h4>
                         <div class="input-group"><label for="maskedPath">Masked Path (Public URL)</label><div class="input-wrapper"><input type="text" id="maskedPath" th:field="*{maskedPath}" placeholder="/public/v1/users/** (optional)"></div><span class="field-hint">Clients will call this URL instead of the real internal path.</span></div>
                         <div class="input-group"><label for="healthCheckUrl">Health Check URL</label><div class="input-wrapper"><input type="url" id="healthCheckUrl" th:field="*{healthCheckUrl}" placeholder="http://localhost:8081/actuator/health (optional)"></div><span class="field-hint">Gateway will ping this endpoint every 60s to monitor availability.</span></div>
-                        <div class="input-group"><label class="checkbox-label" style="margin-top:0.5rem"><input type="checkbox" th:field="*{payloadEncryption}"><span>End-to-End Payload Encryption</span></label><span class="field-hint">Encrypt request/response body with client''s key.</span></div>
+                        <div class="input-group"><label class="checkbox-label" style="margin-top:0.5rem"><input type="checkbox" th:field="*{payloadEncryption}"><span>End-to-End Payload Encryption</span></label><span class="field-hint">Encrypt request/response body with client's key.</span></div>
                         <div style="display:flex;gap:1rem;margin-top:1.5rem">
-                            <button type="submit" class="btn btn-primary"><span th:text="${routeId != null} ? ''Update Route'' : ''Register Route''">Register Route</span></button>
+                            <button type="submit" class="btn btn-primary"><span th:text="${routeId != null} ? 'Update Route' : 'Register Route'">Register Route</span></button>
                             <a href="/routes" class="btn btn-outline">Cancel</a>
                         </div>
                     </form>

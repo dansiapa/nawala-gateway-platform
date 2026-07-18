@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''oauth'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('oauth')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''OAuth2 Clients'', ''Client credentials for machine-to-machine auth'')}"></div>
+        <div th:replace="~{fragments/header :: header('OAuth2 Clients', 'Client credentials for machine-to-machine auth')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Register OAuth Client</h3></div><div class="card-body">
@@ -28,7 +28,7 @@
                         <td><code th:text="${c.clientId}">id</code></td>
                         <td><span class="badge badge-blue" th:text="${c.grantTypes}">grant</span></td>
                         <td th:text="${c.scopes}">read</td>
-                        <td th:text="${#temporals.format(c.createdAt, ''yyyy-MM-dd'')}">date</td>
+                        <td th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd')}">date</td>
                         <td><form method="post" th:action="@{/oauth-clients/{id}/delete(id=${c.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form></td>
                     </tr>
                 </tbody></table>

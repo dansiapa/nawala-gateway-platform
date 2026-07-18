@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''apikeys'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('apikeys')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''API Keys'', ''Generate, rotate, and scope authentication keys'')}"></div>
+        <div th:replace="~{fragments/header :: header('API Keys', 'Generate, rotate, and scope authentication keys')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
             <div th:if="${rawKey}" class="alert alert-warning" style="flex-direction:column;align-items:flex-start">
@@ -40,14 +40,14 @@
                         <tbody>
                             <tr th:each="key : ${keys}">
                                 <td th:text="${key.name}">Key</td>
-                                <td class="mono" th:text="${key.prefix} + ''...''">nwl_abc...</td>
-                                <td><span class="badge" th:classappend="${key.active and !key.expired} ? '' badge-green'' : '' badge-red''" th:text="${!key.active} ? ''Revoked'' : (${key.expired} ? ''Expired'' : ''Active'')">Active</span></td>
+                                <td class="mono" th:text="${key.prefix} + '...'">nwl_abc...</td>
+                                <td><span class="badge" th:classappend="${key.active and !key.expired} ? ' badge-green' : ' badge-red'" th:text="${!key.active} ? 'Revoked' : (${key.expired} ? 'Expired' : 'Active')">Active</span></td>
                                 <td th:text="${key.requestCount}">0</td>
-                                <td><span th:if="${key.dailyQuota > 0}" th:text="${key.dailyUsage} + ''/'' + ${key.dailyQuota} + ''/day''">0/1000/day</span><span th:if="${key.dailyQuota == 0}">Unlimited</span></td>
-                                <td th:text="${key.lastUsedAt != null ? #temporals.format(key.lastUsedAt, ''dd MMM yy HH:mm'') : ''Never''}">Never</td>
+                                <td><span th:if="${key.dailyQuota > 0}" th:text="${key.dailyUsage} + '/' + ${key.dailyQuota} + '/day'">0/1000/day</span><span th:if="${key.dailyQuota == 0}">Unlimited</span></td>
+                                <td th:text="${key.lastUsedAt != null ? #temporals.format(key.lastUsedAt, 'dd MMM yy HH:mm') : 'Never'}">Never</td>
                                 <td>
-                                    <form th:if="${key.active}" th:action="@{''/api-keys/'' + ${key.id} + ''/rotate''}" method="post" style="display:inline"><button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm(''Rotate? Old key valid 24h.'')">Rotate</button></form>
-                                    <form th:if="${key.active}" th:action="@{''/api-keys/'' + ${key.id} + ''/revoke''}" method="post" style="display:inline"><button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(''Revoke this key?'')">Revoke</button></form>
+                                    <form th:if="${key.active}" th:action="@{'/api-keys/' + ${key.id} + '/rotate'}" method="post" style="display:inline"><button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Rotate? Old key valid 24h.')">Rotate</button></form>
+                                    <form th:if="${key.active}" th:action="@{'/api-keys/' + ${key.id} + '/revoke'}" method="post" style="display:inline"><button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Revoke this key?')">Revoke</button></form>
                                     <span th:unless="${key.active}" class="text-muted">-</span>
                                 </td>
                             </tr>

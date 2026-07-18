@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''webhooks'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('webhooks')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Webhooks'', ''Event-driven notifications to your services'')}"></div>
+        <div th:replace="~{fragments/header :: header('Webhooks', 'Event-driven notifications to your services')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create Webhook</h3></div><div class="card-body">
@@ -27,8 +27,8 @@
                         <td th:text="${wh.name}">name</td>
                         <td><code th:text="${#strings.abbreviate(wh.targetUrl, 40)}">url</code></td>
                         <td><span class="badge badge-blue" th:text="${wh.eventType}">event</span></td>
-                        <td><span class="badge" th:classappend="${wh.active} ? '' badge-green'' : '' badge-grey''" th:text="${wh.active} ? ''Active'' : ''Inactive''">status</span></td>
-                        <td th:text="${wh.lastTriggeredAt != null} ? ${#temporals.format(wh.lastTriggeredAt, ''yyyy-MM-dd HH:mm'')} : ''Never''">never</td>
+                        <td><span class="badge" th:classappend="${wh.active} ? ' badge-green' : ' badge-grey'" th:text="${wh.active} ? 'Active' : 'Inactive'">status</span></td>
+                        <td th:text="${wh.lastTriggeredAt != null} ? ${#temporals.format(wh.lastTriggeredAt, 'yyyy-MM-dd HH:mm')} : 'Never'">never</td>
                         <td><form method="post" th:action="@{/webhooks/{id}/delete(id=${wh.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form></td>
                     </tr>
                 </tbody></table>

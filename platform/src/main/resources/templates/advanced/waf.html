@@ -7,9 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''waf'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('waf')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''Web Application Firewall'', ''Custom security rules for request filtering'')}"></div>
+        <div th:replace="~{fragments/header :: header('Web Application Firewall', 'Custom security rules for request filtering')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div class="card"><div class="card-header"><h3>Create WAF Rule</h3></div><div class="card-body">
@@ -30,7 +30,7 @@
                     <tr th:each="rule : ${rules}">
                         <td th:text="${rule.name}">name</td>
                         <td><span class="badge badge-blue" th:text="${rule.ruleType}">type</span></td>
-                        <td><span class="badge" th:classappend="${rule.action == ''BLOCK''} ? '' badge-red'' : '' badge-orange''" th:text="${rule.action}">action</span></td>
+                        <td><span class="badge" th:classappend="${rule.action == 'BLOCK'} ? ' badge-red' : ' badge-orange'" th:text="${rule.action}">action</span></td>
                         <td th:text="${rule.targetField}">ALL</td>
                         <td th:text="${rule.matchCount}">0</td>
                         <td><form method="post" th:action="@{/waf/rules/{id}/delete(id=${rule.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form></td>

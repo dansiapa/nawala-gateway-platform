@@ -8,14 +8,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar(''analytics'')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('analytics')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header(''API Analytics'', ''Traffic Intelligence - Last 24 Hours'')}"></div>
+        <div th:replace="~{fragments/header :: header('API Analytics', 'Traffic Intelligence - Last 24 Hours')}"></div>
         <div class="content-area">
             <div class="stats-row">
                 <div class="stat-card"><div class="stat-icon stat-icon-blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.totalRequests()}">0</span><span class="stat-label">Total Requests</span></div></div>
                 <div class="stat-card"><div class="stat-icon stat-icon-green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${#numbers.formatDecimal(summary.avgResponseTimeMs(), 0, 1)}">0</span><span class="stat-label">Avg Response (ms)</span></div></div>
-                <div class="stat-card" th:classappend="${summary.errorRate() > 5} ? '' stat-card-danger'' : ''''"><div class="stat-icon stat-icon-red"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${#numbers.formatDecimal(summary.errorRate(), 0, 1)} + ''%''">0%</span><span class="stat-label">Error Rate</span></div></div>
+                <div class="stat-card" th:classappend="${summary.errorRate() > 5} ? ' stat-card-danger' : ''"><div class="stat-icon stat-icon-red"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${#numbers.formatDecimal(summary.errorRate(), 0, 1)} + '%'">0%</span><span class="stat-label">Error Rate</span></div></div>
                 <div class="stat-card"><div class="stat-icon stat-icon-purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${summary.errorCount()}">0</span><span class="stat-label">5xx Errors</span></div></div>
             </div>
             <div class="chart-grid">
@@ -24,7 +24,7 @@
             </div>
             <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Top Routes</h3></div><div class="card-body">
                 <table class="data-table" th:if="${!topRoutes.isEmpty()}"><thead><tr><th>Path</th><th>Requests</th><th>Avg Time</th></tr></thead><tbody>
-                    <tr th:each="r : ${topRoutes}"><td th:text="${r.path()}">path</td><td th:text="${r.requestCount()}">0</td><td th:text="${#numbers.formatDecimal(r.avgResponseTime(), 0, 1)} + '' ms''">0ms</td></tr>
+                    <tr th:each="r : ${topRoutes}"><td th:text="${r.path()}">path</td><td th:text="${r.requestCount()}">0</td><td th:text="${#numbers.formatDecimal(r.avgResponseTime(), 0, 1)} + ' ms'">0ms</td></tr>
                 </tbody></table>
                 <div class="empty-state" th:if="${topRoutes.isEmpty()}"><p>No traffic recorded yet.</p></div>
             </div></div>
@@ -33,32 +33,32 @@
     </main>
     <script th:src="@{/js/app.js}"></script>
     <script th:inline="javascript">
-    document.addEventListener(''DOMContentLoaded'', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         var statusDist = /*[[${statusDist}]]*/ {};
         var topRoutes = /*[[${topRoutes}]]*/ [];
         // Request Volume Chart
-        var reqCtx = document.getElementById(''requestChart'');
+        var reqCtx = document.getElementById('requestChart');
         if (reqCtx && topRoutes.length > 0) {
             new Chart(reqCtx, {
-                type: ''bar'',
+                type: 'bar',
                 data: {
                     labels: topRoutes.map(function(r){ return r.path; }),
-                    datasets: [{ label: ''Requests'', data: topRoutes.map(function(r){ return r.requestCount; }), backgroundColor: ''rgba(99,102,241,0.7)'', borderRadius: 6 }]
+                    datasets: [{ label: 'Requests', data: topRoutes.map(function(r){ return r.requestCount; }), backgroundColor: 'rgba(99,102,241,0.7)', borderRadius: 6 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
         }
         // Status Code Donut
-        var statusCtx = document.getElementById(''statusChart'');
+        var statusCtx = document.getElementById('statusChart');
         if (statusCtx && Object.keys(statusDist).length > 0) {
-            var colors = { 200: ''#10b981'', 201: ''#34d399'', 301: ''#6366f1'', 302: ''#818cf8'', 400: ''#f59e0b'', 401: ''#fbbf24'', 403: ''#fb923c'', 404: ''#f97316'', 500: ''#ef4444'', 502: ''#dc2626'', 503: ''#b91c1c'' };
+            var colors = { 200: '#10b981', 201: '#34d399', 301: '#6366f1', 302: '#818cf8', 400: '#f59e0b', 401: '#fbbf24', 403: '#fb923c', 404: '#f97316', 500: '#ef4444', 502: '#dc2626', 503: '#b91c1c' };
             new Chart(statusCtx, {
-                type: ''doughnut'',
+                type: 'doughnut',
                 data: {
                     labels: Object.keys(statusDist),
-                    datasets: [{ data: Object.values(statusDist), backgroundColor: Object.keys(statusDist).map(function(k){ return colors[k] || ''#94a3b8''; }), borderWidth: 0 }]
+                    datasets: [{ data: Object.values(statusDist), backgroundColor: Object.keys(statusDist).map(function(k){ return colors[k] || '#94a3b8'; }), borderWidth: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: ''right'' } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
         }
     });
