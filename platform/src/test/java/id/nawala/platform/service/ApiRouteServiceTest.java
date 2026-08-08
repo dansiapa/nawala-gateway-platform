@@ -37,8 +37,16 @@ class ApiRouteServiceTest {
 
     @BeforeEach
     void setUp() {
-        validForm = new ApiRouteViewModel("Test Route", "Test desc", "GET",
-                "/api/test", null, "http://localhost:9999", true, true, 100, false, null);
+        validForm = ApiRouteViewModel.builder()
+                .name("Test Route")
+                .description("Test desc")
+                .method("GET")
+                .path("/api/test")
+                .targetUrl("http://localhost:9999")
+                .authRequired(true)
+                .rateLimitEnabled(true)
+                .rateLimitPerMinute(100)
+                .build();
         owner = User.builder().id(1L).username("admin").build();
         existingRoute = ApiRoute.builder().id(1L).name("Existing")
                 .method("GET").path("/api/existing")

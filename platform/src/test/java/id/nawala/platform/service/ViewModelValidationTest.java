@@ -76,8 +76,16 @@ class ViewModelValidationTest {
     @Test
     @DisplayName("Valid ApiRouteViewModel passes validation")
     void validRoute() {
-        ApiRouteViewModel vm = new ApiRouteViewModel("Route", "desc", "GET",
-                "/api/test", null, "http://localhost:8080", true, true, 60, false, null);
+        ApiRouteViewModel vm = ApiRouteViewModel.builder()
+                .name("Route")
+                .description("desc")
+                .method("GET")
+                .path("/api/test")
+                .targetUrl("http://localhost:8080")
+                .authRequired(true)
+                .rateLimitEnabled(true)
+                .rateLimitPerMinute(60)
+                .build();
         Set<ConstraintViolation<ApiRouteViewModel>> violations = validator.validate(vm);
         assertThat(violations).isEmpty();
     }
@@ -85,8 +93,13 @@ class ViewModelValidationTest {
     @Test
     @DisplayName("ApiRouteViewModel blank name fails")
     void blankRouteName() {
-        ApiRouteViewModel vm = new ApiRouteViewModel("", "desc", "GET",
-                "/api/test", null, "http://localhost:8080", true, true, 60, false, null);
+        ApiRouteViewModel vm = ApiRouteViewModel.builder()
+                .name("")
+                .description("desc")
+                .method("GET")
+                .path("/api/test")
+                .targetUrl("http://localhost:8080")
+                .build();
         Set<ConstraintViolation<ApiRouteViewModel>> violations = validator.validate(vm);
         assertThat(violations).isNotEmpty();
     }
@@ -94,8 +107,13 @@ class ViewModelValidationTest {
     @Test
     @DisplayName("ApiRouteViewModel blank method fails")
     void blankRouteMethod() {
-        ApiRouteViewModel vm = new ApiRouteViewModel("Route", "desc", "",
-                "/api/test", null, "http://localhost:8080", true, true, 60, false, null);
+        ApiRouteViewModel vm = ApiRouteViewModel.builder()
+                .name("Route")
+                .description("desc")
+                .method("")
+                .path("/api/test")
+                .targetUrl("http://localhost:8080")
+                .build();
         Set<ConstraintViolation<ApiRouteViewModel>> violations = validator.validate(vm);
         assertThat(violations).isNotEmpty();
     }
@@ -103,8 +121,13 @@ class ViewModelValidationTest {
     @Test
     @DisplayName("ApiRouteViewModel blank targetUrl fails")
     void blankTargetUrl() {
-        ApiRouteViewModel vm = new ApiRouteViewModel("Route", "desc", "GET",
-                "/api/test", null, "", true, true, 60, false, null);
+        ApiRouteViewModel vm = ApiRouteViewModel.builder()
+                .name("Route")
+                .description("desc")
+                .method("GET")
+                .path("/api/test")
+                .targetUrl("")
+                .build();
         Set<ConstraintViolation<ApiRouteViewModel>> violations = validator.validate(vm);
         assertThat(violations).isNotEmpty();
     }

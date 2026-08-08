@@ -164,7 +164,7 @@ public class AdvancedFeaturesController {
                               @AuthenticationPrincipal UserDetails userDetails,
                               RedirectAttributes redirectAttributes) {
         Plugin plugin = pluginService.togglePlugin(id);
-        String action = plugin.isEnabled() ? "enabled" : "disabled";
+        String action = plugin.isActive() ? "enabled" : "disabled";
         auditService.log("UPDATE", "PLUGIN", "Plugin " + action + ": " + plugin.getName(), userDetails.getUsername());
         redirectAttributes.addFlashAttribute("success", "Plugin " + action);
         return "redirect:/plugins";

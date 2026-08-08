@@ -71,7 +71,7 @@ public class WafFilter {
             return WafResult.blocked("PATH_TRAVERSAL", "Potential path traversal detected");
         }
         
-        return WafResult.allowed();
+        return WafResult.allow();
     }
     
     private String buildFullInput(String path, String queryString, String body) {
@@ -130,7 +130,7 @@ public class WafFilter {
     }
     
     public record WafResult(boolean allowed, String code, String message) {
-        public static WafResult allowed() { return new WafResult(true, null, null); }
+        public static WafResult allow() { return new WafResult(true, null, null); }
         public static WafResult blocked(String code, String message) { return new WafResult(false, code, message); }
     }
 }

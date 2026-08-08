@@ -31,4 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT COUNT(u) FROM User u WHERE u.enabled = true")
     long countActiveUsers();
+    
+    long countByEnabled(boolean enabled);
 }
