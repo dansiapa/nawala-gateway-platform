@@ -1,46 +1,159 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WAF - Nawala</title>
+    <title>Web Application Firewall - Nawala</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('waf')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('Web Application Firewall', 'Custom security rules for request filtering')}"></div>
+        <div th:replace="~{fragments/header :: header('Web Application Firewall', 'Protect your APIs from attacks')}"></div>
         <div class="content-area">
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-            <div class="card"><div class="card-header"><h3>Create WAF Rule</h3></div><div class="card-body">
-                <form method="post" action="/waf/rules" class="form-grid">
-                    <div class="form-group"><label>Name</label><input type="text" name="name" required class="form-control" placeholder="Rule name"></div>
-                    <div class="form-group"><label>Type</label><select name="ruleType" class="form-control"><option value="CUSTOM">Custom</option><option value="SQL_INJECTION">SQL Injection</option><option value="XSS">XSS</option><option value="PATH_TRAVERSAL">Path Traversal</option></select></div>
-                    <div class="form-group"><label>Pattern (Regex)</label><input type="text" name="pattern" required class="form-control" placeholder="Regex pattern"></div>
-                    <div class="form-group"><label>Action</label><select name="action" class="form-control"><option value="BLOCK">Block</option><option value="LOG">Log Only</option></select></div>
-                    <div class="form-group"><label>Target</label><select name="targetField" class="form-control"><option value="ALL">All</option><option value="HEADER">Headers</option><option value="BODY">Body</option><option value="QUERY_PARAM">Query Params</option><option value="PATH">Path</option></select></div>
-                    <div class="form-group"><label>Priority</label><input type="number" name="priority" value="100" class="form-control"></div>
-                    <div class="form-group"><label>Description</label><input type="text" name="description" class="form-control" placeholder="Optional description"></div>
-                    <input type="hidden" name="routeId" value="">
-                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Rule</button></div>
-                </form>
-            </div></div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Active Rules</h3></div><div class="card-body">
-                <table class="data-table" th:if="${!rules.isEmpty()}"><thead><tr><th>Name</th><th>Type</th><th>Action</th><th>Target</th><th>Matches</th><th>Actions</th></tr></thead><tbody>
-                    <tr th:each="rule : ${rules}">
-                        <td th:text="${rule.name}">name</td>
-                        <td><span class="badge badge-blue" th:text="${rule.ruleType}">type</span></td>
-                        <td><span class="badge" th:classappend="${rule.action == 'BLOCK'} ? ' badge-red' : ' badge-orange'" th:text="${rule.action}">action</span></td>
-                        <td th:text="${rule.targetField}">ALL</td>
-                        <td th:text="${rule.matchCount}">0</td>
-                        <td><form method="post" th:action="@{/waf/rules/{id}/delete(id=${rule.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form></td>
-                    </tr>
-                </tbody></table>
-                <div class="empty-state" th:if="${rules.isEmpty()}"><p>No custom WAF rules. Built-in protection is always active.</p></div>
-            </div></div>
+            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+            
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blue">🛡️</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.totalBlocked} ?: '0'">0</span>
+                        <span class="stat-label">Attacks Blocked</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-orange">⚠️</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.sqlInjection} ?: '0'">0</span>
+                        <span class="stat-label">SQL Injection</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-red">🚨</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.xssAttempts} ?: '0'">0</span>
+                        <span class="stat-label">XSS Attempts</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-purple">🔒</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${#lists.size(blockedIps)} ?: '0'">0</span>
+                        <span class="stat-label">Blocked IPs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WAF Settings -->
+            <div class="card" style="margin-bottom:1.5rem">
+                <div class="card-header"><h3>⚙️ WAF Configuration</h3></div>
+                <div class="card-body">
+                    <form th:action="@{/waf/settings}" method="post">
+                        <div class="waf-toggles">
+                            <div class="waf-toggle-item">
+                                <div class="waf-toggle-info">
+                                    <h4>SQL Injection Protection</h4>
+                                    <p>Block malicious SQL queries in request parameters</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="sqlInjection" th:checked="${settings?.sqlInjection} ?: true">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="waf-toggle-item">
+                                <div class="waf-toggle-info">
+                                    <h4>XSS Protection</h4>
+                                    <p>Prevent cross-site scripting attacks</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="xssProtection" th:checked="${settings?.xssProtection} ?: true">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="waf-toggle-item">
+                                <div class="waf-toggle-info">
+                                    <h4>Path Traversal Protection</h4>
+                                    <p>Block directory traversal attempts</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="pathTraversal" th:checked="${settings?.pathTraversal} ?: true">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="waf-toggle-item">
+                                <div class="waf-toggle-info">
+                                    <h4>Request Size Limit</h4>
+                                    <p>Maximum request body size (KB)</p>
+                                </div>
+                                <div class="input-wrapper" style="width:120px">
+                                    <input type="number" name="maxRequestSize" th:value="${settings?.maxRequestSize} ?: 1024" min="1" max="102400">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1.5rem">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- IP Blocklist -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🚫 IP Blocklist</h3>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="Nawala.Modal.open('addIpModal')">+ Add IP</button>
+                </div>
+                <div class="card-body" style="padding:0">
+                    <table class="data-table">
+                        <thead><tr><th>IP Address</th><th>Reason</th><th>Blocked At</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr th:each="ip : ${blockedIps}">
+                                <td class="mono" th:text="${ip.address}">192.168.1.1</td>
+                                <td th:text="${ip.reason}">Manual block</td>
+                                <td th:text="${#temporals.format(ip.blockedAt, 'dd MMM yyyy HH:mm')}">Date</td>
+                                <td>
+                                    <form th:action="@{/waf/unblock/{id}(id=${ip.id})}" method="post" style="display:inline">
+                                        <button type="submit" class="btn-sm btn-secondary">Unblock</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(blockedIps)}"><td colspan="4" class="empty-state">No blocked IPs</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
+
+    <!-- Add IP Modal -->
+    <div class="modal-backdrop" id="addIpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Block IP Address</h3>
+                <button type="button" class="modal-close" onclick="Nawala.Modal.close('addIpModal')">✕</button>
+            </div>
+            <form th:action="@{/waf/block}" method="post">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>IP Address</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="ipAddress" required placeholder="192.168.1.1 or CIDR notation">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Reason</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="reason" placeholder="Manual block">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="Nawala.Modal.close('addIpModal')">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Block IP</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script th:src="@{/js/app.js}"></script>
 </body>
 </html>

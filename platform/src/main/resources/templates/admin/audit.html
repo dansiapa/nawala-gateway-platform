@@ -1,29 +1,84 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Log - Nawala Admin</title>
+    <title>Audit Logs - Nawala Admin</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('Audit Log', 'Complete activity trail for compliance and security')}"></div>
+        <div th:replace="~{fragments/header :: header('Audit Logs', 'Track all system activities')}"></div>
         <div class="content-area">
-            <div class="card"><div class="card-body" style="padding:0">
-                <table class="data-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>Details</th><th>IP</th></tr></thead><tbody>
-                    <tr th:each="a : ${logs}">
-                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}">time</td>
-                        <td th:text="${a.username}">user</td>
-                        <td><span class="badge badge-blue" th:text="${a.action}">action</span></td>
-                        <td th:text="${a.resourceType != null ? a.resourceType + ' #' + a.resourceId : '-'}">resource</td>
-                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis" th:text="${a.details}">details</td>
-                        <td th:text="${a.ipAddress}">ip</td>
-                    </tr>
-                    <tr th:if="${logs.isEmpty()}"><td colspan="6" class="empty-state"><p>No audit entries yet</p></td></tr>
-                </tbody></table>
-            </div></div>
+            <!-- Filters -->
+            <div class="card" style="margin-bottom:1.5rem">
+                <div class="card-body">
+                    <form th:action="@{/admin/audit}" method="get" class="filter-form">
+                        <div class="input-group">
+                            <label>Action Type</label>
+                            <select name="action" class="form-select">
+                                <option value="">All Actions</option>
+                                <option value="LOGIN">Login</option>
+                                <option value="LOGOUT">Logout</option>
+                                <option value="CREATE">Create</option>
+                                <option value="UPDATE">Update</option>
+                                <option value="DELETE">Delete</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>User</label>
+                            <input type="text" name="username" placeholder="Username" class="form-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Date Range</label>
+                            <input type="date" name="from" class="form-input">
+                        </div>
+                        <div class="input-group">
+                            <label>&nbsp;</label>
+                            <input type="date" name="to" class="form-input">
+                        </div>
+                        <div class="input-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Logs Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0">
+                    <table class="data-table">
+                        <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Resource</th><th>Details</th><th>IP Address</th></tr></thead>
+                        <tbody>
+                            <tr th:each="log : ${logs}">
+                                <td th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 00:00:00</td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:0.5rem">
+                                        <div class="avatar avatar-xs" th:text="${log.username?.substring(0,1)?.toUpperCase()} ?: '?'">U</div>
+                                        <span th:text="${log.username} ?: 'System'">user</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${log.action == 'DELETE'} ? ' badge-red' : (${log.action == 'CREATE'} ? ' badge-green' : ' badge-blue')" th:text="${log.action}">ACTION</span>
+                                </td>
+                                <td th:text="${log.resource}">Resource</td>
+                                <td class="small" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" th:text="${log.details}">Details</td>
+                                <td class="mono small" th:text="${log.ipAddress}">127.0.0.1</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(logs)}"><td colspan="6" class="empty-state">No audit logs found</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:href="@{/admin/audit(page=${currentPage - 1})}" th:if="${currentPage > 0}" class="btn btn-outline btn-sm">← Previous</a>
+                <span class="page-info">Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span></span>
+                <a th:href="@{/admin/audit(page=${currentPage + 1})}" th:if="${currentPage < totalPages - 1}" class="btn btn-outline btn-sm">Next →</a>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>

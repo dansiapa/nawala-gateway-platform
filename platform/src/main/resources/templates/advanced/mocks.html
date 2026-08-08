@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,41 +9,146 @@
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('mocks')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('API Sandbox', 'Mock endpoints for testing without a real backend')}"></div>
+        <div th:replace="~{fragments/header :: header('API Sandbox', 'Create mock endpoints for testing')}"></div>
         <div class="content-area">
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-            <div class="card"><div class="card-header"><h3>Create Mock Endpoint</h3></div><div class="card-body">
-                <form method="post" action="/mocks" class="form-grid">
-                    <div class="form-group"><label>Name</label><input type="text" name="name" required class="form-control" placeholder="Test Users API"></div>
-                    <div class="form-group"><label>Path</label><input type="text" name="path" required class="form-control" placeholder="/mock/api/users"></div>
-                    <div class="form-group"><label>Method</label><select name="method" class="form-control"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select></div>
-                    <div class="form-group"><label>Status Code</label><input type="number" name="statusCode" value="200" class="form-control"></div>
-                    <div class="form-group" style="grid-column:1/-1"><label>Response Body (JSON)</label><textarea name="responseBody" class="form-control" rows="4" placeholder='{"users":[{"id":1,"name":"John"}]}'></textarea></div>
-                    <div class="form-group"><label>Content Type</label><input type="text" name="contentType" value="application/json" class="form-control"></div>
-                    <div class="form-group"><label>Simulated Delay (ms)</label><input type="number" name="delayMs" value="0" class="form-control"></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Mock</button></div>
-                </form>
-            </div></div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Your Mock Endpoints</h3></div><div class="card-body">
-                <table class="data-table" th:if="${!mocks.isEmpty()}"><thead><tr><th>Name</th><th>Method</th><th>Path</th><th>Status</th><th>Delay</th><th>Active</th><th>Actions</th></tr></thead><tbody>
-                    <tr th:each="m : ${mocks}">
-                        <td th:text="${m.name}">name</td>
-                        <td><span class="badge badge-blue" th:text="${m.method}">GET</span></td>
-                        <td><code th:text="${m.path}">/path</code></td>
-                        <td th:text="${m.statusCode}">200</td>
-                        <td th:text="${m.delayMs} + ' ms'">0 ms</td>
-                        <td><span class="badge" th:classappend="${m.active} ? ' badge-green' : ' badge-grey'" th:text="${m.active} ? 'Active' : 'Off'">active</span></td>
-                        <td>
-                            <form method="post" th:action="@{/mocks/{id}/toggle(id=${m.id})}" style="display:inline"><input type="hidden" name="active" th:value="${!m.active}"><button class="btn btn-sm btn-secondary" th:text="${m.active} ? 'Disable' : 'Enable'">Toggle</button></form>
-                            <form method="post" th:action="@{/mocks/{id}/delete(id=${m.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
-                        </td>
-                    </tr>
-                </tbody></table>
-                <div class="empty-state" th:if="${mocks.isEmpty()}"><p>No mock endpoints. Create one to start testing.</p></div>
-            </div></div>
+            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+            
+            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+                <button type="button" class="btn btn-primary" onclick="Nawala.Modal.open('createMockModal')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Mock Endpoint
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="padding:0">
+                    <table class="data-table">
+                        <thead><tr><th>Name</th><th>Method</th><th>Path</th><th>Status</th><th>Delay</th><th>Hits</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr th:each="mock : ${mocks}">
+                                <td th:text="${mock.name}">Mock API</td>
+                                <td><span class="method-badge" th:classappend="' method-' + ${mock.method.toLowerCase()}" th:text="${mock.method}">GET</span></td>
+                                <td class="mono" th:text="${mock.path}">/mock/api</td>
+                                <td><span class="badge" th:classappend="${mock.statusCode >= 400} ? ' badge-red' : ' badge-green'" th:text="${mock.statusCode}">200</span></td>
+                                <td th:text="${mock.delayMs} + 'ms'">0ms</td>
+                                <td th:text="${mock.hitCount}">0</td>
+                                <td class="action-btns">
+                                    <button type="button" class="btn-sm btn-secondary" th:onclick="'viewMock(' + ${mock.id} + ')'">View</button>
+                                    <form th:action="@{/mocks/{id}/delete(id=${mock.id})}" method="post" style="display:inline" onsubmit="return confirm('Delete?')">
+                                        <button type="submit" class="btn-sm btn-danger-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(mocks)}"><td colspan="7" class="empty-state">No mock endpoints. Create one to start testing.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Test -->
+            <div class="card" style="margin-top:1.5rem">
+                <div class="card-header"><h3>🧪 Quick API Tester</h3></div>
+                <div class="card-body">
+                    <div class="api-tester">
+                        <div class="tester-request">
+                            <select id="testMethod" class="form-select" style="width:120px">
+                                <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+                            </select>
+                            <input type="text" id="testUrl" class="form-input" placeholder="Enter URL to test..." style="flex:1">
+                            <button type="button" class="btn btn-primary" onclick="sendTestRequest()">Send</button>
+                        </div>
+                        <div class="tester-response" id="testerResponse" style="display:none">
+                            <div class="response-header">
+                                <span>Response</span>
+                                <span id="responseStatus" class="badge">200 OK</span>
+                                <span id="responseTime" class="text-muted">0ms</span>
+                            </div>
+                            <pre id="responseBody" class="response-body"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
+
+    <!-- Create Mock Modal -->
+    <div class="modal-backdrop" id="createMockModal">
+        <div class="modal" style="max-width:700px">
+            <div class="modal-header">
+                <h3>Create Mock Endpoint</h3>
+                <button type="button" class="modal-close" onclick="Nawala.Modal.close('createMockModal')">✕</button>
+            </div>
+            <form th:action="@{/mocks/create}" method="post">
+                <div class="modal-body">
+                    <div class="form-grid-2">
+                        <div class="input-group">
+                            <label>Name</label>
+                            <div class="input-wrapper"><input type="text" name="name" required placeholder="My Mock API"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>HTTP Method</label>
+                            <div class="input-wrapper">
+                                <select name="method" class="form-select">
+                                    <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Path</label>
+                        <div class="input-wrapper"><input type="text" name="path" required placeholder="/mock/users"></div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="input-group">
+                            <label>Response Status</label>
+                            <div class="input-wrapper"><input type="number" name="statusCode" value="200" min="100" max="599"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>Delay (ms)</label>
+                            <div class="input-wrapper"><input type="number" name="delayMs" value="0" min="0" max="30000"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Response Body (JSON)</label>
+                        <div class="input-wrapper"><textarea name="responseBody" rows="6" placeholder='{"message": "Hello World"}'></textarea></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Response Headers (one per line: Header: Value)</label>
+                        <div class="input-wrapper"><textarea name="responseHeaders" rows="3" placeholder="Content-Type: application/json"></textarea></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="Nawala.Modal.close('createMockModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Mock</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script th:src="@{/js/app.js}"></script>
+    <script>
+    function sendTestRequest() {
+        const method = document.getElementById('testMethod').value;
+        const url = document.getElementById('testUrl').value;
+        if (!url) return;
+        const start = Date.now();
+        fetch(url, { method })
+            .then(r => {
+                document.getElementById('responseStatus').textContent = r.status + ' ' + r.statusText;
+                document.getElementById('responseStatus').className = 'badge ' + (r.ok ? 'badge-green' : 'badge-red');
+                return r.text();
+            })
+            .then(body => {
+                document.getElementById('responseTime').textContent = (Date.now() - start) + 'ms';
+                try { body = JSON.stringify(JSON.parse(body), null, 2); } catch(e) {}
+                document.getElementById('responseBody').textContent = body;
+                document.getElementById('testerResponse').style.display = 'block';
+            })
+            .catch(e => {
+                document.getElementById('responseBody').textContent = 'Error: ' + e.message;
+                document.getElementById('testerResponse').style.display = 'block';
+            });
+    }
+    </script>
 </body>
 </html>

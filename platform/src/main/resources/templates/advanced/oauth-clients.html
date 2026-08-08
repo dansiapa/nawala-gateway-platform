@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,40 +9,140 @@
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('oauth')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('OAuth2 Clients', 'Client credentials for machine-to-machine auth')}"></div>
+        <div th:replace="~{fragments/header :: header('OAuth 2.0 Clients', 'Manage OAuth applications and credentials')}"></div>
         <div class="content-area">
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-            <div class="card"><div class="card-header"><h3>Register OAuth Client</h3></div><div class="card-body">
-                <form method="post" action="/oauth-clients" class="form-grid">
-                    <div class="form-group"><label>Client Name</label><input type="text" name="name" required class="form-control" placeholder="My Service"></div>
-                    <div class="form-group"><label>Grant Types</label><select name="grantTypes" class="form-control"><option value="client_credentials">Client Credentials</option><option value="client_credentials,refresh_token">Client Credentials + Refresh</option></select></div>
-                    <div class="form-group"><label>Scopes</label><input type="text" name="scopes" value="read" class="form-control" placeholder="read,write,admin"></div>
-                    <div class="form-group"><label>Redirect URIs (optional)</label><input type="text" name="redirectUris" class="form-control" placeholder="https://..."></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary">Register Client</button></div>
-                </form>
-            </div></div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Your Clients</h3></div><div class="card-body">
-                <table class="data-table" th:if="${!clients.isEmpty()}"><thead><tr><th>Name</th><th>Client ID</th><th>Grants</th><th>Scopes</th><th>Created</th><th>Actions</th></tr></thead><tbody>
-                    <tr th:each="c : ${clients}">
-                        <td th:text="${c.name}">name</td>
-                        <td><code th:text="${c.clientId}">id</code></td>
-                        <td><span class="badge badge-blue" th:text="${c.grantTypes}">grant</span></td>
-                        <td th:text="${c.scopes}">read</td>
-                        <td th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd')}">date</td>
-                        <td><form method="post" th:action="@{/oauth-clients/{id}/delete(id=${c.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form></td>
-                    </tr>
-                </tbody></table>
-                <div class="empty-state" th:if="${clients.isEmpty()}"><p>No OAuth clients registered.</p></div>
-            </div></div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Token Endpoint</h3></div><div class="card-body">
-                <p>Use <code>POST /oauth/token</code> with params:</p>
-                <pre>grant_type=client_credentials&amp;client_id=YOUR_ID&amp;client_secret=YOUR_SECRET&amp;scope=read</pre>
-                <p style="margin-top:0.75rem">Response:</p>
-                <pre>{"access_token":"...","token_type":"Bearer","expires_in":3600,"scope":"read"}</pre>
-            </div></div>
+            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+            <div th:if="${newClient}" class="alert alert-warning" style="flex-direction:column;align-items:flex-start">
+                <strong>🔑 New Client Credentials (Save these now!):</strong>
+                <div style="margin-top:0.75rem;display:grid;gap:0.5rem">
+                    <div><span class="text-muted">Client ID:</span> <code class="mono" th:text="${newClient.clientId}"></code></div>
+                    <div><span class="text-muted">Client Secret:</span> <code class="mono" th:text="${newClient.clientSecret}"></code></div>
+                </div>
+                <small style="margin-top:0.75rem;opacity:0.8">The secret will not be shown again.</small>
+            </div>
+            
+            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+                <button type="button" class="btn btn-primary" onclick="Nawala.Modal.open('createOAuthModal')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Register Application
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="padding:0">
+                    <table class="data-table">
+                        <thead><tr><th>Application</th><th>Client ID</th><th>Grant Types</th><th>Scopes</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr th:each="client : ${clients}">
+                                <td>
+                                    <div style="font-weight:500" th:text="${client.name}">App Name</div>
+                                    <div class="text-muted small" th:text="${client.description}">Description</div>
+                                </td>
+                                <td class="mono small" th:text="${client.clientId}">client_id</td>
+                                <td>
+                                    <div class="tag-group">
+                                        <span class="tag tag-sm" th:each="grant : ${client.grantTypes}" th:text="${grant}">grant</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="tag-group">
+                                        <span class="tag tag-sm tag-blue" th:each="scope : ${client.scopes}" th:text="${scope}">scope</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge" th:classappend="${client.active} ? ' status-active' : ' status-inactive'">
+                                        <span class="status-dot"></span>
+                                        <span th:text="${client.active} ? 'Active' : 'Disabled'">Active</span>
+                                    </span>
+                                </td>
+                                <td class="action-btns">
+                                    <form th:action="@{/oauth-clients/{id}/regenerate(id=${client.id})}" method="post" style="display:inline" onsubmit="return confirm('Regenerate secret? Old secret will stop working.')">
+                                        <button type="submit" class="btn-sm btn-secondary">Regenerate</button>
+                                    </form>
+                                    <form th:action="@{/oauth-clients/{id}/toggle(id=${client.id})}" method="post" style="display:inline">
+                                        <button type="submit" class="btn-sm btn-secondary" th:text="${client.active} ? 'Disable' : 'Enable'">Toggle</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(clients)}"><td colspan="6" class="empty-state">No OAuth clients registered yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- OAuth Info -->
+            <div class="card" style="margin-top:1.5rem">
+                <div class="card-header"><h3>📖 OAuth 2.0 Endpoints</h3></div>
+                <div class="card-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint-item">
+                            <span class="endpoint-label">Authorization</span>
+                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/authorize'}">/oauth/authorize</code>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-label">Token</span>
+                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/token'}">/oauth/token</code>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-label">Introspect</span>
+                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/introspect'}">/oauth/introspect</code>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-label">Revoke</span>
+                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/revoke'}">/oauth/revoke</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
+
+    <!-- Create OAuth Modal -->
+    <div class="modal-backdrop" id="createOAuthModal">
+        <div class="modal" style="max-width:600px">
+            <div class="modal-header">
+                <h3>Register OAuth Application</h3>
+                <button type="button" class="modal-close" onclick="Nawala.Modal.close('createOAuthModal')">✕</button>
+            </div>
+            <form th:action="@{/oauth-clients/create}" method="post">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>Application Name</label>
+                        <div class="input-wrapper"><input type="text" name="name" required placeholder="My Application"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Description</label>
+                        <div class="input-wrapper"><input type="text" name="description" placeholder="Brief description"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Redirect URIs (one per line)</label>
+                        <div class="input-wrapper"><textarea name="redirectUris" rows="3" placeholder="https://yourapp.com/callback"></textarea></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Grant Types</label>
+                        <div class="checkbox-grid">
+                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="authorization_code" checked><span>Authorization Code</span></label>
+                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="client_credentials"><span>Client Credentials</span></label>
+                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="refresh_token" checked><span>Refresh Token</span></label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Scopes</label>
+                        <div class="checkbox-grid">
+                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="read" checked><span>read</span></label>
+                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="write"><span>write</span></label>
+                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="admin"><span>admin</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="Nawala.Modal.close('createOAuthModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script th:src="@{/js/app.js}"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,30 +9,127 @@
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('routes')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('API Routes', 'Register and manage your API endpoints')}"></div>
+        <div th:replace="~{fragments/header :: header('API Routes', 'Manage your API endpoints and routing rules')}"></div>
         <div class="content-area">
             <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
-            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><a href="/routes/new" class="btn btn-primary">+ New Route</a></div>
+            
+            <!-- Stats Row -->
+            <div class="stats-row" style="margin-bottom:1.5rem">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blue">🛣️</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${#lists.size(routes)}">0</span>
+                        <span class="stat-label">Total Routes</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-green">✅</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${#lists.size(routes.?[active == true])}">0</span>
+                        <span class="stat-label">Active</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-purple">🔒</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${#lists.size(routes.?[authRequired == true])}">0</span>
+                        <span class="stat-label">Auth Required</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                <div class="search-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="routeSearch" placeholder="Search routes..." onkeyup="filterRoutes()">
+                </div>
+                <a href="/routes/new" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Route
+                </a>
+            </div>
+
+            <!-- Routes Table -->
             <div class="card">
                 <div class="card-body" style="padding:0">
-                    <table class="data-table">
-                        <thead><tr><th>Name</th><th>Method</th><th>Path</th><th>Target</th><th>Auth</th><th>Rate Limit</th><th>Status</th><th>Actions</th></tr></thead>
+                    <table class="data-table" id="routesTable">
+                        <thead>
+                            <tr>
+                                <th>Route</th>
+                                <th>Method</th>
+                                <th>Path</th>
+                                <th>Target</th>
+                                <th>Security</th>
+                                <th>Rate Limit</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr th:each="route : ${routes}">
-                                <td th:text="${route.name}">Route</td>
-                                <td><span class="method-badge" th:text="${route.method}" th:classappend="' method-' + ${route.method.toLowerCase()}">GET</span></td>
+                            <tr th:each="route : ${routes}" class="route-row">
+                                <td>
+                                    <div class="route-name">
+                                        <strong th:text="${route.name}">Route Name</strong>
+                                        <div class="route-id text-muted small" th:text="'#' + ${route.id}">ID</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="method-badge" th:classappend="' method-' + ${route.method.toLowerCase()}" th:text="${route.method}">GET</span>
+                                </td>
                                 <td class="mono" th:text="${route.path}">/api/v1</td>
-                                <td class="mono small" th:text="${route.targetUrl}">http://...</td>
-                                <td><span th:if="${route.authRequired}" class="badge badge-purple">Yes</span><span th:unless="${route.authRequired}" class="badge badge-muted">No</span></td>
-                                <td th:text="${route.rateLimitEnabled} ? ${route.rateLimitPerMinute} + '/min' : 'Off'">60/min</td>
-                                <td><span class="status-dot" th:classappend="${route.active} ? ' active' : ' inactive'"></span><span th:text="${route.active} ? 'Active' : 'Inactive'">Active</span></td>
-                                <td class="actions-cell">
-                                    <a th:href="@{'/routes/' + ${route.id} + '/edit'}" class="btn-sm btn-secondary">Edit</a>
-                                    <form th:action="@{'/routes/' + ${route.id} + '/toggle'}" method="post" style="display:inline"><button type="submit" class="btn-sm btn-secondary" th:text="${route.active} ? 'Disable' : 'Enable'">Toggle</button></form>
-                                    <form th:action="@{'/routes/' + ${route.id} + '/delete'}" method="post" style="display:inline" onsubmit="return confirm('Delete this route?')"><button type="submit" class="btn-sm btn-danger-sm">Delete</button></form>
+                                <td>
+                                    <div class="target-info">
+                                        <code class="target-url" th:text="${route.targetUrl}">http://...</code>
+                                        <span th:if="${route.loadBalanced}" class="tag tag-sm">⚖️ LB</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="security-badges">
+                                        <span th:if="${route.authRequired}" class="tag tag-sm tag-blue">🔒 Auth</span>
+                                        <span th:if="${route.payloadEncryption}" class="tag tag-sm">🔐 E2E</span>
+                                        <span th:if="${!route.authRequired and !route.payloadEncryption}" class="text-muted small">None</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:if="${route.rateLimitEnabled}" th:text="${route.rateLimitPerMinute} + '/min'" class="badge badge-muted">60/min</span>
+                                    <span th:unless="${route.rateLimitEnabled}" class="text-muted small">Off</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge" th:classappend="${route.active} ? ' status-active' : ' status-inactive'">
+                                        <span class="status-dot"></span>
+                                        <span th:text="${route.active} ? 'Active' : 'Inactive'">Active</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-btns">
+                                        <a th:href="@{'/routes/' + ${route.id} + '/edit'}" class="btn-icon" title="Edit">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                        <form th:action="@{'/routes/' + ${route.id} + '/toggle'}" method="post" style="display:inline">
+                                            <button type="submit" class="btn-icon" th:title="${route.active} ? 'Disable' : 'Enable'">
+                                                <svg th:if="${route.active}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                                <svg th:unless="${route.active}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                            </button>
+                                        </form>
+                                        <form th:action="@{'/routes/' + ${route.id} + '/delete'}" method="post" style="display:inline" onsubmit="return confirm('Delete this route?')">
+                                            <button type="submit" class="btn-icon btn-icon-danger" title="Delete">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(routes)}"><td colspan="8" class="empty-state" style="padding:3rem;text-align:center"><p>No routes registered yet. Click "+ New Route" to get started.</p></td></tr>
+                            <tr th:if="${#lists.isEmpty(routes)}">
+                                <td colspan="8" class="empty-state">
+                                    <div style="padding:3rem;text-align:center">
+                                        <div style="font-size:3rem;margin-bottom:1rem">🛣️</div>
+                                        <h3>No routes yet</h3>
+                                        <p class="text-muted">Create your first route to start proxying API requests</p>
+                                        <a href="/routes/new" class="btn btn-primary" style="margin-top:1rem">Create First Route</a>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -41,5 +138,14 @@
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
     <script th:src="@{/js/app.js}"></script>
+    <script>
+    function filterRoutes() {
+        const q = document.getElementById('routeSearch').value.toLowerCase();
+        document.querySelectorAll('.route-row').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+    </script>
 </body>
 </html>

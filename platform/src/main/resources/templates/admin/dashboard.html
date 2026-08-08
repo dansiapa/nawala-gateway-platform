@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Nawala</title>
+    <title>Admin Dashboard - Nawala</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -11,22 +11,108 @@
     <main class="main-content">
         <div th:replace="~{fragments/header :: header('Admin Dashboard', 'System overview and management')}"></div>
         <div class="content-area">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon stat-icon-blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${totalUsers}">0</span><span class="stat-label">Total Users</span></div></div>
-                <div class="stat-card"><div class="stat-icon stat-icon-green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${activeUsers}">0</span><span class="stat-label">Active Users</span></div></div>
-                <div class="stat-card"><div class="stat-icon stat-icon-purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div><div class="stat-content"><span class="stat-value" th:text="${tiers.size()}">0</span><span class="stat-label">Rate Limit Tiers</span></div></div>
+            <!-- System Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blue">👥</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.totalUsers} ?: '0'">0</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-green">🛣️</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.totalRoutes} ?: '0'">0</span>
+                        <span class="stat-label">Total Routes</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-purple">🔑</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.totalApiKeys} ?: '0'">0</span>
+                        <span class="stat-label">API Keys</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-orange">📊</div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${stats?.requestsToday} ?: '0'">0</span>
+                        <span class="stat-label">Requests Today</span>
+                    </div>
+                </div>
             </div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Recent Audit Trail</h3></div><div class="card-body" style="padding:0">
-                <table class="data-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead><tbody>
-                    <tr th:each="a : ${recentAudit}">
-                        <td th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'MM-dd HH:mm') : ''}">time</td>
-                        <td th:text="${a.username}">user</td>
-                        <td><span class="badge badge-blue" th:text="${a.action}">action</span></td>
-                        <td th:text="${a.resourceType != null ? a.resourceType + ' #' + a.resourceId : '-'}">resource</td>
-                        <td th:text="${a.ipAddress}">ip</td>
-                    </tr>
-                </tbody></table>
-            </div></div>
+
+            <div class="content-grid">
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header"><h3>⚡ Quick Actions</h3></div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <a href="/admin/users" class="quick-action-btn">
+                                <span class="qa-icon">👥</span>
+                                <span>Manage Users</span>
+                            </a>
+                            <a href="/admin/tiers" class="quick-action-btn">
+                                <span class="qa-icon">🎯</span>
+                                <span>Service Tiers</span>
+                            </a>
+                            <a href="/admin/audit" class="quick-action-btn">
+                                <span class="qa-icon">📝</span>
+                                <span>Audit Logs</span>
+                            </a>
+                            <a href="/waf" class="quick-action-btn">
+                                <span class="qa-icon">🛡️</span>
+                                <span>WAF Settings</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="card">
+                    <div class="card-header"><h3>💻 System Health</h3></div>
+                    <div class="card-body">
+                        <div class="health-items">
+                            <div class="health-item">
+                                <span class="health-label">Gateway</span>
+                                <span class="status-badge status-active"><span class="status-dot"></span>Healthy</span>
+                            </div>
+                            <div class="health-item">
+                                <span class="health-label">Database</span>
+                                <span class="status-badge status-active"><span class="status-dot"></span>Connected</span>
+                            </div>
+                            <div class="health-item">
+                                <span class="health-label">Cache</span>
+                                <span class="status-badge status-active"><span class="status-dot"></span>Active</span>
+                            </div>
+                            <div class="health-item">
+                                <span class="health-label">Uptime</span>
+                                <span class="text-muted" th:text="${stats?.uptime} ?: '0d 0h'">0d 0h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card" style="margin-top:1.5rem">
+                <div class="card-header"><h3>📋 Recent Admin Activity</h3></div>
+                <div class="card-body" style="padding:0">
+                    <table class="data-table">
+                        <thead><tr><th>Action</th><th>User</th><th>Details</th><th>Time</th></tr></thead>
+                        <tbody>
+                            <tr th:each="log : ${recentLogs}">
+                                <td><span class="badge" th:text="${log.action}">ACTION</span></td>
+                                <td th:text="${log.username}">admin</td>
+                                <td th:text="${log.details}">Details</td>
+                                <td th:text="${#temporals.format(log.createdAt, 'dd MMM HH:mm')}">Time</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentLogs)}"><td colspan="4" class="empty-state">No recent activity</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>

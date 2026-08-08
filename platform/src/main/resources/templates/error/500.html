@@ -1,20 +1,20 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>500 - Nawala</title>
-    
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="auth-page">
-    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem">
-        <div>
-            <h1 style="font-size:6rem;font-weight:800;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1rem">500</h1>
-            <h2 style="font-size:1.5rem;margin-bottom:0.5rem">Internal Server Error</h2>
-            <p style="color:var(--text-secondary);margin-bottom:2rem" th:text="${message} ?: 'Something went wrong. Please try again later.'"></p>
-            <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+<body class="error-page">
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">Something Went Wrong</h2>
+        <p class="error-message">We encountered an unexpected error. Our team has been notified.</p>
+        <div class="error-actions">
+            <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a href="javascript:location.reload()" class="btn btn-outline">Try Again</a>
         </div>
     </div>
 </body>

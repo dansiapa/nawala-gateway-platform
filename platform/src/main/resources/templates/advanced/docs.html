@@ -1,42 +1,70 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Docs - Nawala</title>
+    <title>API Documentation - Nawala</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
     <div th:replace="~{fragments/sidebar :: sidebar('docs')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/header :: header('API Documentation', 'Manage and publish OpenAPI specs')}"></div>
+        <div th:replace="~{fragments/header :: header('API Documentation', 'Auto-generated documentation for your APIs')}"></div>
         <div class="content-area">
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-            <div class="card"><div class="card-header"><h3>Create Documentation</h3></div><div class="card-body">
-                <form method="post" action="/docs" class="form-grid">
-                    <div class="form-group"><label>Title</label><input type="text" name="title" required class="form-control" placeholder="User API"></div>
-                    <div class="form-group"><label>Version</label><input type="text" name="version" value="1.0.0" class="form-control"></div>
-                    <div class="form-group"><label>Route ID (optional)</label><input type="number" name="routeId" class="form-control" placeholder="Link to route"></div>
-                    <div class="form-group"><label>Description</label><input type="text" name="description" class="form-control" placeholder="API Description"></div>
-                    <div class="form-group" style="grid-column:1/-1"><label>OpenAPI Spec (JSON/YAML)</label><textarea name="openApiSpec" class="form-control" rows="8" placeholder='OpenAPI spec here'></textarea></div>
-                    <div class="form-actions"><button type="submit" class="btn btn-primary">Create Doc</button></div>
+            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+            
+            <!-- Quick Actions -->
+            <div style="display:flex;gap:1rem;margin-bottom:1.5rem">
+                <form th:action="@{/docs/generate}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Regenerate Docs
+                    </button>
                 </form>
-            </div></div>
-            <div class="card" style="margin-top:1.5rem"><div class="card-header"><h3>Your Docs</h3></div><div class="card-body">
-                <table class="data-table" th:if="${!docs.isEmpty()}"><thead><tr><th>Title</th><th>Version</th><th>Published</th><th>Created</th><th>Actions</th></tr></thead><tbody>
-                    <tr th:each="d : ${docs}">
-                        <td><a th:href="@{/docs/{id}/view(id=${d.id})}" th:text="${d.title}">title</a></td>
-                        <td th:text="${d.version}">1.0.0</td>
-                        <td><span class="badge" th:classappend="${d.published} ? ' badge-green' : ' badge-grey'" th:text="${d.published} ? 'Published' : 'Draft'">status</span></td>
-                        <td th:text="${#temporals.format(d.createdAt, 'yyyy-MM-dd')}">date</td>
-                        <td>
-                            <form method="post" th:action="@{/docs/{id}/publish(id=${d.id})}" style="display:inline"><input type="hidden" name="published" th:value="${!d.published}"><button class="btn btn-sm btn-secondary" th:text="${d.published} ? 'Unpublish' : 'Publish'">Toggle</button></form>
-                            <form method="post" th:action="@{/docs/{id}/delete(id=${d.id})}" style="display:inline"><button class="btn btn-sm btn-danger">Delete</button></form>
-                        </td>
-                    </tr>
-                </tbody></table>
-                <div class="empty-state" th:if="${docs.isEmpty()}"><p>No documentation yet. Create your first API doc.</p></div>
-            </div></div>
+                <a th:href="@{/docs/public}" target="_blank" class="btn btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    View Public Docs
+                </a>
+            </div>
+
+            <!-- API Groups -->
+            <div class="docs-container">
+                <div class="docs-sidebar">
+                    <h4>API Groups</h4>
+                    <ul class="docs-nav">
+                        <li th:each="group : ${apiGroups}">
+                            <a th:href="'#' + ${group.name}" th:text="${group.name}">Group</a>
+                            <span class="badge badge-sm" th:text="${group.endpointCount}">0</span>
+                        </li>
+                        <li th:if="${#lists.isEmpty(apiGroups)}" class="text-muted">No APIs documented yet</li>
+                    </ul>
+                </div>
+                <div class="docs-content">
+                    <div th:each="group : ${apiGroups}" class="docs-group" th:id="${group.name}">
+                        <h3 th:text="${group.name}">API Group</h3>
+                        <p th:text="${group.description}">Description</p>
+                        
+                        <div class="endpoint-cards">
+                            <div th:each="endpoint : ${group.endpoints}" class="endpoint-card">
+                                <div class="endpoint-header">
+                                    <span class="method-badge" th:classappend="' method-' + ${endpoint.method.toLowerCase()}" th:text="${endpoint.method}">GET</span>
+                                    <code class="endpoint-path" th:text="${endpoint.path}">/api/endpoint</code>
+                                </div>
+                                <p class="endpoint-desc" th:text="${endpoint.description}">Endpoint description</p>
+                                <div class="endpoint-meta">
+                                    <span th:if="${endpoint.authRequired}" class="tag tag-sm">🔒 Auth Required</span>
+                                    <span th:if="${endpoint.rateLimited}" class="tag tag-sm">⏱ Rate Limited</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${#lists.isEmpty(apiGroups)}" class="empty-state" style="padding:3rem">
+                        <p>No API documentation generated yet.</p>
+                        <p class="text-muted">Click "Regenerate Docs" to generate documentation from your routes.</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </main>
