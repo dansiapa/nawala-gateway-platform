@@ -7,7 +7,7 @@
     <parent>
         <groupId>id.nawala</groupId>
         <artifactId>nawala-parent</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.1</version>
     </parent>
 
     <artifactId>nawala-platform</artifactId>

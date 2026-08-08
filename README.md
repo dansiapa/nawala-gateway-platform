@@ -150,10 +150,10 @@ redis-server
 ./mvnw clean package -DskipTests
 
 # 5. Start Platform (Management Console)
-java -jar platform/target/nawala-platform-1.0.0.jar
+java -jar platform/target/nawala-platform-2.0.1.jar
 
 # 6. Start Gateway (separate terminal)
-java -jar gateway/target/nawala-gateway-1.0.0.jar
+java -jar gateway/target/nawala-gateway-2.0.1.jar
 ```
 
 ### Service Endpoints

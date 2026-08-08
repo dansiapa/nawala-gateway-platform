@@ -64,8 +64,8 @@ mysql -u root -e "CREATE DATABASE nawala_db;"
 ./mvnw clean package -DskipTests
 
 # Run
-java -jar platform/target/nawala-platform-1.0.0.jar
-java -jar gateway/target/nawala-gateway-1.0.0.jar
+java -jar platform/target/nawala-platform-2.0.1.jar
+java -jar gateway/target/nawala-gateway-2.0.1.jar
 ```
 
 ## Code of Conduct

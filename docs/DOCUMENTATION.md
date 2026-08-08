@@ -530,8 +530,8 @@ sudo mkdir -p /opt/nawala/{logs/platform,logs/gateway,config,backup}
 sudo chown -R $(whoami):$(whoami) /opt/nawala
 
 # 3. Upload JAR from Windows
-scp -i key.pem platform/target/nawala-platform-1.0.0.jar ubuntu@YOUR_IP:/opt/nawala/
-scp -i key.pem gateway/target/nawala-gateway-1.0.0.jar ubuntu@YOUR_IP:/opt/nawala/
+scp -i key.pem platform/target/nawala-platform-2.0.1.jar ubuntu@YOUR_IP:/opt/nawala/
+scp -i key.pem gateway/target/nawala-gateway-2.0.1.jar ubuntu@YOUR_IP:/opt/nawala/
 
 # 4. Start services
 sudo systemctl start nawala-platform
@@ -581,7 +581,7 @@ Security header: `X-Internal-Secret: NawalaInternalSecretKey2024!`
 
 ---
 
-*Nawala API Gateway Platform v1.0.0 — July 2026*
+*Nawala API Gateway Platform v2.0.1 — August 2026*
 
      - `PRE_RESPONSE` — Before sending to client
      - `ON_ERROR` — When an error occurs
