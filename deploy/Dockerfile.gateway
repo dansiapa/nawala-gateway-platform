@@ -1,0 +1,39 @@
+# Build stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+
+# Copy pom files
+COPY pom.xml .
+COPY platform/pom.xml platform/
+COPY gateway/pom.xml gateway/
+
+# Download dependencies
+RUN mvn dependency:go-offline -B -pl gateway -am
+
+# Copy source
+COPY gateway/src gateway/src
+
+# Build
+RUN mvn package -DskipTests -pl gateway -am
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Add non-root user
+RUN addgroup -g 1000 nawala && adduser -u 1000 -G nawala -s /bin/sh -D nawala
+
+# Copy jar
+COPY --from=build /app/gateway/target/*.jar app.jar
+
+# Set ownership
+RUN chown -R nawala:nawala /app
+USER nawala
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD wget -q --spider http://localhost:8081/health || exit 1
+
+EXPOSE 8081
+
+ENTRYPOINT ["java", "-Xmx256m", "-jar", "app.jar"]

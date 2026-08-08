@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nawala-postgres
+    environment:
+      POSTGRES_DB: nawala
+      POSTGRES_USER: nawala
+      POSTGRES_PASSWORD: nawala_secret_2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deploy/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nawala"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nawala-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: nawala-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nawala-network
+
+  # Platform (Admin Dashboard)
+  platform:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.platform
+    container_name: nawala-platform
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nawala
+      SPRING_DATASOURCE_USERNAME: nawala
+      SPRING_DATASOURCE_PASSWORD: nawala_secret_2024
+      SPRING_REDIS_HOST: redis
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nawala-network
+
+  # Gateway (API Proxy)
+  gateway:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.gateway
+    container_name: nawala-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nawala
+      SPRING_DATASOURCE_USERNAME: nawala
+      SPRING_DATASOURCE_PASSWORD: nawala_secret_2024
+      SPRING_REDIS_HOST: redis
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      platform:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nawala-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  nawala-network:
+    driver: bridge

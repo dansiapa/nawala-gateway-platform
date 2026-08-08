@@ -1,0 +1,19 @@
+# Docker profile configuration
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/nawala}
+    username: ${SPRING_DATASOURCE_USERNAME:nawala}
+    password: ${SPRING_DATASOURCE_PASSWORD:nawala}
+  
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+
+logging:
+  level:
+    root: INFO
+    id.nawala.gateway: INFO
