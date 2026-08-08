@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: nawala-gateway
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nawala
+    username: nawala
+    password: nawala
+    driver-class-name: org.postgresql.Driver
+  
+  # Enable scheduling
+  main:
+    allow-bean-definition-overriding: true
+
+# Gateway settings
+gateway:
+  proxy:
+    connect-timeout: 5000
+    read-timeout: 30000
+    write-timeout: 30000
+    max-memory-size: 16777216  # 16MB
+  
+  rate-limit:
+    default-limit: 100
+    window-seconds: 60
+  
+  cache:
+    enabled: true
+    default-ttl-seconds: 60
+    max-size: 10000
+  
+  circuit-breaker:
+    failure-threshold: 5
+    open-duration-seconds: 30
+    half-open-max-calls: 3
+  
+  health-check:
+    interval-seconds: 30
+    timeout-seconds: 5
+
+logging:
+  level:
+    id.nawala.gateway: DEBUG
+    org.springframework.web.reactive: INFO
