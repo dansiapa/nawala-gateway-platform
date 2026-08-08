@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<title>Datacenters - Nawala</title>
+<main>
+    <div class="content-header">
+        <h1><i class="icon">🌐</i> Multi-Datacenter</h1>
+        <p>Manage datacenter regions and failover</p>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Add Datacenter -->
+    <div class="card mb-4">
+        <div class="card-header">Add Datacenter</div>
+        <div class="card-body">
+            <form th:action="@{/admin/datacenters}" method="post" class="form-grid">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required placeholder="dc-asia-1">
+                </div>
+                <div class="form-group">
+                    <label>Region</label>
+                    <select name="region">
+                        <option value="asia">Asia Pacific</option>
+                        <option value="us">US</option>
+                        <option value="eu">Europe</option>
+                        <option value="au">Australia</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Endpoint URL</label>
+                    <input type="url" name="endpoint" required placeholder="https://dc1.example.com">
+                </div>
+                <div class="form-group">
+                    <label>Port</label>
+                    <input type="number" name="port" value="8080">
+                </div>
+                <div class="form-group">
+                    <label>Weight (1-100)</label>
+                    <input type="number" name="weight" value="100" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="primary"> Primary DC
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Datacenter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Datacenter List -->
+    <div class="card">
+        <div class="card-header">Active Datacenters</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Region</th>
+                        <th>Endpoint</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                        <th>Weight</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dc : ${datacenters}">
+                        <td>
+                            <span th:text="${dc.name}"></span>
+                            <span th:if="${dc.primary}" class="badge badge-primary">PRIMARY</span>
+                        </td>
+                        <td th:text="${dc.region}"></td>
+                        <td th:text="${dc.endpoint}"></td>
+                        <td>
+                            <span class="status-badge" 
+                                  th:classappend="${dc.status.name() == 'HEALTHY' ? 'status-healthy' : (dc.status.name() == 'DEGRADED' ? 'status-warning' : 'status-error')}"
+                                  th:text="${dc.status}"></span>
+                        </td>
+                        <td th:text="${dc.latencyMs + 'ms'}"></td>
+                        <td th:text="${dc.weight}"></td>
+                        <td>
+                            <form th:action="@{/admin/datacenters/{id}/toggle(id=${dc.id})}" method="post" style="display:inline">
+                                <button type="submit" class="btn btn-sm" th:text="${dc.enabled ? 'Disable' : 'Enable'}"></button>
+                            </form>
+                            <form th:action="@{/admin/datacenters/{id}/primary(id=${dc.id})}" method="post" style="display:inline" th:unless="${dc.primary}">
+                                <button type="submit" class="btn btn-sm btn-outline">Set Primary</button>
+                            </form>
+                            <form th:action="@{/admin/datacenters/{id}/delete(id=${dc.id})}" method="post" style="display:inline" onsubmit="return confirm('Delete this datacenter?')">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(datacenters)}">
+                        <td colspan="7" class="empty-state">No datacenters configured</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</html>

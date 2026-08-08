@@ -1,0 +1,72 @@
+# Nawala Gateway Helm Values
+replicaCount: 2
+
+image:
+  repository: nawala/gateway
+  tag: latest
+  pullPolicy: IfNotPresent
+
+platform:
+  image:
+    repository: nawala/platform
+    tag: latest
+  replicas: 1
+
+gateway:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+database:
+  enabled: true
+  type: mysql
+  host: mysql
+  port: 3306
+  name: nawala_db
+  username: nawala
+  password: nawala123
+
+redis:
+  enabled: true
+  host: redis
+  port: 6379
+
+config:
+  rateLimiting:
+    enabled: true
+    defaultLimit: 1000
+  waf:
+    enabled: true
+  circuitBreaker:
+    enabled: true
+    threshold: 5
+  cors:
+    enabled: true
+    origins: "*"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilization: 70

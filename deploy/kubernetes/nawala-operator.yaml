@@ -1,0 +1,76 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: apigateways.nawala.io
+spec:
+  group: nawala.io
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                replicas:
+                  type: integer
+                  default: 1
+                image:
+                  type: string
+                  default: nawala/gateway:latest
+                resources:
+                  type: object
+                  properties:
+                    cpu:
+                      type: string
+                      default: "500m"
+                    memory:
+                      type: string
+                      default: "512Mi"
+                config:
+                  type: object
+                  properties:
+                    rateLimitEnabled:
+                      type: boolean
+                      default: true
+                    wafEnabled:
+                      type: boolean
+                      default: true
+                    circuitBreakerEnabled:
+                      type: boolean
+                      default: true
+  scope: Namespaced
+  names:
+    plural: apigateways
+    singular: apigateway
+    kind: ApiGateway
+    shortNames:
+      - ag
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nawala-operator
+  namespace: nawala-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nawala-operator
+  template:
+    metadata:
+      labels:
+        app: nawala-operator
+    spec:
+      serviceAccountName: nawala-operator
+      containers:
+        - name: operator
+          image: nawala/operator:latest
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace

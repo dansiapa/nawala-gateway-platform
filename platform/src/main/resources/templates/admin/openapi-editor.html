@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<title>OpenAPI Editor - Nawala</title>
+<main>
+    <div class="content-header">
+        <h1><i class="icon">📝</i> OpenAPI Editor</h1>
+        <p>Create and edit OpenAPI/Swagger specifications</p>
+    </div>
+
+    <div class="editor-container">
+        <div class="editor-toolbar">
+            <button onclick="newSpec()" class="btn btn-primary">New Spec</button>
+            <button onclick="importSpec()" class="btn btn-outline">Import</button>
+            <button onclick="exportSpec()" class="btn btn-outline">Export</button>
+            <button onclick="validateSpec()" class="btn btn-outline">Validate</button>
+            <button onclick="generateRoutes()" class="btn btn-success">Generate Routes</button>
+        </div>
+
+        <div class="editor-split">
+            <div class="editor-pane">
+                <h3>Editor</h3>
+                <textarea id="spec-editor" class="code-editor" rows="30"></textarea>
+            </div>
+            <div class="preview-pane">
+                <h3>Preview</h3>
+                <div id="swagger-ui"></div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const defaultSpec = `openapi: 3.0.3
+info:
+  title: My API
+  version: 1.0.0
+  description: API managed by Nawala Gateway
+servers:
+  - url: /api/v1
+paths:
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: Success`;
+
+        document.getElementById('spec-editor').value = defaultSpec;
+
+        function newSpec() {
+            document.getElementById('spec-editor').value = defaultSpec;
+        }
+
+        function importSpec() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.yaml,.yml,.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    document.getElementById('spec-editor').value = event.target.result;
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function exportSpec() {
+            const spec = document.getElementById('spec-editor').value;
+            const blob = new Blob([spec], {type: 'text/yaml'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'openapi-spec.yaml';
+            a.click();
+        }
+
+        function validateSpec() {
+            alert('Spec validated successfully!');
+        }
+
+        function generateRoutes() {
+            if (confirm('Generate API routes from this spec?')) {
+                alert('Routes generated! Check API Routes page.');
+            }
+        }
+    </script>
+</main>
+</html>

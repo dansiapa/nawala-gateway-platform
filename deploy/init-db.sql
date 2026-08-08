@@ -387,3 +387,86 @@ CREATE TABLE IF NOT EXISTS webhook_deliveries (
     next_retry_at TIMESTAMP
 );
 
+
+-- Multi-Datacenter Support
+CREATE TABLE IF NOT EXISTS datacenters (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    region VARCHAR(50) NOT NULL,
+    endpoint VARCHAR(500) NOT NULL,
+    port INT DEFAULT 8080,
+    is_primary BOOLEAN DEFAULT FALSE,
+    enabled BOOLEAN DEFAULT TRUE,
+    weight INT DEFAULT 100,
+    status VARCHAR(20) DEFAULT 'HEALTHY',
+    last_health_check TIMESTAMP,
+    latency_ms BIGINT DEFAULT 0,
+    health_endpoint VARCHAR(500) DEFAULT '/health',
+    api_key VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_dc_region ON datacenters(region);
+CREATE INDEX idx_dc_status ON datacenters(status);
+
+-- GraphQL Endpoints
+CREATE TABLE IF NOT EXISTS graphql_endpoints (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    schema_content TEXT,
+    enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- gRPC Services
+CREATE TABLE IF NOT EXISTS grpc_services (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    service_name VARCHAR(100) UNIQUE NOT NULL,
+    host VARCHAR(255) NOT NULL,
+    port INT NOT NULL,
+    proto_file TEXT,
+    use_tls BOOLEAN DEFAULT FALSE,
+    enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- SSO Configuration
+CREATE TABLE IF NOT EXISTS sso_configs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE,
+    is_default BOOLEAN DEFAULT FALSE,
+    saml_entity_id VARCHAR(500),
+    saml_metadata_url VARCHAR(500),
+    saml_certificate TEXT,
+    saml_acs_url VARCHAR(500),
+    saml_slo_url VARCHAR(500),
+    ldap_url VARCHAR(500),
+    ldap_base_dn VARCHAR(500),
+    ldap_user_dn VARCHAR(500),
+    ldap_password VARCHAR(255),
+    ldap_user_filter VARCHAR(500),
+    ldap_group_filter VARCHAR(500),
+    oidc_issuer VARCHAR(500),
+    oidc_client_id VARCHAR(255),
+    oidc_client_secret VARCHAR(255),
+    oidc_scopes VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- SOAP/WSDL Endpoints
+CREATE TABLE IF NOT EXISTS soap_endpoints (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    wsdl_url VARCHAR(500) NOT NULL,
+    target_url VARCHAR(500) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    use_mtls BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

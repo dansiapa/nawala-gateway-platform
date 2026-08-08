@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<title>SSO Configuration - Nawala</title>
+<main>
+    <div class="content-header">
+        <h1><i class="icon">🔐</i> Single Sign-On (SSO)</h1>
+        <p>Configure SAML, LDAP, or OIDC authentication</p>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Add SSO Config -->
+    <div class="card mb-4">
+        <div class="card-header">Add SSO Provider</div>
+        <div class="card-body">
+            <form th:action="@{/admin/sso}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" required placeholder="corporate-ldap">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="type" id="ssoType" onchange="toggleFields()">
+                            <option value="LDAP">LDAP</option>
+                            <option value="SAML">SAML 2.0</option>
+                            <option value="OIDC">OpenID Connect</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- LDAP Fields -->
+                <div id="ldapFields" class="sso-fields">
+                    <h4>LDAP Settings</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>LDAP URL</label>
+                            <input type="text" name="ldapUrl" placeholder="ldap://ldap.company.com:389">
+                        </div>
+                        <div class="form-group">
+                            <label>Base DN</label>
+                            <input type="text" name="ldapBaseDn" placeholder="dc=company,dc=com">
+                        </div>
+                        <div class="form-group">
+                            <label>User Filter</label>
+                            <input type="text" name="ldapUserFilter" placeholder="uid={username},ou=users,{baseDn}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAML Fields -->
+                <div id="samlFields" class="sso-fields" style="display:none">
+                    <h4>SAML Settings</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Entity ID</label>
+                            <input type="text" name="samlEntityId" placeholder="https://nawala.example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Metadata URL</label>
+                            <input type="text" name="samlMetadataUrl" placeholder="https://idp.example.com/metadata">
+                        </div>
+                        <div class="form-group">
+                            <label>ACS URL</label>
+                            <input type="text" name="samlAcsUrl" placeholder="https://nawala.example.com/sso/saml/acs">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OIDC Fields -->
+                <div id="oidcFields" class="sso-fields" style="display:none">
+                    <h4>OpenID Connect Settings</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Issuer URL</label>
+                            <input type="text" name="oidcIssuer" placeholder="https://accounts.google.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Client ID</label>
+                            <input type="text" name="oidcClientId">
+                        </div>
+                        <div class="form-group">
+                            <label>Client Secret</label>
+                            <input type="password" name="oidcClientSecret">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add SSO Provider</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SSO Providers List -->
+    <div class="card">
+        <div class="card-header">Configured Providers</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr><th>Name</th><th>Type</th><th>Status</th><th>Default</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="config : ${configs}">
+                        <td th:text="${config.name}"></td>
+                        <td><span class="badge" th:text="${config.type}"></span></td>
+                        <td><span class="status-badge" th:classappend="${config.enabled ? 'status-healthy' : 'status-error'}" th:text="${config.enabled ? 'Enabled' : 'Disabled'}"></span></td>
+                        <td><span th:if="${config.default}" class="badge badge-primary">DEFAULT</span></td>
+                        <td>
+                            <form th:action="@{/admin/sso/{id}/toggle(id=${config.id})}" method="post" style="display:inline">
+                                <button class="btn btn-sm" th:text="${config.enabled ? 'Disable' : 'Enable'}"></button>
+                            </form>
+                            <form th:action="@{/admin/sso/{id}/delete(id=${config.id})}" method="post" style="display:inline">
+                                <button class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const type = document.getElementById('ssoType').value;
+            document.getElementById('ldapFields').style.display = type === 'LDAP' ? 'block' : 'none';
+            document.getElementById('samlFields').style.display = type === 'SAML' ? 'block' : 'none';
+            document.getElementById('oidcFields').style.display = type === 'OIDC' ? 'block' : 'none';
+        }
+    </script>
+</main>
+</html>
