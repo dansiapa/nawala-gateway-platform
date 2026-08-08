@@ -46,6 +46,32 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
+    // === PRIVILEGES ===
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean canManageRoutes = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean canManageKeys = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean canViewAnalytics = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean canManageUsers = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean canManageWaf = false;
+
+    // === PREFERENCES ===
+    @Column(length = 20)
+    @Builder.Default
+    private String themePreference = "system";
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -56,5 +82,30 @@ public class User {
         createdAt = LocalDateTime.now();
         if (role == null) role = Role.USER;
         enabled = true;
+        if (themePreference == null) themePreference = "system";
+        
+        // Admin gets all privileges by default
+        if (role == Role.ADMIN) {
+            canManageRoutes = true;
+            canManageKeys = true;
+            canViewAnalytics = true;
+            canManageUsers = true;
+            canManageWaf = true;
+        }
+    }
+    
+    /**
+     * Check if user has specific privilege
+     */
+    public boolean hasPrivilege(String privilege) {
+        if (role == Role.ADMIN) return true;
+        return switch (privilege) {
+            case "routes" -> canManageRoutes;
+            case "keys" -> canManageKeys;
+            case "analytics" -> canViewAnalytics;
+            case "users" -> canManageUsers;
+            case "waf" -> canManageWaf;
+            default -> false;
+        };
     }
 }

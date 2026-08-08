@@ -30,14 +30,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/internal/**", "/oauth/**")
+                .ignoringRequestMatchers("/internal/**", "/oauth/**", "/setup/**")
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/img/**").permitAll()
-                .requestMatchers("/internal/**").permitAll() // Secured via InternalApiSecurityFilter
+                // Public resources
+                .requestMatchers("/", "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
+                // Setup wizard (before first admin is created)
+                .requestMatchers("/setup", "/setup/**").permitAll()
+                // Auth pages
+                .requestMatchers("/login", "/register").permitAll()
+                // Internal API (secured via InternalApiSecurityFilter)
+                .requestMatchers("/internal/**").permitAll()
+                // OAuth endpoints
                 .requestMatchers("/oauth/token", "/oauth/introspect", "/oauth/revoke").permitAll()
+                // Public docs
                 .requestMatchers("/docs/public").permitAll()
+                // Admin only
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // All other requests require authentication
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -58,11 +68,11 @@ public class SecurityConfig {
             )
             .rememberMe(remember -> remember
                 .tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(604800)
+                .tokenValiditySeconds(604800) // 7 days
                 .userDetailsService(userDetailsService)
             )
             .sessionManagement(session -> session
-                .maximumSessions(1)
+                .maximumSessions(2)
                 .expiredUrl("/login?expired=true")
             );
 
@@ -87,4 +97,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-

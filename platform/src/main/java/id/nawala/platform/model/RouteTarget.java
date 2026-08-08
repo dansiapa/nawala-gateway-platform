@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * Load balancer target for a route.
- * Multiple targets per route enable round-robin/weighted routing.
- */
 @Entity
 @Table(name = "route_targets")
 @Data
@@ -22,16 +18,14 @@ public class RouteTarget {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
+    @ToString.Exclude
     private ApiRoute route;
 
-    @Column(nullable = false)
-    private String targetUrl;
+    @Column(nullable = false, length = 500)
+    private String url;
 
     @Builder.Default
-    private int weight = 100; // percentage weight for weighted routing
-
-    @Builder.Default
-    private String strategy = "ROUND_ROBIN"; // ROUND_ROBIN, WEIGHTED, LEAST_CONN
+    private int weight = 50;
 
     @Builder.Default
     private boolean healthy = true;
@@ -43,11 +37,10 @@ public class RouteTarget {
     private LocalDateTime lastHealthCheck;
     private Long lastResponseTimeMs;
 
-    // Canary deployment support
     @Builder.Default
     private boolean canary = false;
 
-    private int canaryPercentage; // 0-100
+    private int canaryPercentage;
 
     private LocalDateTime createdAt;
 

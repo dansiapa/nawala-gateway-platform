@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "api_routes")
@@ -34,11 +36,6 @@ public class ApiRoute {
     @Column(nullable = false, length = 500)
     private String path;
 
-    /**
-     * Public-facing masked path. Clients call this path,
-     * gateway internally routes to the real targetUrl.
-     * If null, uses 'path' as-is without masking.
-     */
     @Column(length = 500)
     private String maskedPath;
 
@@ -58,36 +55,37 @@ public class ApiRoute {
     @Column(nullable = false)
     private boolean active;
 
-    /**
-     * Enable end-to-end payload encryption for this route.
-     * When enabled, request/response bodies are encrypted with client's key.
-     */
     @Column(nullable = false)
     private boolean payloadEncryption;
 
-    /**
-     * Health check URL for live monitoring.
-     * Gateway pings this endpoint to determine service status.
-     */
     @Column(length = 500)
     private String healthCheckUrl;
 
-    /**
-     * Current health status: UP, DOWN, DEGRADED, UNKNOWN
-     */
     @Column(length = 20)
     @Builder.Default
     private String healthStatus = "UNKNOWN";
 
-    /**
-     * Last time health was checked
-     */
     private LocalDateTime lastHealthCheck;
 
-    /**
-     * Response time in ms from last health check
-     */
     private Integer lastResponseTimeMs;
+
+    // === LOAD BALANCER FIELDS ===
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean loadBalanced = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    @Builder.Default
+    private LoadBalancerStrategy loadBalancerStrategy = LoadBalancerStrategy.ROUND_ROBIN;
+
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<RouteTarget> additionalTargets = new ArrayList<>();
+
+    // Current index for round-robin (transient, not persisted)
+    @Transient
+    private int currentTargetIndex = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -104,11 +102,61 @@ public class ApiRoute {
         active = true;
         if (rateLimitPerMinute == 0) rateLimitPerMinute = 60;
         if (healthStatus == null) healthStatus = "UNKNOWN";
+        if (loadBalancerStrategy == null) loadBalancerStrategy = LoadBalancerStrategy.ROUND_ROBIN;
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-}
 
+    /**
+     * Get next target URL based on load balancer strategy
+     */
+    public String getNextTargetUrl() {
+        if (!loadBalanced || additionalTargets == null || additionalTargets.isEmpty()) {
+            return targetUrl;
+        }
+
+        List<String> allTargets = new ArrayList<>();
+        allTargets.add(targetUrl);
+        additionalTargets.stream()
+            .filter(RouteTarget::isHealthy)
+            .forEach(t -> allTargets.add(t.getUrl()));
+
+        if (allTargets.size() == 1) {
+            return targetUrl;
+        }
+
+        return switch (loadBalancerStrategy) {
+            case ROUND_ROBIN -> {
+                currentTargetIndex = (currentTargetIndex + 1) % allTargets.size();
+                yield allTargets.get(currentTargetIndex);
+            }
+            case RANDOM -> allTargets.get((int) (Math.random() * allTargets.size()));
+            case WEIGHTED -> selectWeightedTarget(allTargets);
+            default -> targetUrl;
+        };
+    }
+
+    private String selectWeightedTarget(List<String> targets) {
+        // Simple weighted selection based on configured weights
+        int totalWeight = 100; // Primary target weight
+        for (RouteTarget t : additionalTargets) {
+            if (t.isHealthy()) totalWeight += t.getWeight();
+        }
+        
+        int random = (int) (Math.random() * totalWeight);
+        int cumulative = 100;
+        
+        if (random < cumulative) return targetUrl;
+        
+        for (RouteTarget t : additionalTargets) {
+            if (t.isHealthy()) {
+                cumulative += t.getWeight();
+                if (random < cumulative) return t.getUrl();
+            }
+        }
+        return targetUrl;
+    }
+}

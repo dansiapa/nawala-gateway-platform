@@ -5,6 +5,8 @@ import id.nawala.platform.model.User;
 import id.nawala.platform.repository.ActivityLogRepository;
 import id.nawala.platform.service.ActivityLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,13 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     @Transactional(readOnly = true)
     public List<ActivityLog> getRecentActivities(User user) {
         return activityLogRepository.findTop10ByUserOrderByCreatedAtDesc(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActivityLog> getRecentByUser(Long userId, int limit) {
+        var pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return activityLogRepository.findByUserId(userId, pageable);
     }
 
     @Override

@@ -10,6 +10,8 @@ public interface ActivityLogService {
     void log(User user, String action, String description, String ipAddress);
 
     List<ActivityLog> getRecentActivities(User user);
+    
+    List<ActivityLog> getRecentByUser(Long userId, int limit);
 
     List<ActivityLog> getSystemActivities();
 }

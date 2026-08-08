@@ -2,6 +2,7 @@ package id.nawala.platform.repository;
 
 import id.nawala.platform.model.ActivityLog;
 import id.nawala.platform.model.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,6 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
     List<ActivityLog> findTop10ByUserOrderByCreatedAtDesc(User user);
 
     List<ActivityLog> findTop20ByOrderByCreatedAtDesc();
+    
+    List<ActivityLog> findByUserId(Long userId, Pageable pageable);
 }
