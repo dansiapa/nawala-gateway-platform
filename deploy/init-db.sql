@@ -9,12 +9,20 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(500) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'USER',
-    active BOOLEAN DEFAULT true,
+    full_name VARCHAR(500),
+    phone VARCHAR(500),
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    enabled BOOLEAN DEFAULT true,
+    can_manage_routes BOOLEAN DEFAULT false,
+    can_manage_keys BOOLEAN DEFAULT false,
+    can_view_analytics BOOLEAN DEFAULT false,
+    can_manage_users BOOLEAN DEFAULT false,
+    can_manage_waf BOOLEAN DEFAULT false,
+    theme_preference VARCHAR(20) DEFAULT 'system',
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    last_login_at TIMESTAMP
 );
 
 -- Privileges table
@@ -189,8 +197,9 @@ CREATE TABLE IF NOT EXISTS request_logs (
 CREATE TABLE IF NOT EXISTS system_settings (
     id BIGSERIAL PRIMARY KEY,
     setting_key VARCHAR(100) NOT NULL UNIQUE,
-    setting_value TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
+    setting_value VARCHAR(2000),
+    description VARCHAR(500),
+    encrypted BOOLEAN DEFAULT false,
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -217,19 +226,11 @@ INSERT INTO privileges (name, description) VALUES
     ('SETTINGS_MANAGE', 'Manage system settings')
 ON CONFLICT (name) DO NOTHING;
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (username, email, password, role, active) VALUES
-    ('admin', 'admin@nawala.local', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iYqiI0LmxCqcmVs.PzqKaJdKVfnO', 'SUPERADMIN', true)
-ON CONFLICT (username) DO NOTHING;
+-- NOTE: No default admin user - will be created via Setup Wizard on first run
 
--- Grant all privileges to admin
-INSERT INTO user_privileges (user_id, privilege_id)
-SELECT u.id, p.id FROM users u, privileges p WHERE u.username = 'admin'
-ON CONFLICT DO NOTHING;
-
--- Insert initial system setting
+-- Insert initial system settings (setup.completed = false triggers Setup Wizard)
 INSERT INTO system_settings (setting_key, setting_value) VALUES
-    ('setup_completed', 'false'),
-    ('app_name', 'Nawala Gateway'),
-    ('app_version', '1.0.0')
+    ('setup.completed', 'false'),
+    ('platform.name', 'Nawala Gateway'),
+    ('platform.version', '1.0.0')
 ON CONFLICT (setting_key) DO NOTHING;
