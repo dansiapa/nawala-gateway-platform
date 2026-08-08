@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
 );
 
 -- OAuth Clients
-CREATE TABLE IF NOT EXISTS oauth_clients (
+CREATE TABLE IF NOT EXISTS oauth2_clients (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     client_id VARCHAR(100) NOT NULL UNIQUE,
@@ -108,9 +108,9 @@ CREATE TABLE IF NOT EXISTS oauth_clients (
 );
 
 -- OAuth Tokens
-CREATE TABLE IF NOT EXISTS oauth_tokens (
+CREATE TABLE IF NOT EXISTS oauth2_tokens (
     id BIGSERIAL PRIMARY KEY,
-    client_id BIGINT REFERENCES oauth_clients(id) ON DELETE CASCADE,
+    client_id BIGINT REFERENCES oauth2_clients(id) ON DELETE CASCADE,
     access_token VARCHAR(500) NOT NULL UNIQUE,
     refresh_token VARCHAR(500),
     scopes VARCHAR(500),
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS system_settings (
 CREATE INDEX IF NOT EXISTS idx_api_routes_path ON api_routes(path);
 CREATE INDEX IF NOT EXISTS idx_api_routes_active ON api_routes(active);
 CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash);
-CREATE INDEX IF NOT EXISTS idx_oauth_tokens_access ON oauth_tokens(access_token);
+CREATE INDEX IF NOT EXISTS idx_oauth2_tokens_access ON oauth2_tokens(access_token);
 CREATE INDEX IF NOT EXISTS idx_request_logs_created ON request_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_request_logs_route ON request_logs(route_id);
 CREATE INDEX IF NOT EXISTS idx_service_registry_name ON service_registry(service_name);
@@ -234,3 +234,112 @@ INSERT INTO system_settings (setting_key, setting_value) VALUES
     ('platform.name', 'Nawala Gateway'),
     ('platform.version', '1.0.0')
 ON CONFLICT (setting_key) DO NOTHING;
+
+-- Additional tables for JPA entities
+
+-- Activity Logs
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50),
+    entity_id BIGINT,
+    details TEXT,
+    ip_address VARCHAR(50),
+    user_agent VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Anomaly Events
+CREATE TABLE IF NOT EXISTS anomaly_events (
+    id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(50) NOT NULL,
+    source_ip VARCHAR(50),
+    path VARCHAR(500),
+    description TEXT,
+    severity VARCHAR(20) DEFAULT 'MEDIUM',
+    resolved BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- API Analytics
+CREATE TABLE IF NOT EXISTS api_analytics (
+    id BIGSERIAL PRIMARY KEY,
+    route_id BIGINT,
+    api_key_prefix VARCHAR(20),
+    source_ip VARCHAR(50),
+    method VARCHAR(10),
+    path VARCHAR(500),
+    status_code INT,
+    latency_ms BIGINT,
+    request_size BIGINT,
+    response_size BIGINT,
+    recorded_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_analytics_route_time ON api_analytics(route_id, recorded_at);
+CREATE INDEX IF NOT EXISTS idx_analytics_api_key ON api_analytics(api_key_prefix, recorded_at);
+
+-- API Docs
+CREATE TABLE IF NOT EXISTS api_docs (
+    id BIGSERIAL PRIMARY KEY,
+    route_id BIGINT REFERENCES api_routes(id) ON DELETE CASCADE,
+    title VARCHAR(200),
+    description TEXT,
+    request_example TEXT,
+    response_example TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Audit Log
+CREATE TABLE IF NOT EXISTS audit_log (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    username VARCHAR(50),
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50),
+    entity_id BIGINT,
+    old_value TEXT,
+    new_value TEXT,
+    ip_address VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Rate Limit Tiers
+CREATE TABLE IF NOT EXISTS rate_limit_tiers (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    requests_per_minute INT DEFAULT 60,
+    requests_per_hour INT DEFAULT 1000,
+    requests_per_day INT DEFAULT 10000,
+    burst_size INT DEFAULT 10,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Route Transformations
+CREATE TABLE IF NOT EXISTS route_transformations (
+    id BIGSERIAL PRIMARY KEY,
+    route_id BIGINT REFERENCES api_routes(id) ON DELETE CASCADE,
+    transformation_type VARCHAR(50) NOT NULL,
+    source_field VARCHAR(200),
+    target_field VARCHAR(200),
+    transformation_value TEXT,
+    apply_on VARCHAR(20) DEFAULT 'REQUEST',
+    priority INT DEFAULT 0,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Webhook Deliveries
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+    id BIGSERIAL PRIMARY KEY,
+    webhook_id BIGINT REFERENCES webhooks(id) ON DELETE CASCADE,
+    event_type VARCHAR(50),
+    payload TEXT,
+    response_status INT,
+    response_body TEXT,
+    success BOOLEAN DEFAULT false,
+    attempt_count INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
