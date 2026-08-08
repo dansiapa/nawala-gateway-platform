@@ -44,38 +44,41 @@ CREATE TABLE IF NOT EXISTS user_privileges (
 CREATE TABLE IF NOT EXISTS api_routes (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    description TEXT,
-    method VARCHAR(10) NOT NULL,
+    description VARCHAR(1000),
+    method VARCHAR(50) NOT NULL,
     path VARCHAR(500) NOT NULL,
-    target_url VARCHAR(500) NOT NULL,
-    active BOOLEAN DEFAULT true,
-    auth_required BOOLEAN DEFAULT false,
-    rate_limit_enabled BOOLEAN DEFAULT false,
-    rate_limit_per_minute INT DEFAULT 60,
-    timeout_seconds INT DEFAULT 30,
-    payload_encryption BOOLEAN DEFAULT false,
-    load_balanced BOOLEAN DEFAULT false,
-    lb_strategy VARCHAR(20) DEFAULT 'ROUND_ROBIN',
-    priority INT DEFAULT 0,
-    versioned BOOLEAN DEFAULT false,
-    default_version VARCHAR(20),
-    request_count BIGINT DEFAULT 0,
-    error_count BIGINT DEFAULT 0,
-    avg_latency_ms BIGINT DEFAULT 0,
+    masked_path VARCHAR(500),
+    target_url VARCHAR(1000) NOT NULL,
+    auth_required BOOLEAN NOT NULL DEFAULT false,
+    rate_limit_enabled BOOLEAN NOT NULL DEFAULT false,
+    rate_limit_per_minute INT NOT NULL DEFAULT 60,
+    active BOOLEAN NOT NULL DEFAULT true,
+    payload_encryption BOOLEAN NOT NULL DEFAULT false,
+    health_check_url VARCHAR(500),
+    health_status VARCHAR(20) DEFAULT 'UNKNOWN',
+    last_health_check TIMESTAMP,
+    last_response_time_ms INT,
+    load_balanced BOOLEAN NOT NULL DEFAULT false,
+    load_balancer_strategy VARCHAR(20) DEFAULT 'ROUND_ROBIN',
+    current_target_index INT DEFAULT 0,
     created_by BIGINT REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP
 );
 
 -- Route targets for load balancing
 CREATE TABLE IF NOT EXISTS route_targets (
     id BIGSERIAL PRIMARY KEY,
-    route_id BIGINT REFERENCES api_routes(id) ON DELETE CASCADE,
+    route_id BIGINT NOT NULL REFERENCES api_routes(id) ON DELETE CASCADE,
     url VARCHAR(500) NOT NULL,
-    weight INT DEFAULT 1,
+    weight INT DEFAULT 50,
     healthy BOOLEAN DEFAULT true,
-    health_check_url VARCHAR(500),
+    active BOOLEAN DEFAULT true,
+    consecutive_failures INT DEFAULT 0,
     last_health_check TIMESTAMP,
+    last_response_time_ms BIGINT,
+    canary BOOLEAN DEFAULT false,
+    canary_percentage INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -83,26 +86,39 @@ CREATE TABLE IF NOT EXISTS route_targets (
 CREATE TABLE IF NOT EXISTS api_keys (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    key_prefix VARCHAR(20) NOT NULL,
     key_hash VARCHAR(255) NOT NULL UNIQUE,
+    prefix VARCHAR(20) NOT NULL,
     owner_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     active BOOLEAN DEFAULT true,
-    revoked BOOLEAN DEFAULT false,
-    rate_limit_per_minute INT DEFAULT 60,
     expires_at TIMESTAMP,
-    last_used_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
+    request_count BIGINT DEFAULT 0,
+    daily_quota BIGINT DEFAULT 0,
+    daily_usage BIGINT DEFAULT 0,
+    monthly_quota BIGINT DEFAULT 0,
+    monthly_usage BIGINT DEFAULT 0,
+    allowed_ips VARCHAR(1000),
+    allowed_routes VARCHAR(1000),
+    allowed_methods VARCHAR(200),
+    previous_key_hash VARCHAR(255),
+    rotation_grace_until TIMESTAMP,
+    last_quota_reset TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    last_used_at TIMESTAMP
 );
 
 -- OAuth Clients
 CREATE TABLE IF NOT EXISTS oauth2_clients (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
     client_id VARCHAR(100) NOT NULL UNIQUE,
     client_secret_hash VARCHAR(255) NOT NULL,
-    redirect_uri VARCHAR(500),
-    scopes VARCHAR(500) DEFAULT 'read',
+    client_secret VARCHAR(255),
+    name VARCHAR(100) NOT NULL,
     owner_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    grant_types VARCHAR(200) DEFAULT 'client_credentials',
+    scopes VARCHAR(500) DEFAULT 'read',
+    redirect_uris VARCHAR(1000),
+    access_token_ttl INT DEFAULT 3600,
+    refresh_token_ttl INT DEFAULT 86400,
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -114,7 +130,8 @@ CREATE TABLE IF NOT EXISTS oauth2_tokens (
     access_token VARCHAR(500) NOT NULL UNIQUE,
     refresh_token VARCHAR(500),
     scopes VARCHAR(500),
-    expires_at TIMESTAMP NOT NULL,
+    access_token_expires_at TIMESTAMP NOT NULL,
+    refresh_token_expires_at TIMESTAMP,
     revoked BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -126,18 +143,25 @@ CREATE TABLE IF NOT EXISTS waf_rules (
     rule_type VARCHAR(50) NOT NULL,
     pattern TEXT,
     action VARCHAR(20) DEFAULT 'BLOCK',
+    target_field VARCHAR(50),
+    route_id BIGINT,
+    priority INT DEFAULT 100,
     active BOOLEAN DEFAULT true,
+    description VARCHAR(500),
+    match_count BIGINT DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Webhooks
 CREATE TABLE IF NOT EXISTS webhooks (
     id BIGSERIAL PRIMARY KEY,
+    owner_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     target_url VARCHAR(500) NOT NULL,
     event_type VARCHAR(50) NOT NULL,
     secret VARCHAR(255),
     active BOOLEAN DEFAULT true,
+    max_retries INT DEFAULT 3,
     last_triggered_at TIMESTAMP,
     last_status VARCHAR(20),
     created_at TIMESTAMP DEFAULT NOW()
@@ -146,24 +170,32 @@ CREATE TABLE IF NOT EXISTS webhooks (
 -- Plugins
 CREATE TABLE IF NOT EXISTS plugins (
     id BIGSERIAL PRIMARY KEY,
+    owner_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(500),
     hook_type VARCHAR(50) NOT NULL,
     script TEXT,
-    config TEXT,
+    route_id BIGINT,
+    priority INT DEFAULT 100,
     active BOOLEAN DEFAULT true,
-    priority INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT NOW()
+    execution_count BIGINT DEFAULT 0,
+    error_count BIGINT DEFAULT 0,
+    avg_execution_time_ms BIGINT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    last_executed_at TIMESTAMP
 );
 
 -- API Mocks
 CREATE TABLE IF NOT EXISTS api_mocks (
     id BIGSERIAL PRIMARY KEY,
+    owner_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
-    method VARCHAR(10) NOT NULL,
     path VARCHAR(500) NOT NULL UNIQUE,
+    method VARCHAR(10) NOT NULL,
     status_code INT DEFAULT 200,
-    content_type VARCHAR(100) DEFAULT 'application/json',
     response_body TEXT,
+    content_type VARCHAR(100) DEFAULT 'application/json',
+    delay_ms INT DEFAULT 0,
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -240,26 +272,29 @@ ON CONFLICT (setting_key) DO NOTHING;
 -- Activity Logs
 CREATE TABLE IF NOT EXISTS activity_logs (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     action VARCHAR(50) NOT NULL,
-    entity_type VARCHAR(50),
-    entity_id BIGINT,
-    details TEXT,
-    ip_address VARCHAR(50),
-    user_agent VARCHAR(500),
-    created_at TIMESTAMP DEFAULT NOW()
+    description VARCHAR(1000),
+    ip_address VARCHAR(500),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Anomaly Events
 CREATE TABLE IF NOT EXISTS anomaly_events (
     id BIGSERIAL PRIMARY KEY,
-    event_type VARCHAR(50) NOT NULL,
-    source_ip VARCHAR(50),
-    path VARCHAR(500),
-    description TEXT,
-    severity VARCHAR(20) DEFAULT 'MEDIUM',
+    type VARCHAR(50) NOT NULL,
+    severity VARCHAR(50) NOT NULL,
+    source_ip VARCHAR(500),
+    api_key_prefix VARCHAR(100),
+    description VARCHAR(1000),
+    request_count INT NOT NULL DEFAULT 0,
+    target_path VARCHAR(500),
     resolved BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT NOW()
+    auto_blocked BOOLEAN DEFAULT false,
+    blocked_until TIMESTAMP,
+    detected_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    resolved_at TIMESTAMP,
+    resolved_by VARCHAR(50)
 );
 
 -- API Analytics
@@ -271,9 +306,11 @@ CREATE TABLE IF NOT EXISTS api_analytics (
     method VARCHAR(10),
     path VARCHAR(500),
     status_code INT,
-    latency_ms BIGINT,
-    request_size BIGINT,
-    response_size BIGINT,
+    response_time_ms BIGINT,
+    request_size_bytes BIGINT,
+    response_size_bytes BIGINT,
+    country VARCHAR(50),
+    city VARCHAR(100),
     recorded_at TIMESTAMP DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_analytics_route_time ON api_analytics(route_id, recorded_at);
@@ -282,13 +319,15 @@ CREATE INDEX IF NOT EXISTS idx_analytics_api_key ON api_analytics(api_key_prefix
 -- API Docs
 CREATE TABLE IF NOT EXISTS api_docs (
     id BIGSERIAL PRIMARY KEY,
-    route_id BIGINT REFERENCES api_routes(id) ON DELETE CASCADE,
-    title VARCHAR(200),
+    route_id BIGINT REFERENCES api_routes(id) ON DELETE SET NULL,
+    owner_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(100) NOT NULL,
+    version VARCHAR(20) DEFAULT '1.0.0',
+    open_api_spec TEXT,
     description TEXT,
-    request_example TEXT,
-    response_example TEXT,
+    published BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP
 );
 
 -- Audit Log
@@ -296,36 +335,39 @@ CREATE TABLE IF NOT EXISTS audit_log (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT,
     username VARCHAR(50),
-    action VARCHAR(100) NOT NULL,
-    entity_type VARCHAR(50),
-    entity_id BIGINT,
-    old_value TEXT,
-    new_value TEXT,
-    ip_address VARCHAR(50),
+    action VARCHAR(50) NOT NULL,
+    resource_type VARCHAR(50),
+    resource_id BIGINT,
+    details TEXT,
+    ip_address VARCHAR(45),
     created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log(action, created_at);
 
 -- Rate Limit Tiers
 CREATE TABLE IF NOT EXISTS rate_limit_tiers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
-    requests_per_minute INT DEFAULT 60,
-    requests_per_hour INT DEFAULT 1000,
-    requests_per_day INT DEFAULT 10000,
+    requests_per_minute INT NOT NULL DEFAULT 60,
+    requests_per_hour INT NOT NULL DEFAULT 1000,
+    requests_per_day INT NOT NULL DEFAULT 10000,
     burst_size INT DEFAULT 10,
+    description VARCHAR(200),
+    active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Route Transformations
 CREATE TABLE IF NOT EXISTS route_transformations (
     id BIGSERIAL PRIMARY KEY,
-    route_id BIGINT REFERENCES api_routes(id) ON DELETE CASCADE,
-    transformation_type VARCHAR(50) NOT NULL,
-    source_field VARCHAR(200),
-    target_field VARCHAR(200),
-    transformation_value TEXT,
-    apply_on VARCHAR(20) DEFAULT 'REQUEST',
-    priority INT DEFAULT 0,
+    route_id BIGINT NOT NULL REFERENCES api_routes(id) ON DELETE CASCADE,
+    phase VARCHAR(20) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    key VARCHAR(200),
+    value VARCHAR(500),
+    config TEXT,
+    priority INT DEFAULT 100,
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -333,13 +375,15 @@ CREATE TABLE IF NOT EXISTS route_transformations (
 -- Webhook Deliveries
 CREATE TABLE IF NOT EXISTS webhook_deliveries (
     id BIGSERIAL PRIMARY KEY,
-    webhook_id BIGINT REFERENCES webhooks(id) ON DELETE CASCADE,
-    event_type VARCHAR(50),
+    webhook_id BIGINT NOT NULL REFERENCES webhooks(id) ON DELETE CASCADE,
+    event_type VARCHAR(50) NOT NULL,
     payload TEXT,
-    response_status INT,
+    http_status INT,
     response_body TEXT,
-    success BOOLEAN DEFAULT false,
-    attempt_count INT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT NOW()
+    duration_ms BIGINT,
+    attempt_number INT DEFAULT 1,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    delivered_at TIMESTAMP DEFAULT NOW(),
+    next_retry_at TIMESTAMP
 );
 
