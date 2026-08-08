@@ -21,6 +21,10 @@ public interface PluginService {
     void delete(Long pluginId);
 
     void toggle(Long pluginId, boolean active);
+    
+    Plugin togglePlugin(Long pluginId);
+    
+    List<Plugin> getAvailablePlugins();
 
     record PluginExecutionResult(boolean success, String output, long durationMs, String error) {}
 }

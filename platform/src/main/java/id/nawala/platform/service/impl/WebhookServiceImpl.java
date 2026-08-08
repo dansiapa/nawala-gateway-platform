@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +48,23 @@ public class WebhookServiceImpl implements WebhookService {
                 .build();
         return webhookRepository.save(webhook);
     }
+    
+    @Override
+    @Transactional
+    public Webhook createWebhook(User owner, String name, String url, List<String> events) {
+        String secret = UUID.randomUUID().toString().replace("-", "");
+        String eventType = events != null && !events.isEmpty() ? String.join(",", events) : "*";
+        
+        Webhook webhook = Webhook.builder()
+                .owner(owner)
+                .name(name)
+                .targetUrl(url)
+                .eventType(eventType)
+                .secret(secret)
+                .active(true)
+                .build();
+        return webhookRepository.save(webhook);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -57,6 +75,12 @@ public class WebhookServiceImpl implements WebhookService {
     @Override
     @Transactional
     public void delete(Long webhookId) {
+        webhookRepository.deleteById(webhookId);
+    }
+    
+    @Override
+    @Transactional
+    public void deleteWebhook(Long webhookId) {
         webhookRepository.deleteById(webhookId);
     }
 
@@ -86,9 +110,38 @@ public class WebhookServiceImpl implements WebhookService {
                 .map(d -> new WebhookDeliveryInfo(
                         d.getId(), d.getEventType(), d.getHttpStatus(),
                         d.getStatus(), d.getAttemptNumber(), d.getDurationMs(),
-                        d.getDeliveredAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        d.getDeliveredAt() != null ? d.getDeliveredAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null
                 ))
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional
+    public boolean testWebhook(Long webhookId) {
+        Webhook webhook = webhookRepository.findById(webhookId)
+                .orElseThrow(() -> new IllegalArgumentException("Webhook not found"));
+        
+        String testPayload = "{\"event\":\"test\",\"timestamp\":\"" + LocalDateTime.now() + "\"}";
+        
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("X-Nawala-Event", "test");
+            headers.set("X-Nawala-Test", "true");
+            if (webhook.getSecret() != null && !webhook.getSecret().isBlank()) {
+                headers.set("X-Nawala-Signature", computeHmac(testPayload, webhook.getSecret()));
+            }
+            
+            HttpEntity<String> entity = new HttpEntity<>(testPayload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(
+                    webhook.getTargetUrl(), HttpMethod.POST, entity, String.class);
+            
+            log.info("Test webhook delivered to {} - status: {}", webhook.getTargetUrl(), response.getStatusCode());
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (Exception e) {
+            log.warn("Test webhook failed for {}: {}", webhook.getTargetUrl(), e.getMessage());
+            return false;
+        }
     }
 
     @Scheduled(fixedDelay = 60000)

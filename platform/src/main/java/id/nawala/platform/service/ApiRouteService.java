@@ -15,7 +15,7 @@ public interface ApiRouteService {
 
     void delete(Long id);
 
-    void toggleActive(Long id);
+    ApiRoute toggleActive(Long id);
 
     Optional<ApiRoute> findById(Long id);
 
@@ -26,4 +26,6 @@ public interface ApiRouteService {
     long getTotalRoutes();
 
     long getActiveRoutes();
+    
+    ApiRoute save(ApiRoute route);
 }

@@ -2,6 +2,7 @@ package id.nawala.platform.service;
 
 import id.nawala.platform.model.WafRule;
 import java.util.List;
+import java.util.Set;
 
 /**
  * WAF (Web Application Firewall) service.
@@ -22,6 +23,17 @@ public interface WafService {
     void deleteRule(Long ruleId);
 
     void toggleRule(Long ruleId, boolean active);
+    
+    // === Additional methods for UI ===
+    boolean isEnabled();
+    
+    void toggleFeature(String feature, boolean enabled);
+    
+    Set<String> getBlockedIps();
+    
+    void blockIp(String ip, String reason);
+    
+    void unblockIp(String ip);
 
     record WafInspectionResult(
             boolean blocked,

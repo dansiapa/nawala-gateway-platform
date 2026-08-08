@@ -2,6 +2,7 @@ package id.nawala.platform.service;
 
 import id.nawala.platform.model.ApiDoc;
 import java.util.List;
+import java.util.Map;
 
 /**
  * API Documentation service for managing OpenAPI specs.
@@ -21,4 +22,8 @@ public interface ApiDocService {
     void publish(Long docId, boolean published);
 
     void delete(Long docId);
+    
+    List<Map<String, Object>> getApiGroups();
+    
+    void regenerateDocumentation();
 }

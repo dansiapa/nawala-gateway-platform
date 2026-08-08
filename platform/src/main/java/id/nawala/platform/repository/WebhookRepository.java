@@ -1,5 +1,6 @@
 package id.nawala.platform.repository;
 
+import id.nawala.platform.model.User;
 import id.nawala.platform.model.Webhook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,6 @@ public interface WebhookRepository extends JpaRepository<Webhook, Long> {
     List<Webhook> findByEventTypeAndActiveTrue(String eventType);
 
     List<Webhook> findByOwnerId(Long userId);
+    
+    List<Webhook> findByOwner(User owner);
 }

@@ -14,6 +14,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleBindings;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -101,5 +102,22 @@ public class PluginServiceImpl implements PluginService {
             p.setActive(active);
             pluginRepository.save(p);
         });
+    }
+    
+    @Override
+    @Transactional
+    public Plugin togglePlugin(Long pluginId) {
+        Plugin plugin = pluginRepository.findById(pluginId)
+                .orElseThrow(() -> new IllegalArgumentException("Plugin not found"));
+        plugin.setActive(!plugin.isActive());
+        return pluginRepository.save(plugin);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<Plugin> getAvailablePlugins() {
+        // Return all plugins as available plugins for now
+        // In a real implementation, this might return marketplace plugins
+        return pluginRepository.findAll();
     }
 }

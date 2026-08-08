@@ -8,13 +8,16 @@ import id.nawala.platform.repository.ApiRouteRepository;
 import id.nawala.platform.repository.UserRepository;
 import id.nawala.platform.service.ApiDocService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ApiDocServiceImpl implements ApiDocService {
 
     private final ApiDocRepository apiDocRepository;
@@ -79,5 +82,55 @@ public class ApiDocServiceImpl implements ApiDocService {
     @Transactional
     public void delete(Long docId) {
         apiDocRepository.deleteById(docId);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getApiGroups() {
+        // Group routes by their base path
+        List<ApiRoute> routes = apiRouteRepository.findByActiveTrue();
+        
+        Map<String, List<ApiRoute>> grouped = routes.stream()
+                .collect(Collectors.groupingBy(r -> {
+                    String path = r.getPath();
+                    if (path.startsWith("/")) path = path.substring(1);
+                    int idx = path.indexOf("/");
+                    return idx > 0 ? path.substring(0, idx) : path;
+                }));
+        
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<ApiRoute>> entry : grouped.entrySet()) {
+            Map<String, Object> group = new LinkedHashMap<>();
+            group.put("name", entry.getKey());
+            group.put("description", "APIs under /" + entry.getKey());
+            group.put("routes", entry.getValue().stream().map(r -> {
+                Map<String, Object> routeMap = new LinkedHashMap<>();
+                routeMap.put("id", r.getId());
+                routeMap.put("name", r.getName());
+                routeMap.put("method", r.getMethod());
+                routeMap.put("path", r.getPath());
+                routeMap.put("description", r.getDescription());
+                return routeMap;
+            }).toList());
+            result.add(group);
+        }
+        
+        return result;
+    }
+    
+    @Override
+    @Transactional
+    public void regenerateDocumentation() {
+        log.info("Regenerating API documentation...");
+        // In a real implementation, this would:
+        // 1. Scan all active routes
+        // 2. Generate OpenAPI spec from route definitions
+        // 3. Update or create ApiDoc entries
+        
+        List<ApiRoute> routes = apiRouteRepository.findByActiveTrue();
+        log.info("Found {} active routes for documentation", routes.size());
+        
+        // For now, just log that we're regenerating
+        // Full implementation would create proper OpenAPI specs
     }
 }

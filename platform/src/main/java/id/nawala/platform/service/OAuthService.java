@@ -1,6 +1,7 @@
 package id.nawala.platform.service;
 
 import id.nawala.platform.model.OAuthClient;
+import id.nawala.platform.model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -12,14 +13,17 @@ import java.util.Map;
 public interface OAuthService {
 
     OAuthClient registerClient(Long userId, String name, String grantTypes, String scopes, String redirectUris);
+    
+    OAuthClient createClient(User owner, String name, String redirectUri, List<String> scopes);
 
     List<OAuthClient> getClientsByUser(Long userId);
 
     void deleteClient(Long clientId);
+    
+    String regenerateSecret(Long clientId);
 
     /**
      * Issue token via client_credentials grant.
-     * Returns map with access_token, token_type, expires_in, scope, refresh_token
      */
     Map<String, Object> issueToken(String clientId, String clientSecret, String grantType, String scope);
 
@@ -30,7 +34,6 @@ public interface OAuthService {
 
     /**
      * Validate an access token.
-     * Returns null if invalid/expired, otherwise returns token info.
      */
     TokenInfo validateToken(String accessToken);
 

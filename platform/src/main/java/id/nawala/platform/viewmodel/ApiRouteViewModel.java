@@ -1,10 +1,13 @@
 package id.nawala.platform.viewmodel;
 
+import id.nawala.platform.model.LoadBalancerStrategy;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +28,6 @@ public class ApiRouteViewModel {
     @Size(max = 500)
     private String path;
 
-    /**
-     * Public-facing masked path (optional).
-     * If set, clients use this URL instead of the real internal path.
-     */
     @Size(max = 500)
     private String maskedPath;
 
@@ -42,15 +41,17 @@ public class ApiRouteViewModel {
 
     private int rateLimitPerMinute;
 
-    /**
-     * Enable end-to-end payload encryption for this route.
-     */
     private boolean payloadEncryption;
 
-    /**
-     * Health check endpoint URL for live monitoring.
-     */
     @Size(max = 500)
     private String healthCheckUrl;
-}
 
+    // ========== LOAD BALANCER ==========
+    private boolean loadBalanced;
+
+    private LoadBalancerStrategy loadBalancerStrategy = LoadBalancerStrategy.ROUND_ROBIN;
+
+    // Additional targets for load balancing
+    private List<String> targetUrls;
+    private List<Integer> targetWeights;
+}

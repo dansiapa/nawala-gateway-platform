@@ -32,6 +32,24 @@ public class MockServiceImpl implements MockService {
                 .build();
         return mockRepository.save(mock);
     }
+    
+    @Override
+    @Transactional
+    public ApiMock createMock(User owner, String name, String method, String path,
+                              int statusCode, String responseBody, String contentType) {
+        ApiMock mock = ApiMock.builder()
+                .owner(owner)
+                .name(name)
+                .path(path)
+                .method(method.toUpperCase())
+                .statusCode(statusCode)
+                .responseBody(responseBody)
+                .contentType(contentType != null ? contentType : "application/json")
+                .delayMs(0)
+                .active(true)
+                .build();
+        return mockRepository.save(mock);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -48,6 +66,12 @@ public class MockServiceImpl implements MockService {
     @Override
     @Transactional
     public void delete(Long mockId) {
+        mockRepository.deleteById(mockId);
+    }
+    
+    @Override
+    @Transactional
+    public void deleteMock(Long mockId) {
         mockRepository.deleteById(mockId);
     }
 

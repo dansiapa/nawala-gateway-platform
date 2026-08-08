@@ -24,12 +24,17 @@ public class OAuthClient {
 
     @Column(nullable = false, length = 255)
     private String clientSecretHash;
+    
+    // Transient field for one-time display of client secret
+    @Transient
+    private String clientSecret;
 
     @Column(nullable = false, length = 100)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @ToString.Exclude
     private User owner;
 
     /** Comma-separated grant types: client_credentials, authorization_code, refresh_token */

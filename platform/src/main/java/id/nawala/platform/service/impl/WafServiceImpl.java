@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 @Service
@@ -17,6 +17,19 @@ import java.util.regex.Pattern;
 public class WafServiceImpl implements WafService {
 
     private final WafRuleRepository wafRuleRepository;
+    
+    // In-memory storage for blocked IPs and feature toggles
+    private final Set<String> blockedIps = ConcurrentHashMap.newKeySet();
+    private final Map<String, Boolean> featureToggles = new ConcurrentHashMap<>();
+    
+    // Initialize features
+    {
+        featureToggles.put("sql_injection", true);
+        featureToggles.put("xss", true);
+        featureToggles.put("path_traversal", true);
+        featureToggles.put("rate_limiting", true);
+        featureToggles.put("ip_blocking", true);
+    }
 
     // Built-in patterns
     private static final Pattern SQL_INJECTION = Pattern.compile(
@@ -62,15 +75,15 @@ public class WafServiceImpl implements WafService {
         String fullInput = buildInput(path, queryString, body, headers);
 
         // Built-in checks
-        if (SQL_INJECTION.matcher(fullInput).find()) {
+        if (featureToggles.getOrDefault("sql_injection", true) && SQL_INJECTION.matcher(fullInput).find()) {
             SecurityLogger.log().warn("WAF BLOCKED sql_injection path={}", path);
             return new WafInspectionResult(true, "BUILT_IN_SQL_INJECTION", "BLOCK", "SQL injection pattern detected");
         }
-        if (XSS.matcher(fullInput).find()) {
+        if (featureToggles.getOrDefault("xss", true) && XSS.matcher(fullInput).find()) {
             SecurityLogger.log().warn("WAF BLOCKED xss path={}", path);
             return new WafInspectionResult(true, "BUILT_IN_XSS", "BLOCK", "XSS pattern detected");
         }
-        if (PATH_TRAVERSAL.matcher(path + (queryString != null ? queryString : "")).find()) {
+        if (featureToggles.getOrDefault("path_traversal", true) && PATH_TRAVERSAL.matcher(path + (queryString != null ? queryString : "")).find()) {
             SecurityLogger.log().warn("WAF BLOCKED path_traversal path={}", path);
             return new WafInspectionResult(true, "BUILT_IN_PATH_TRAVERSAL", "BLOCK", "Path traversal detected");
         }
@@ -108,6 +121,34 @@ public class WafServiceImpl implements WafService {
             r.setActive(active);
             wafRuleRepository.save(r);
         });
+    }
+    
+    @Override
+    public boolean isEnabled() {
+        return featureToggles.values().stream().anyMatch(v -> v);
+    }
+    
+    @Override
+    public void toggleFeature(String feature, boolean enabled) {
+        featureToggles.put(feature, enabled);
+        SecurityLogger.log().info("WAF feature {} set to {}", feature, enabled);
+    }
+    
+    @Override
+    public Set<String> getBlockedIps() {
+        return Collections.unmodifiableSet(blockedIps);
+    }
+    
+    @Override
+    public void blockIp(String ip, String reason) {
+        blockedIps.add(ip);
+        SecurityLogger.log().warn("IP blocked: {} reason: {}", ip, reason);
+    }
+    
+    @Override
+    public void unblockIp(String ip) {
+        blockedIps.remove(ip);
+        SecurityLogger.log().info("IP unblocked: {}", ip);
     }
 
     private String buildInput(String path, String query, String body, Map<String, String> headers) {

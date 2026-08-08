@@ -40,6 +40,9 @@ public class ApiRouteServiceImpl implements ApiRouteService {
                 .payloadEncryption(viewModel.isPayloadEncryption())
                 .healthCheckUrl(viewModel.getHealthCheckUrl() != null && !viewModel.getHealthCheckUrl().isBlank()
                         ? viewModel.getHealthCheckUrl().trim() : null)
+                // Load Balancer
+                .loadBalanced(viewModel.isLoadBalanced())
+                .loadBalancerStrategy(viewModel.getLoadBalancerStrategy())
                 .active(true)
                 .createdBy(createdBy)
                 .build();
@@ -65,6 +68,9 @@ public class ApiRouteServiceImpl implements ApiRouteService {
         route.setPayloadEncryption(viewModel.isPayloadEncryption());
         route.setHealthCheckUrl(viewModel.getHealthCheckUrl() != null && !viewModel.getHealthCheckUrl().isBlank()
                 ? viewModel.getHealthCheckUrl().trim() : null);
+        // Load Balancer
+        route.setLoadBalanced(viewModel.isLoadBalanced());
+        route.setLoadBalancerStrategy(viewModel.getLoadBalancerStrategy());
 
         return apiRouteRepository.save(route);
     }
@@ -78,11 +84,11 @@ public class ApiRouteServiceImpl implements ApiRouteService {
     }
 
     @Override
-    public void toggleActive(Long id) {
+    public ApiRoute toggleActive(Long id) {
         ApiRoute route = apiRouteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Route not found"));
         route.setActive(!route.isActive());
-        apiRouteRepository.save(route);
+        return apiRouteRepository.save(route);
     }
 
     @Override
@@ -113,5 +119,10 @@ public class ApiRouteServiceImpl implements ApiRouteService {
     @Transactional(readOnly = true)
     public long getActiveRoutes() {
         return apiRouteRepository.countByActive(true);
+    }
+    
+    @Override
+    public ApiRoute save(ApiRoute route) {
+        return apiRouteRepository.save(route);
     }
 }

@@ -45,8 +45,33 @@ public class OAuthServiceImpl implements OAuthService {
                 .build();
         OAuthClient saved = clientRepository.save(client);
         // Temporarily set plaintext secret for display (not persisted)
-        saved.setClientSecretHash(clientSecret);
+        saved.setClientSecret(clientSecret);
         SecurityLogger.log().info("OAuth client registered clientId={} owner={}", clientId, owner.getUsername());
+        return saved;
+    }
+    
+    @Override
+    @Transactional
+    public OAuthClient createClient(User owner, String name, String redirectUri, List<String> scopes) {
+        String clientId = generateClientId();
+        String clientSecret = generateSecret();
+        
+        OAuthClient client = OAuthClient.builder()
+                .clientId(clientId)
+                .clientSecretHash(passwordEncoder.encode(clientSecret))
+                .name(name)
+                .owner(owner)
+                .grantTypes("client_credentials,refresh_token")
+                .scopes(scopes != null && !scopes.isEmpty() ? String.join(",", scopes) : "read")
+                .redirectUris(redirectUri)
+                .active(true)
+                .build();
+        
+        OAuthClient saved = clientRepository.save(client);
+        // Set plaintext secret for one-time display
+        saved.setClientSecret(clientSecret);
+        
+        SecurityLogger.log().info("OAuth client created clientId={} owner={}", clientId, owner.getUsername());
         return saved;
     }
 
@@ -60,6 +85,20 @@ public class OAuthServiceImpl implements OAuthService {
     @Transactional
     public void deleteClient(Long clientId) {
         clientRepository.deleteById(clientId);
+    }
+    
+    @Override
+    @Transactional
+    public String regenerateSecret(Long clientId) {
+        OAuthClient client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+        
+        String newSecret = generateSecret();
+        client.setClientSecretHash(passwordEncoder.encode(newSecret));
+        clientRepository.save(client);
+        
+        SecurityLogger.log().info("OAuth client secret regenerated clientId={}", client.getClientId());
+        return newSecret;
     }
 
     @Override
@@ -77,22 +116,25 @@ public class OAuthServiceImpl implements OAuthService {
         String resolvedScope = resolveScope(scope, client.getScopes());
         String accessToken = generateToken();
         String refreshToken = client.getGrantTypes().contains("refresh_token") ? generateToken() : null;
+
         OAuthToken token = OAuthToken.builder()
                 .client(client)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(accessToken).refreshToken(refreshToken)
                 .scopes(resolvedScope)
                 .accessTokenExpiresAt(LocalDateTime.now().plusSeconds(client.getAccessTokenTtl()))
-                .refreshTokenExpiresAt(refreshToken != null ? LocalDateTime.now().plusSeconds(client.getRefreshTokenTtl()) : null)
+                .refreshTokenExpiresAt(refreshToken != null
+                        ? LocalDateTime.now().plusSeconds(client.getRefreshTokenTtl()) : null)
                 .build();
         tokenRepository.save(token);
-        SecurityLogger.log().info("OAuth token issued clientId={} scope={}", clientId, resolvedScope);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("access_token", accessToken);
         result.put("token_type", "Bearer");
         result.put("expires_in", client.getAccessTokenTtl());
         result.put("scope", resolvedScope);
         if (refreshToken != null) result.put("refresh_token", refreshToken);
+
+        SecurityLogger.log().info("OAuth token issued clientId={} scope={}", clientId, resolvedScope);
         return result;
     }
 
