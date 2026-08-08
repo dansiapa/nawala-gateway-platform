@@ -1,148 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Clients - Nawala</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('oauth')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header('OAuth 2.0 Clients', 'Manage OAuth applications and credentials')}"></div>
-        <div class="content-area">
-            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
-            <div th:if="${newClient}" class="alert alert-warning" style="flex-direction:column;align-items:flex-start">
-                <strong>🔑 New Client Credentials (Save these now!):</strong>
-                <div style="margin-top:0.75rem;display:grid;gap:0.5rem">
-                    <div><span class="text-muted">Client ID:</span> <code class="mono" th:text="${newClient.clientId}"></code></div>
-                    <div><span class="text-muted">Client Secret:</span> <code class="mono" th:text="${newClient.clientSecret}"></code></div>
-                </div>
-                <small style="margin-top:0.75rem;opacity:0.8">The secret will not be shown again.</small>
-            </div>
-            
-            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
-                <button type="button" class="btn btn-primary" onclick="Nawala.Modal.open('createOAuthModal')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Register Application
-                </button>
-            </div>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title='OAuth Clients', content=~{::content})}">
+<div th:fragment="content">
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-500 dark:text-gray-400">Manage OAuth2 client applications</p>
+        <button onclick="document.getElementById('oauthModal').classList.remove('hidden')" class="btn-primary inline-flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            New Client
+        </button>
+    </div>
 
-            <div class="card">
-                <div class="card-body" style="padding:0">
-                    <table class="data-table">
-                        <thead><tr><th>Application</th><th>Client ID</th><th>Grant Types</th><th>Scopes</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            <tr th:each="client : ${clients}">
-                                <td>
-                                    <div style="font-weight:500" th:text="${client.name}">App Name</div>
-                                    <div class="text-muted small" th:text="${client.description}">Description</div>
-                                </td>
-                                <td class="mono small" th:text="${client.clientId}">client_id</td>
-                                <td>
-                                    <div class="tag-group">
-                                        <span class="tag tag-sm" th:each="grant : ${client.grantTypes}" th:text="${grant}">grant</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="tag-group">
-                                        <span class="tag tag-sm tag-blue" th:each="scope : ${client.scopes}" th:text="${scope}">scope</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" th:classappend="${client.active} ? ' status-active' : ' status-inactive'">
-                                        <span class="status-dot"></span>
-                                        <span th:text="${client.active} ? 'Active' : 'Disabled'">Active</span>
-                                    </span>
-                                </td>
-                                <td class="action-btns">
-                                    <form th:action="@{/oauth-clients/{id}/regenerate(id=${client.id})}" method="post" style="display:inline" onsubmit="return confirm('Regenerate secret? Old secret will stop working.')">
-                                        <button type="submit" class="btn-sm btn-secondary">Regenerate</button>
-                                    </form>
-                                    <form th:action="@{/oauth-clients/{id}/toggle(id=${client.id})}" method="post" style="display:inline">
-                                        <button type="submit" class="btn-sm btn-secondary" th:text="${client.active} ? 'Disable' : 'Enable'">Toggle</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(clients)}"><td colspan="6" class="empty-state">No OAuth clients registered yet.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Client Secret Alert -->
+    <div th:if="${clientSecret}" class="card p-4 mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+        <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="flex-1">
+                <p class="font-medium text-yellow-800 dark:text-yellow-200">Save your client secret now!</p>
+                <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-2">This secret will only be shown once.</p>
+                <code class="block p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded font-mono text-sm break-all" th:text="${clientSecret}">secret</code>
             </div>
+        </div>
+    </div>
 
-            <!-- OAuth Info -->
-            <div class="card" style="margin-top:1.5rem">
-                <div class="card-header"><h3>📖 OAuth 2.0 Endpoints</h3></div>
-                <div class="card-body">
-                    <div class="endpoint-list">
-                        <div class="endpoint-item">
-                            <span class="endpoint-label">Authorization</span>
-                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/authorize'}">/oauth/authorize</code>
-                        </div>
-                        <div class="endpoint-item">
-                            <span class="endpoint-label">Token</span>
-                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/token'}">/oauth/token</code>
-                        </div>
-                        <div class="endpoint-item">
-                            <span class="endpoint-label">Introspect</span>
-                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/introspect'}">/oauth/introspect</code>
-                        </div>
-                        <div class="endpoint-item">
-                            <span class="endpoint-label">Revoke</span>
-                            <code class="endpoint-url" th:text="${baseUrl + '/oauth/revoke'}">/oauth/revoke</code>
-                        </div>
+    <div th:if="${#lists.isEmpty(clients)}" class="card p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No OAuth clients</h3>
+        <p class="text-gray-500 dark:text-gray-400">Create your first OAuth2 client application</p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(clients)}" class="space-y-4">
+        <div th:each="client : ${clients}" class="card p-6">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white" th:text="${client.name}">Client</h3>
+                    <p class="text-sm font-mono text-gray-500 mt-1">Client ID: <span class="text-gray-700 dark:text-gray-300" th:text="${client.clientId}">nwl_xxx</span></p>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span th:each="scope : ${#strings.arraySplit(client.scopes, ',')}" class="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded" th:text="${scope}">scope</span>
                     </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form th:action="@{/oauth-clients/{id}/regenerate(id=${client.id})}" method="post" onsubmit="return confirm('Regenerate secret? Old secret will stop working.')">
+                        <button type="submit" class="p-2 text-gray-500 hover:text-orange-600" title="Regenerate Secret">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                    </form>
+                    <form th:action="@{/oauth-clients/{id}/delete(id=${client.id})}" method="post" onsubmit="return confirm('Delete this client?')">
+                        <button type="submit" class="p-2 text-gray-500 hover:text-red-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
+    </div>
 
-    <!-- Create OAuth Modal -->
-    <div class="modal-backdrop" id="createOAuthModal">
-        <div class="modal" style="max-width:600px">
-            <div class="modal-header">
-                <h3>Register OAuth Application</h3>
-                <button type="button" class="modal-close" onclick="Nawala.Modal.close('createOAuthModal')">✕</button>
-            </div>
-            <form th:action="@{/oauth-clients/create}" method="post">
-                <div class="modal-body">
-                    <div class="input-group">
-                        <label>Application Name</label>
-                        <div class="input-wrapper"><input type="text" name="name" required placeholder="My Application"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Description</label>
-                        <div class="input-wrapper"><input type="text" name="description" placeholder="Brief description"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Redirect URIs (one per line)</label>
-                        <div class="input-wrapper"><textarea name="redirectUris" rows="3" placeholder="https://yourapp.com/callback"></textarea></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Grant Types</label>
-                        <div class="checkbox-grid">
-                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="authorization_code" checked><span>Authorization Code</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="client_credentials"><span>Client Credentials</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="grantTypes" value="refresh_token" checked><span>Refresh Token</span></label>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Scopes</label>
-                        <div class="checkbox-grid">
-                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="read" checked><span>read</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="write"><span>write</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="scopes" value="admin"><span>admin</span></label>
-                        </div>
+    <!-- Modal -->
+    <div id="oauthModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create OAuth Client</h3>
+            <form th:action="@{/oauth-clients/create}" method="post" class="space-y-4">
+                <div>
+                    <label class="label">Application Name</label>
+                    <input type="text" name="name" class="input" required placeholder="My App">
+                </div>
+                <div>
+                    <label class="label">Redirect URI</label>
+                    <input type="url" name="redirectUri" class="input" placeholder="https://myapp.com/callback">
+                </div>
+                <div>
+                    <label class="label">Scopes</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2"><input type="checkbox" name="scopes" value="read" checked class="rounded"> <span class="text-gray-700 dark:text-gray-300">read</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" name="scopes" value="write" class="rounded"> <span class="text-gray-700 dark:text-gray-300">write</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" name="scopes" value="admin" class="rounded"> <span class="text-gray-700 dark:text-gray-300">admin</span></label>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="Nawala.Modal.close('createOAuthModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Register Application</button>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="document.getElementById('oauthModal').classList.add('hidden')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+</div>
+</th:block>
 </html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title='Analytics', content=~{::content})}">
+<div th:fragment="content">
+    <!-- Time Range -->
+    <div class="flex items-center justify-between mb-6">
+        <p class="text-gray-500 dark:text-gray-400">Monitor API traffic and performance</p>
+        <div class="flex gap-2">
+            <button class="px-3 py-1.5 text-sm bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 rounded-lg">24h</button>
+            <button class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">7d</button>
+            <button class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">30d</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="card p-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total Requests</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${totalRequests ?: '0'}">0</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Avg Response</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white"><span th:text="${avgResponseTime ?: '0'}">0</span>ms</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Success Rate</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${successRate ?: '99.9%'}">99.9%</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Active Routes</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${activeRoutes ?: '0'}">0</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart -->
+        <div class="lg:col-span-2 card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Request Traffic</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <p class="text-gray-500">Chart coming soon</p>
+            </div>
+        </div>
+
+        <!-- Top Routes -->
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Routes</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-700 dark:text-gray-300">/api/users</span>
+                    <span class="text-gray-500">1.2k</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-700 dark:text-gray-300">/api/products</span>
+                    <span class="text-gray-500">890</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-700 dark:text-gray-300">/api/orders</span>
+                    <span class="text-gray-500">654</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status & Errors -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Response Status</h3>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-12 text-sm text-gray-500">2xx</span>
+                    <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-700 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:95%"></div></div>
+                    <span class="w-10 text-sm text-right">95%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-12 text-sm text-gray-500">4xx</span>
+                    <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-700 rounded-full"><div class="h-full bg-yellow-500 rounded-full" style="width:3%"></div></div>
+                    <span class="w-10 text-sm text-right">3%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-12 text-sm text-gray-500">5xx</span>
+                    <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-700 rounded-full"><div class="h-full bg-red-500 rounded-full" style="width:2%"></div></div>
+                    <span class="w-10 text-sm text-right">2%</span>
+                </div>
+            </div>
+        </div>
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Errors</h3>
+            <div class="text-center py-8 text-gray-500">
+                <svg class="w-10 h-10 mx-auto text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p>No recent errors</p>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
+</html>

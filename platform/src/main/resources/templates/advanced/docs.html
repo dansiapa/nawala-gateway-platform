@@ -1,73 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation - Nawala</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('docs')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header('API Documentation', 'Auto-generated documentation for your APIs')}"></div>
-        <div class="content-area">
-            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title='API Documentation', content=~{::content})}">
+<div th:fragment="content">
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-500 dark:text-gray-400">API documentation and OpenAPI specs</p>
+        <button th:onclick="'fetch(\'/docs/regenerate\', {method: \'POST\'}).then(() => location.reload())'" class="btn-secondary">Regenerate Docs</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- API Groups -->
+        <div class="card p-4">
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-4">API Groups</h3>
+            <nav class="space-y-1">
+                <a th:each="group : ${apiGroups}" href="#" class="block px-3 py-2 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300" th:text="${group.name}">Group</a>
+            </nav>
+        </div>
+
+        <!-- Documentation -->
+        <div class="lg:col-span-3 card p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">API Reference</h2>
             
-            <!-- Quick Actions -->
-            <div style="display:flex;gap:1rem;margin-bottom:1.5rem">
-                <form th:action="@{/docs/generate}" method="post">
-                    <button type="submit" class="btn btn-primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Regenerate Docs
-                    </button>
-                </form>
-                <a th:href="@{/docs/public}" target="_blank" class="btn btn-outline">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    View Public Docs
-                </a>
+            <div th:if="${#lists.isEmpty(apiGroups)}" class="text-center py-12 text-gray-500">
+                <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <p>No API documentation available</p>
+                <p class="text-sm mt-2">Create routes to auto-generate documentation</p>
             </div>
 
-            <!-- API Groups -->
-            <div class="docs-container">
-                <div class="docs-sidebar">
-                    <h4>API Groups</h4>
-                    <ul class="docs-nav">
-                        <li th:each="group : ${apiGroups}">
-                            <a th:href="'#' + ${group.name}" th:text="${group.name}">Group</a>
-                            <span class="badge badge-sm" th:text="${group.endpointCount}">0</span>
-                        </li>
-                        <li th:if="${#lists.isEmpty(apiGroups)}" class="text-muted">No APIs documented yet</li>
-                    </ul>
-                </div>
-                <div class="docs-content">
-                    <div th:each="group : ${apiGroups}" class="docs-group" th:id="${group.name}">
-                        <h3 th:text="${group.name}">API Group</h3>
-                        <p th:text="${group.description}">Description</p>
-                        
-                        <div class="endpoint-cards">
-                            <div th:each="endpoint : ${group.endpoints}" class="endpoint-card">
-                                <div class="endpoint-header">
-                                    <span class="method-badge" th:classappend="' method-' + ${endpoint.method.toLowerCase()}" th:text="${endpoint.method}">GET</span>
-                                    <code class="endpoint-path" th:text="${endpoint.path}">/api/endpoint</code>
-                                </div>
-                                <p class="endpoint-desc" th:text="${endpoint.description}">Endpoint description</p>
-                                <div class="endpoint-meta">
-                                    <span th:if="${endpoint.authRequired}" class="tag tag-sm">🔒 Auth Required</span>
-                                    <span th:if="${endpoint.rateLimited}" class="tag tag-sm">⏱ Rate Limited</span>
-                                </div>
+            <div th:unless="${#lists.isEmpty(apiGroups)}" class="space-y-6">
+                <div th:each="group : ${apiGroups}" class="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-0">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" th:text="${group.name}">Group Name</h3>
+                    <div class="space-y-3">
+                        <div th:each="route : ${group.routes}" class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span th:class="'px-2 py-0.5 text-xs font-bold rounded ' + (${route.method == 'GET'} ? 'bg-green-100 text-green-700' : (${route.method == 'POST'} ? 'bg-blue-100 text-blue-700' : (${route.method == 'PUT'} ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')))" th:text="${route.method}">GET</span>
+                                <code class="text-sm font-mono text-gray-800 dark:text-gray-200" th:text="${route.path}">/api/endpoint</code>
                             </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400" th:text="${route.description ?: 'No description'}">Description</p>
                         </div>
-                    </div>
-                    
-                    <div th:if="${#lists.isEmpty(apiGroups)}" class="empty-state" style="padding:3rem">
-                        <p>No API documentation generated yet.</p>
-                        <p class="text-muted">Click "Regenerate Docs" to generate documentation from your routes.</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+    </div>
+</div>
+</th:block>
 </html>

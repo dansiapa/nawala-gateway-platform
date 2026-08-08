@@ -1,141 +1,84 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhooks - Nawala</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('webhooks')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header('Webhooks', 'Event-driven notifications for your services')}"></div>
-        <div class="content-area">
-            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
-            
-            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
-                <button type="button" class="btn btn-primary" onclick="Nawala.Modal.open('createWebhookModal')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Webhook
-                </button>
-            </div>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title='Webhooks', content=~{::content})}">
+<div th:fragment="content">
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-500 dark:text-gray-400">Receive real-time notifications for events</p>
+        <button onclick="document.getElementById('webhookModal').classList.remove('hidden')" class="btn-primary inline-flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Add Webhook
+        </button>
+    </div>
 
-            <div class="card">
-                <div class="card-body" style="padding:0">
-                    <table class="data-table">
-                        <thead><tr><th>Name</th><th>URL</th><th>Events</th><th>Status</th><th>Last Triggered</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            <tr th:each="wh : ${webhooks}">
-                                <td>
-                                    <div style="font-weight:500" th:text="${wh.name}">Webhook</div>
-                                </td>
-                                <td class="mono small" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" th:text="${wh.url}">https://...</td>
-                                <td>
-                                    <div class="tag-group">
-                                        <span class="tag tag-sm" th:each="evt : ${wh.events}" th:text="${evt}">event</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" th:classappend="${wh.active} ? ' status-active' : ' status-inactive'">
-                                        <span class="status-dot"></span>
-                                        <span th:text="${wh.active} ? 'Active' : 'Paused'">Active</span>
-                                    </span>
-                                </td>
-                                <td th:text="${wh.lastTriggeredAt != null} ? ${#temporals.format(wh.lastTriggeredAt, 'dd MMM HH:mm')} : 'Never'">Never</td>
-                                <td class="action-btns">
-                                    <form th:action="@{/webhooks/{id}/test(id=${wh.id})}" method="post" style="display:inline">
-                                        <button type="submit" class="btn-sm btn-secondary" title="Send test">Test</button>
-                                    </form>
-                                    <form th:action="@{/webhooks/{id}/toggle(id=${wh.id})}" method="post" style="display:inline">
-                                        <button type="submit" class="btn-sm btn-secondary" th:text="${wh.active} ? 'Pause' : 'Resume'">Toggle</button>
-                                    </form>
-                                    <form th:action="@{/webhooks/{id}/delete(id=${wh.id})}" method="post" style="display:inline" onsubmit="return confirm('Delete this webhook?')">
-                                        <button type="submit" class="btn-sm btn-danger-sm">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(webhooks)}"><td colspan="6" class="empty-state">No webhooks configured. Create one to receive event notifications.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div th:if="${#lists.isEmpty(webhooks)}" class="card p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No webhooks configured</h3>
+        <p class="text-gray-500 dark:text-gray-400">Add a webhook to receive event notifications</p>
+    </div>
 
-            <!-- Event Types Card -->
-            <div class="card" style="margin-top:1.5rem">
-                <div class="card-header"><h3>📋 Available Events</h3></div>
-                <div class="card-body">
-                    <div class="event-grid">
-                        <div class="event-item">
-                            <span class="event-icon">🟢</span>
-                            <div><strong>route.created</strong><br><small>When a new route is registered</small></div>
-                        </div>
-                        <div class="event-item">
-                            <span class="event-icon">🟡</span>
-                            <div><strong>route.updated</strong><br><small>When a route is modified</small></div>
-                        </div>
-                        <div class="event-item">
-                            <span class="event-icon">🔴</span>
-                            <div><strong>route.deleted</strong><br><small>When a route is removed</small></div>
-                        </div>
-                        <div class="event-item">
-                            <span class="event-icon">⚠️</span>
-                            <div><strong>health.down</strong><br><small>When a service goes offline</small></div>
-                        </div>
-                        <div class="event-item">
-                            <span class="event-icon">🚨</span>
-                            <div><strong>threat.detected</strong><br><small>When an attack is blocked</small></div>
-                        </div>
-                        <div class="event-item">
-                            <span class="event-icon">🔑</span>
-                            <div><strong>apikey.expired</strong><br><small>When an API key expires</small></div>
-                        </div>
+    <div th:unless="${#lists.isEmpty(webhooks)}" class="space-y-4">
+        <div th:each="webhook : ${webhooks}" class="card p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h3 class="font-semibold text-gray-900 dark:text-white" th:text="${webhook.name}">Webhook</h3>
+                        <span th:if="${webhook.active}" class="px-2 py-0.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full">Active</span>
+                        <span th:unless="${webhook.active}" class="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded-full">Inactive</span>
                     </div>
+                    <p class="text-sm font-mono text-gray-600 dark:text-gray-300 mb-2" th:text="${webhook.targetUrl}">https://example.com/webhook</p>
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <span>Events: <span class="font-medium" th:text="${webhook.eventType}">*</span></span>
+                        <span th:if="${webhook.lastTriggeredAt}">Last: <span th:text="${#temporals.format(webhook.lastTriggeredAt, 'MMM d HH:mm')}">Jan 1</span></span>
+                        <span th:if="${webhook.lastStatus}" th:classappend="${webhook.lastStatus == 'SUCCESS'} ? 'text-green-600' : 'text-red-600'" th:text="${webhook.lastStatus}">SUCCESS</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form th:action="@{/webhooks/{id}/test(id=${webhook.id})}" method="post">
+                        <button type="submit" class="p-2 text-gray-500 hover:text-blue-600" title="Test">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </button>
+                    </form>
+                    <form th:action="@{/webhooks/{id}/delete(id=${webhook.id})}" method="post" onsubmit="return confirm('Delete this webhook?')">
+                        <button type="submit" class="p-2 text-gray-500 hover:text-red-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
+    </div>
 
-    <!-- Create Webhook Modal -->
-    <div class="modal-backdrop" id="createWebhookModal">
-        <div class="modal" style="max-width:600px">
-            <div class="modal-header">
-                <h3>Create Webhook</h3>
-                <button type="button" class="modal-close" onclick="Nawala.Modal.close('createWebhookModal')">✕</button>
-            </div>
-            <form th:action="@{/webhooks/create}" method="post">
-                <div class="modal-body">
-                    <div class="input-group">
-                        <label>Webhook Name</label>
-                        <div class="input-wrapper"><input type="text" name="name" required placeholder="My Webhook"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Endpoint URL</label>
-                        <div class="input-wrapper"><input type="url" name="url" required placeholder="https://your-server.com/webhook"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Secret (for signature verification)</label>
-                        <div class="input-wrapper"><input type="text" name="secret" placeholder="Optional - for HMAC signature"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Events to Subscribe</label>
-                        <div class="checkbox-grid">
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="route.created"><span>route.created</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="route.updated"><span>route.updated</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="route.deleted"><span>route.deleted</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="health.down"><span>health.down</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="threat.detected"><span>threat.detected</span></label>
-                            <label class="checkbox-label"><input type="checkbox" name="events" value="apikey.expired"><span>apikey.expired</span></label>
-                        </div>
-                    </div>
+    <!-- Modal -->
+    <div id="webhookModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add Webhook</h3>
+            <form th:action="@{/webhooks/create}" method="post" class="space-y-4">
+                <div>
+                    <label class="label">Name</label>
+                    <input type="text" name="name" class="input" required placeholder="My Webhook">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="Nawala.Modal.close('createWebhookModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Webhook</button>
+                <div>
+                    <label class="label">URL</label>
+                    <input type="url" name="url" class="input" required placeholder="https://example.com/webhook">
+                </div>
+                <div>
+                    <label class="label">Events</label>
+                    <select name="events" multiple class="input" size="4">
+                        <option value="route.created">Route Created</option>
+                        <option value="route.updated">Route Updated</option>
+                        <option value="route.deleted">Route Deleted</option>
+                        <option value="key.created">API Key Created</option>
+                        <option value="key.revoked">API Key Revoked</option>
+                        <option value="waf.blocked">WAF Blocked Request</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="document.getElementById('webhookModal').classList.add('hidden')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+</div>
+</th:block>
 </html>
