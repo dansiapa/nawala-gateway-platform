@@ -1,208 +1,153 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${routeId != null} ? 'Edit Route - Nawala' : 'New Route - Nawala'">Route Form</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('routes')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header(${routeId != null} ? 'Edit Route' : 'New Route', 'Configure API endpoint routing')}"></div>
-        <div class="content-area">
-            <form th:action="${routeId != null} ? @{'/routes/' + ${routeId} + '/edit'} : @{/routes/new}" th:object="${form}" method="post">
-                <!-- Basic Info Card -->
-                <div class="card" style="margin-bottom:1.5rem">
-                    <div class="card-header"><h3>📝 Basic Information</h3></div>
-                    <div class="card-body">
-                        <div class="form-grid-2">
-                            <div class="input-group">
-                                <label for="name">Route Name</label>
-                                <div class="input-wrapper" th:classappend="${#fields.hasErrors('name')} ? ' has-error' : ''">
-                                    <input type="text" id="name" th:field="*{name}" placeholder="e.g. User Service API" required>
-                                </div>
-                                <span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-                            </div>
-                            <div class="input-group">
-                                <label for="method">HTTP Method</label>
-                                <div class="input-wrapper">
-                                    <select id="method" th:field="*{method}" class="form-select">
-                                        <option value="GET">🟢 GET - Read data</option>
-                                        <option value="POST">🟡 POST - Create new</option>
-                                        <option value="PUT">🟠 PUT - Update all</option>
-                                        <option value="PATCH">🟣 PATCH - Partial update</option>
-                                        <option value="DELETE">🔴 DELETE - Remove</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-grid-2">
-                            <div class="input-group">
-                                <label for="path">Path Pattern</label>
-                                <div class="input-wrapper" th:classappend="${#fields.hasErrors('path')} ? ' has-error' : ''">
-                                    <input type="text" id="path" th:field="*{path}" placeholder="/api/v1/users/**" required>
-                                </div>
-                                <span class="field-hint">Use ** for wildcard matching</span>
-                                <span class="field-error" th:if="${#fields.hasErrors('path')}" th:errors="*{path}"></span>
-                            </div>
-                            <div class="input-group">
-                                <label for="maskedPath">Public URL (Optional)</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="maskedPath" th:field="*{maskedPath}" placeholder="/public/v1/users/**">
-                                </div>
-                                <span class="field-hint">Clients see this URL instead of internal path</span>
-                            </div>
-                        </div>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title=${routeId != null} ? 'Edit Route' : 'New Route', content=~{::content})}">
+<div th:fragment="content">
+    <div class="max-w-4xl">
+        <!-- Back Link -->
+        <a th:href="@{/routes}" class="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back to Routes
+        </a>
+
+        <form th:action="${routeId != null} ? @{/routes/{id}/edit(id=${routeId})} : @{/routes/new}" method="post" th:object="${form}" class="space-y-6">
+            <!-- Basic Info -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="label">Route Name *</label>
+                        <input type="text" th:field="*{name}" class="input" placeholder="User API" required>
+                        <p th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-500" th:errors="*{name}"></p>
+                    </div>
+                    <div>
+                        <label class="label">HTTP Method *</label>
+                        <select th:field="*{method}" class="input" required>
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="OPTIONS">OPTIONS</option>
+                            <option value="HEAD">HEAD</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">Path *</label>
+                        <input type="text" th:field="*{path}" class="input font-mono" placeholder="/api/users/{id}" required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Use {param} for path variables</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="label">Description</label>
+                        <textarea th:field="*{description}" class="input" rows="2" placeholder="What does this route do?"></textarea>
                     </div>
                 </div>
+            </div>
 
-                <!-- Target & Load Balancer Card -->
-                <div class="card" style="margin-bottom:1.5rem">
-                    <div class="card-header"><h3>🎯 Target & Load Balancing</h3></div>
-                    <div class="card-body">
-                        <div class="input-group">
-                            <label for="targetUrl">Primary Target URL</label>
-                            <div class="input-wrapper" th:classappend="${#fields.hasErrors('targetUrl')} ? ' has-error' : ''">
-                                <input type="url" id="targetUrl" th:field="*{targetUrl}" placeholder="http://localhost:8081" required>
+            <!-- Target Configuration -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Target Configuration</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="label">Primary Target URL *</label>
+                        <input type="url" th:field="*{targetUrl}" class="input font-mono" placeholder="https://backend.example.com/api/users" required>
+                    </div>
+                    <div>
+                        <label class="label">Health Check URL</label>
+                        <input type="url" th:field="*{healthCheckUrl}" class="input font-mono" placeholder="https://backend.example.com/health">
+                    </div>
+                    
+                    <!-- Load Balancer Toggle -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" th:field="*{loadBalanced}" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500" id="loadBalancedToggle">
+                            <div>
+                                <span class="font-medium text-gray-900 dark:text-white">Enable Load Balancing</span>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Distribute traffic across multiple backend servers</p>
                             </div>
-                            <span class="field-error" th:if="${#fields.hasErrors('targetUrl')}" th:errors="*{targetUrl}"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- Load Balancer Options -->
+                    <div id="lbOptions" class="space-y-4 pl-8 border-l-2 border-blue-200 dark:border-blue-800" style="display: none;">
+                        <div>
+                            <label class="label">Strategy</label>
+                            <select th:field="*{loadBalancerStrategy}" class="input">
+                                <option th:each="s : ${strategies}" th:value="${s}" th:text="${s.displayName}">Round Robin</option>
+                            </select>
                         </div>
                         
-                        <!-- Load Balancer Strategy -->
-                        <div class="input-group" style="margin-top:1.5rem">
-                            <label>Load Balancer Strategy</label>
-                            <div class="lb-strategy-selector">
-                                <div class="lb-strategy-btn active" data-strategy="ROUND_ROBIN">
-                                    <div class="lb-strategy-icon">🔄</div>
-                                    <div class="lb-strategy-name">Round Robin</div>
-                                    <div class="lb-strategy-desc">Distribute evenly</div>
-                                </div>
-                                <div class="lb-strategy-btn" data-strategy="WEIGHTED">
-                                    <div class="lb-strategy-icon">⚖️</div>
-                                    <div class="lb-strategy-name">Weighted</div>
-                                    <div class="lb-strategy-desc">By server capacity</div>
-                                </div>
-                                <div class="lb-strategy-btn" data-strategy="LEAST_CONN">
-                                    <div class="lb-strategy-icon">📊</div>
-                                    <div class="lb-strategy-name">Least Connections</div>
-                                    <div class="lb-strategy-desc">Least busy server</div>
-                                </div>
-                                <div class="lb-strategy-btn" data-strategy="IP_HASH">
-                                    <div class="lb-strategy-icon">🔒</div>
-                                    <div class="lb-strategy-name">IP Hash</div>
-                                    <div class="lb-strategy-desc">Sticky sessions</div>
+                        <!-- Existing Targets -->
+                        <div th:if="${targets != null and !targets.isEmpty()}">
+                            <label class="label">Backend Targets</label>
+                            <div class="space-y-2">
+                                <div th:each="target : ${targets}" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <span th:classappend="${target.healthy} ? 'bg-green-500' : 'bg-red-500'" class="w-2 h-2 rounded-full"></span>
+                                    <span class="flex-1 font-mono text-sm text-gray-700 dark:text-gray-300" th:text="${target.url}">url</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Weight: <span th:text="${target.weight}">50</span></span>
+                                    <form th:action="@{/routes/{rid}/targets/{tid}/remove(rid=${routeId}, tid=${target.id})}" method="post" class="inline">
+                                        <button type="submit" class="text-red-500 hover:text-red-700">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
-                            <input type="hidden" name="loadBalancerStrategy" th:field="*{loadBalancerStrategy}" value="ROUND_ROBIN">
-                        </div>
-
-                        <!-- Additional Targets -->
-                        <div class="input-group" style="margin-top:1.5rem">
-                            <label>Additional Targets (Optional)</label>
-                            <div class="lb-targets" id="lbTargets">
-                                <div class="lb-add-target" onclick="addTarget()">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span>Add Backend Target</span>
-                                </div>
-                            </div>
-                            <span class="field-hint">Add multiple backends for high availability</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Security Card -->
-                <div class="card" style="margin-bottom:1.5rem">
-                    <div class="card-header"><h3>🔐 Security & Rate Limiting</h3></div>
-                    <div class="card-body">
-                        <div class="form-grid-2">
-                            <div class="input-group">
-                                <label class="toggle-label">
-                                    <span>Require Authentication</span>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" th:field="*{authRequired}">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </label>
-                                <span class="field-hint">Require valid API key or OAuth token</span>
-                            </div>
-                            <div class="input-group">
-                                <label class="toggle-label">
-                                    <span>Enable Rate Limiting</span>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" th:field="*{rateLimitEnabled}" id="rateLimitToggle">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </label>
-                                <span class="field-hint">Protect against abuse</span>
-                            </div>
+            <!-- Security & Features -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security & Features</h2>
+                <div class="space-y-4">
+                    <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer">
+                        <input type="checkbox" th:field="*{authRequired}" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600">
+                        <div>
+                            <span class="font-medium text-gray-900 dark:text-white">Require Authentication</span>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">API key or OAuth token required</p>
                         </div>
-                        <div class="input-group" id="rateLimitConfig" style="margin-top:1rem">
-                            <label for="rateLimitPerMinute">Requests per Minute</label>
-                            <div class="input-wrapper" style="max-width:200px">
-                                <input type="number" id="rateLimitPerMinute" th:field="*{rateLimitPerMinute}" min="1" max="10000" placeholder="60">
-                            </div>
+                    </label>
+                    
+                    <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer">
+                        <input type="checkbox" th:field="*{rateLimitEnabled}" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600" id="rateLimitToggle">
+                        <div class="flex-1">
+                            <span class="font-medium text-gray-900 dark:text-white">Enable Rate Limiting</span>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Limit requests per minute</p>
                         </div>
-                        <div class="input-group" style="margin-top:1.5rem">
-                            <label class="toggle-label">
-                                <span>End-to-End Encryption</span>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" th:field="*{payloadEncryption}">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </label>
-                            <span class="field-hint">Encrypt request/response payload with client's key</span>
+                        <input type="number" th:field="*{rateLimitPerMinute}" class="w-24 input text-center" placeholder="60" min="1">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">/min</span>
+                    </label>
+                    
+                    <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer">
+                        <input type="checkbox" th:field="*{payloadEncryption}" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-blue-600">
+                        <div>
+                            <span class="font-medium text-gray-900 dark:text-white">Payload Encryption</span>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">End-to-end encryption for sensitive data</p>
                         </div>
-                    </div>
+                    </label>
                 </div>
+            </div>
 
-                <!-- Health Check Card -->
-                <div class="card" style="margin-bottom:1.5rem">
-                    <div class="card-header"><h3>📊 Health Monitoring</h3></div>
-                    <div class="card-body">
-                        <div class="input-group">
-                            <label for="healthCheckUrl">Health Check Endpoint</label>
-                            <div class="input-wrapper">
-                                <input type="url" id="healthCheckUrl" th:field="*{healthCheckUrl}" placeholder="http://localhost:8081/actuator/health">
-                            </div>
-                            <span class="field-hint">Gateway pings this every 60s to monitor availability</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-4">
+                <a th:href="@{/routes}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">
+                    <span th:text="${routeId != null} ? 'Update Route' : 'Create Route'">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
 
-                <!-- Actions -->
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span th:text="${routeId != null} ? 'Update Route' : 'Create Route'">Save</span>
-                    </button>
-                    <a href="/routes" class="btn btn-outline btn-lg">Cancel</a>
-                </div>
-            </form>
-        </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
-    <script th:src="@{/js/app.js}"></script>
     <script>
-    function addTarget() {
-        const container = document.getElementById('lbTargets');
-        const addBtn = container.querySelector('.lb-add-target');
-        const idx = container.querySelectorAll('.lb-target-card').length;
-        const card = document.createElement('div');
-        card.className = 'lb-target-card';
-        card.innerHTML = `
-            <span class="lb-target-status healthy"></span>
-            <div class="lb-target-info">
-                <input type="url" name="additionalTargets[${idx}].url" placeholder="http://localhost:8082" class="lb-target-url" required>
-            </div>
-            <div class="lb-target-weight">
-                <input type="range" min="1" max="100" value="50" name="additionalTargets[${idx}].weight">
-                <span>50%</span>
-            </div>
-            <button type="button" class="btn-icon btn-danger-sm" onclick="this.parentElement.remove()">✕</button>
-        `;
-        container.insertBefore(card, addBtn);
-    }
+        // Toggle load balancer options
+        const lbToggle = document.getElementById('loadBalancedToggle');
+        const lbOptions = document.getElementById('lbOptions');
+        function updateLbOptions() {
+            lbOptions.style.display = lbToggle.checked ? 'block' : 'none';
+        }
+        lbToggle.addEventListener('change', updateLbOptions);
+        updateLbOptions();
     </script>
-</body>
+</div>
+</th:block>
 </html>

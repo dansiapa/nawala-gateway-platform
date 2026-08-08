@@ -1,134 +1,65 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Nawala</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('profile')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header('My Profile', 'Manage your account settings')}"></div>
-        <div class="content-area">
-            <div th:if="${success}" class="alert alert-success"><span th:text="${success}"></span></div>
-            <div th:if="${error}" class="alert alert-danger"><span th:text="${error}"></span></div>
-            
-            <div class="profile-layout">
-                <!-- Profile Card -->
-                <div class="card profile-card">
-                    <div class="profile-header">
-                        <div class="profile-avatar" th:text="${user.username.substring(0,1).toUpperCase()}">U</div>
-                        <h2 th:text="${user.username}">Username</h2>
-                        <span class="badge" th:classappend="${user.role.name() == 'ADMIN'} ? ' badge-purple' : ' badge-blue'" th:text="${user.role}">USER</span>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="profile-stat">
-                            <span class="profile-stat-value" th:text="${user.routeCount != null} ? ${user.routeCount} : '0'">0</span>
-                            <span class="profile-stat-label">Routes</span>
-                        </div>
-                        <div class="profile-stat">
-                            <span class="profile-stat-value" th:text="${user.apiKeyCount != null} ? ${user.apiKeyCount} : '0'">0</span>
-                            <span class="profile-stat-label">API Keys</span>
-                        </div>
-                        <div class="profile-stat">
-                            <span class="profile-stat-value" th:text="${user.totalRequests != null} ? ${user.totalRequests} : '0'">0</span>
-                            <span class="profile-stat-label">Requests</span>
-                        </div>
-                    </div>
-                    <div class="profile-info">
-                        <div class="info-row">
-                            <span class="info-label">📧 Email</span>
-                            <span class="info-value" th:text="${user.email}">email@example.com</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">📅 Joined</span>
-                            <span class="info-value" th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">Date</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">🕒 Last Login</span>
-                            <span class="info-value" th:text="${user.lastLoginAt != null} ? ${#temporals.format(user.lastLoginAt, 'dd MMM yyyy HH:mm')} : 'First session'">Never</span>
-                        </div>
-                    </div>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{fragments/layout :: layout(title='Profile', content=~{::content})}">
+<div th:fragment="content">
+    <div class="max-w-2xl">
+        <!-- Profile Card -->
+        <div class="card p-6 mb-6">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
+                    <span class="text-white text-2xl font-bold" th:text="${currentUser?.username?.substring(0,1)?.toUpperCase()}">U</span>
                 </div>
-
-                <!-- Settings Forms -->
-                <div class="profile-forms">
-                    <!-- Update Profile -->
-                    <div class="card">
-                        <div class="card-header"><h3>👤 Update Profile</h3></div>
-                        <div class="card-body">
-                            <form th:action="@{/profile/update}" method="post">
-                                <div class="input-group">
-                                    <label for="email">Email Address</label>
-                                    <div class="input-wrapper">
-                                        <input type="email" id="email" name="email" th:value="${user.email}" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Change Password -->
-                    <div class="card">
-                        <div class="card-header"><h3>🔒 Change Password</h3></div>
-                        <div class="card-body">
-                            <form th:action="@{/profile/password}" method="post">
-                                <div class="input-group">
-                                    <label for="currentPassword">Current Password</label>
-                                    <div class="input-wrapper">
-                                        <input type="password" id="currentPassword" name="currentPassword" required>
-                                        <button type="button" class="toggle-password">👁</button>
-                                    </div>
-                                </div>
-                                <div class="input-group">
-                                    <label for="newPassword">New Password</label>
-                                    <div class="input-wrapper">
-                                        <input type="password" id="newPassword" name="newPassword" required minlength="8">
-                                        <button type="button" class="toggle-password">👁</button>
-                                    </div>
-                                    <span class="field-hint">Minimum 8 characters</span>
-                                </div>
-                                <div class="input-group">
-                                    <label for="confirmPassword">Confirm Password</label>
-                                    <div class="input-wrapper">
-                                        <input type="password" id="confirmPassword" name="confirmPassword" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Update Password</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Theme Preference -->
-                    <div class="card">
-                        <div class="card-header"><h3>🎨 Appearance</h3></div>
-                        <div class="card-body">
-                            <div class="input-group">
-                                <label>Theme Preference</label>
-                                <div class="theme-selector">
-                                    <button type="button" class="theme-option theme-btn" data-theme="light">
-                                        <span class="theme-icon">☀️</span>
-                                        <span>Light</span>
-                                    </button>
-                                    <button type="button" class="theme-option theme-btn" data-theme="dark">
-                                        <span class="theme-icon">🌙</span>
-                                        <span>Dark</span>
-                                    </button>
-                                    <button type="button" class="theme-option theme-btn" data-theme="system">
-                                        <span class="theme-icon">💻</span>
-                                        <span>System</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white" th:text="${currentUser?.username}">Username</h2>
+                    <p class="text-gray-500 dark:text-gray-400" th:text="${currentUser?.email}">email@example.com</p>
+                    <span class="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded" th:text="${currentUser?.role}">ROLE</span>
                 </div>
             </div>
         </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+
+        <!-- Theme Settings -->
+        <div class="card p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Theme Preference</h3>
+            <form th:action="@{/profile/theme}" method="post" class="space-y-3">
+                <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <input type="radio" name="theme" value="light" th:checked="${currentUser?.themePreference == 'light'}" class="w-4 h-4 text-blue-600">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <span class="text-gray-900 dark:text-white">Light</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <input type="radio" name="theme" value="dark" th:checked="${currentUser?.themePreference == 'dark'}" class="w-4 h-4 text-blue-600">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    <span class="text-gray-900 dark:text-white">Dark</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <input type="radio" name="theme" value="system" th:checked="${currentUser?.themePreference == 'system' or currentUser?.themePreference == null}" class="w-4 h-4 text-blue-600">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span class="text-gray-900 dark:text-white">System</span>
+                </label>
+                <button type="submit" class="btn-primary mt-4">Save Preference</button>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Change Password</h3>
+            <form th:action="@{/profile/password}" method="post" class="space-y-4">
+                <div>
+                    <label class="label">Current Password</label>
+                    <input type="password" name="currentPassword" class="input" required>
+                </div>
+                <div>
+                    <label class="label">New Password</label>
+                    <input type="password" name="newPassword" class="input" required minlength="8">
+                </div>
+                <div>
+                    <label class="label">Confirm New Password</label>
+                    <input type="password" name="confirmPassword" class="input" required>
+                </div>
+                <button type="submit" class="btn-primary">Update Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+</th:block>
 </html>

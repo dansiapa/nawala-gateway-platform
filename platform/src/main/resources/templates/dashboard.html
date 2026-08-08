@@ -1,148 +1,145 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Nawala Gateway</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="app-page">
-    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
-    <main class="main-content">
-        <div th:replace="~{fragments/header :: header('Dashboard', 'Welcome back!')}"></div>
-        <div class="content-area">
-            <!-- Stats Overview -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue">🛣️</div>
-                    <div class="stat-content">
-                        <span class="stat-value" th:text="${stats?.activeRoutes} ?: '0'">0</span>
-                        <span class="stat-label">Active Routes</span>
-                    </div>
-                    <div class="stat-trend stat-trend-up" th:if="${stats?.routesTrend > 0}">
-                        <span th:text="'+' + ${stats.routesTrend}">+2</span>
-                    </div>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<th:block th:replace="~{fragments/layout :: layout(title='Dashboard', content=~{::content})}">
+<div th:fragment="content">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Routes -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Routes</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1" th:text="${totalRoutes ?: 0}">0</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-green">📊</div>
-                    <div class="stat-content">
-                        <span class="stat-value" th:text="${stats?.requestsToday} ?: '0'">0</span>
-                        <span class="stat-label">Requests Today</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-purple">🔑</div>
-                    <div class="stat-content">
-                        <span class="stat-value" th:text="${stats?.activeKeys} ?: '0'">0</span>
-                        <span class="stat-label">Active API Keys</span>
-                    </div>
-                </div>
-                <div class="stat-card" th:classappend="${stats?.downServices > 0} ? ' stat-card-danger' : ''">
-                    <div class="stat-icon" th:classappend="${stats?.downServices > 0} ? ' stat-icon-red' : ' stat-icon-green'">
-                        <span th:if="${stats?.downServices > 0}">⚠️</span>
-                        <span th:unless="${stats?.downServices > 0}">✅</span>
-                    </div>
-                    <div class="stat-content">
-                        <span class="stat-value" th:text="${stats?.healthyServices} ?: '0'">0</span>
-                        <span class="stat-label">Services Healthy</span>
-                    </div>
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
             </div>
+            <p class="text-sm text-green-600 dark:text-green-400 mt-2"><span th:text="${activeRoutes ?: 0}">0</span> active</p>
+        </div>
 
-            <!-- Main Content Grid -->
-            <div class="dashboard-grid">
-                <!-- Quick Actions -->
-                <div class="card">
-                    <div class="card-header"><h3>⚡ Quick Actions</h3></div>
-                    <div class="card-body">
-                        <div class="quick-actions">
-                            <a href="/routes/new" class="quick-action-btn">
-                                <span class="qa-icon">➕</span>
-                                <span>New Route</span>
-                            </a>
-                            <a href="/api-keys" class="quick-action-btn">
-                                <span class="qa-icon">🔑</span>
-                                <span>API Keys</span>
-                            </a>
-                            <a href="/analytics" class="quick-action-btn">
-                                <span class="qa-icon">📊</span>
-                                <span>Analytics</span>
-                            </a>
-                            <a href="/health" class="quick-action-btn">
-                                <span class="qa-icon">💻</span>
-                                <span>Health</span>
-                            </a>
-                        </div>
-                    </div>
+        <!-- API Keys -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">API Keys</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1" th:text="${totalKeys ?: 0}">0</p>
                 </div>
-
-                <!-- Recent Routes -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>🛣️ Recent Routes</h3>
-                        <a href="/routes" class="btn btn-sm btn-outline">View All</a>
-                    </div>
-                    <div class="card-body" style="padding:0">
-                        <table class="data-table data-table-compact">
-                            <tbody>
-                                <tr th:each="route : ${recentRoutes}">
-                                    <td>
-                                        <span class="method-badge method-badge-sm" th:classappend="' method-' + ${route.method.toLowerCase()}" th:text="${route.method}">GET</span>
-                                    </td>
-                                    <td class="mono" th:text="${route.path}">/api</td>
-                                    <td>
-                                        <span class="status-dot" th:classappend="${route.active} ? ' active' : ' inactive'"></span>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(recentRoutes)}"><td colspan="3" class="empty-state-sm">No routes yet</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                 </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2"><span th:text="${activeKeys ?: 0}">0</span> active</p>
+        </div>
 
-                <!-- Service Health -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>💻 Service Health</h3>
-                        <a href="/health" class="btn btn-sm btn-outline">Details</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="health-summary">
-                            <div class="health-ring">
-                                <svg viewBox="0 0 36 36" class="health-chart">
-                                    <path class="health-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="health-fg" th:attr="stroke-dasharray=${stats?.healthPercent ?: 100} + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <text x="18" y="20.35" class="health-percent" th:text="${stats?.healthPercent ?: 100} + '%'">100%</text>
-                                </svg>
+        <!-- Requests Today -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Requests Today</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1" th:text="${requestsToday ?: 0}">0</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Avg <span th:text="${avgLatency ?: 0}">0</span>ms latency</p>
+        </div>
+
+        <!-- Error Rate -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Error Rate</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1" th:text="${errorRate ?: '0%'}">0%</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2"><span th:text="${errorsToday ?: 0}">0</span> errors today</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Activity -->
+        <div class="lg:col-span-2 card">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
+            </div>
+            <div class="p-6">
+                <div th:if="${#lists.isEmpty(activities)}" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <p>No recent activity</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(activities)}" class="space-y-4">
+                    <div th:each="activity : ${activities}" class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <div th:switch="${activity.action}">
+                            <div th:case="'ROUTE_CREATE'" class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                             </div>
-                            <div class="health-legend">
-                                <div class="legend-item"><span class="legend-dot green"></span><span th:text="${stats?.healthyServices ?: 0}">0</span> Healthy</div>
-                                <div class="legend-item"><span class="legend-dot red"></span><span th:text="${stats?.downServices ?: 0}">0</span> Down</div>
+                            <div th:case="'ROUTE_DELETE'" class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </div>
+                            <div th:case="*" class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="card">
-                    <div class="card-header"><h3>📋 Recent Activity</h3></div>
-                    <div class="card-body">
-                        <div class="activity-list">
-                            <div th:each="activity : ${recentActivities}" class="activity-item">
-                                <div class="activity-icon" th:text="${activity.icon} ?: '📝'">📝</div>
-                                <div class="activity-content">
-                                    <p th:text="${activity.message}">Activity message</p>
-                                    <span class="activity-time" th:text="${activity.timeAgo}">2m ago</span>
-                                </div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(recentActivities)}" class="empty-state-sm">No recent activity</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white" th:text="${activity.action}">Action</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate" th:text="${activity.details}">Details</p>
                         </div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500" th:text="${#temporals.format(activity.createdAt, 'HH:mm')}">12:00</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </main>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+            </div>
+            <div class="p-6 space-y-3">
+                <a th:href="@{/routes/new}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">New Route</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Create API endpoint</p>
+                    </div>
+                </a>
+                <a th:href="@{/apikeys/new}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Generate Key</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">New API key</p>
+                    </div>
+                </a>
+                <a th:href="@{/analytics}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">View Analytics</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Traffic insights</p>
+                    </div>
+                </a>
+                <a th:href="@{/docs}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">API Docs</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Documentation</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
 </html>
