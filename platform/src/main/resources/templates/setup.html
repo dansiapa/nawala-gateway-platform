@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Wizard - Nawala Gateway</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="setup-page">
+    <div class="setup-container">
+        <div class="setup-header">
+            <div class="setup-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#fff"/>
+                    <path d="M2 17l10 5 10-5" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none"/>
+                    <path d="M2 12l10 5 10-5" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            <h1 class="setup-title">Welcome to Nawala</h1>
+            <p class="setup-subtitle">Let's set up your API Gateway in a few simple steps</p>
+        </div>
+        
+        <div class="setup-progress">
+            <div class="setup-step" th:classappend="${step == 1} ? ' active' : (${step > 1} ? ' completed' : '')">
+                <span class="setup-step-number">1</span>
+                <span class="setup-step-label">Admin Account</span>
+            </div>
+            <div class="setup-step-line"></div>
+            <div class="setup-step" th:classappend="${step == 2} ? ' active' : (${step > 2} ? ' completed' : '')">
+                <span class="setup-step-number">2</span>
+                <span class="setup-step-label">Gateway Config</span>
+            </div>
+            <div class="setup-step-line"></div>
+            <div class="setup-step" th:classappend="${step == 3} ? ' active' : (${step > 3} ? ' completed' : '')">
+                <span class="setup-step-number">3</span>
+                <span class="setup-step-label">First Route</span>
+            </div>
+            <div class="setup-step-line"></div>
+            <div class="setup-step" th:classappend="${step == 4} ? ' active' : ''">
+                <span class="setup-step-number">4</span>
+                <span class="setup-step-label">Complete</span>
+            </div>
+        </div>
+        
+        <div class="setup-card">
+            <!-- Step 1: Admin Account -->
+            <div th:if="${step == 1}">
+                <div class="setup-card-header">
+                    <h2>Create Admin Account</h2>
+                    <p>Set up your administrator credentials</p>
+                </div>
+                <form th:action="@{/setup}" method="post" class="setup-card-body">
+                    <input type="hidden" name="step" value="1">
+                    <div class="setup-form-grid">
+                        <div class="input-group">
+                            <label for="adminUsername">Admin Username</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="adminUsername" name="adminUsername" placeholder="admin" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminEmail">Email Address</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="adminEmail" name="adminEmail" placeholder="admin@example.com" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="adminPassword">Password</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="adminPassword" name="adminPassword" placeholder="Min 8 characters" required minlength="8">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setup-card-footer">
+                        <span></span>
+                        <button type="submit" class="btn btn-primary">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Step 2: Gateway Config -->
+            <div th:if="${step == 2}">
+                <div class="setup-card-header">
+                    <h2>Gateway Configuration</h2>
+                    <p>Configure your API Gateway settings</p>
+                </div>
+                <form th:action="@{/setup}" method="post" class="setup-card-body">
+                    <input type="hidden" name="step" value="2">
+                    <div class="setup-form-grid">
+                        <div class="input-group full-width">
+                            <label for="gatewayName">Gateway Name</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="gatewayName" name="gatewayName" placeholder="My API Gateway" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="defaultTimeout">Default Timeout (ms)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="defaultTimeout" name="defaultTimeout" value="30000" min="1000" max="120000">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="rateLimitDefault">Default Rate Limit (req/min)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="rateLimitDefault" name="rateLimitDefault" value="100" min="1">
+                            </div>
+                        </div>
+                        <div class="input-group full-width">
+                            <label>Security Options</label>
+                            <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+                                <label class="checkbox-label"><input type="checkbox" name="enableWaf" checked> Enable WAF</label>
+                                <label class="checkbox-label"><input type="checkbox" name="enableCors" checked> Enable CORS</label>
+                                <label class="checkbox-label"><input type="checkbox" name="enableHttps"> Force HTTPS</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setup-card-footer">
+                        <a th:href="@{/setup(step=1)}" class="btn btn-outline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back</a>
+                        <button type="submit" class="btn btn-primary">Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Step 3: First Route -->
+            <div th:if="${step == 3}">
+                <div class="setup-card-header">
+                    <h2>Create Your First Route</h2>
+                    <p>Set up an API route to get started</p>
+                </div>
+                <form th:action="@{/setup}" method="post" class="setup-card-body">
+                    <input type="hidden" name="step" value="3">
+                    <div class="setup-form-grid">
+                        <div class="input-group full-width">
+                            <label for="routeName">Route Name</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="routeName" name="routeName" placeholder="My First API" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="routePath">Path Pattern</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="routePath" name="routePath" placeholder="/api/v1/**" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="targetUrl">Target URL</label>
+                            <div class="input-wrapper">
+                                <input type="url" id="targetUrl" name="targetUrl" placeholder="http://localhost:8080" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setup-card-footer">
+                        <a th:href="@{/setup(step=2)}" class="btn btn-outline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back</a>
+                        <button type="submit" class="btn btn-primary">Complete Setup <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Step 4: Complete -->
+            <div th:if="${step == 4}">
+                <div class="setup-card-body" style="text-align: center; padding: 3rem;">
+                    <div style="width: 80px; height: 80px; background: var(--success-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem;">Setup Complete!</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Your Nawala Gateway is ready to use</p>
+                    <a th:href="@{/dashboard}" class="btn btn-primary">Go to Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
